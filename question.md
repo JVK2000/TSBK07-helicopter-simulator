@@ -1,6 +1,6 @@
 ### Questions for lab 1
 
-#### Questions Part 1)
+#### Part 1)
 
 **Where is the origin placed in the on-screen coordinate system?**
 
@@ -12,7 +12,7 @@
 
 
 
-#### Questions Part 1)
+#### Part 2)
 
 **What is the purpose of the "in", "out" and "uniform" modifiers?**
 
@@ -28,3 +28,14 @@
 
 
 **What does the function glUniformMatrix4fv do?**
+Specify the value of a uniform variable for the current program object (*source: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glUniform.xhtml*)
+
+
+#### Part 3
+
+**What is the frame rate of the animation?**
+if we are using ```glutRepeatingTimerFunc(20);``` then we will update every 20 milisecunds. There will be 1000 / 20 = 50 updates per secund, aka 50 fps
+
+
+
+
