@@ -1,4 +1,4 @@
-// Lab 1-2.
+// Lab 1-4.
 
 // Should work as is on Linux and Mac. MS Windows needs GLEW or glee.
 // See separate Visual Studio version of my demos.
@@ -9,30 +9,34 @@
 #endif
 #include "MicroGlut.h"
 #include "GL_utilities.h"
+#include "VectorUtils3.h"
+
 
 // Reference to shader program
 GLuint program;
 
+
 // Globals
 // Data would normally be read from files
-/* GLfloat vertices[] =
-{
-	-0.5f,-0.5f,0.0f,
-	-0.5f,0.5f,0.0f,
-	0.5f,-0.5f,0.0f
-}; */
 
 GLfloat vertices[] =
 {
+	-0.5,-0.5,-0.5,
+	-0.5,0.5,-0.5,
+	0.5,0.5,-0.5,
+};
+
+GLfloat colors[] =
+{
 	0.0f,1.0f,0.0f,
 	1.0f,1.0f,0.0f,
-	1.0f,0.0f,0.0f
+	1.0f,0.0f,1.0f
 };
 
 GLfloat myMatrix[] = 
 {
-	1.0f, 0.0f, 0.0f, 0.5f,
-	0.0f, 1.0f, 0.0f, 0.5f,
+	1.0f, 0.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f
 };
@@ -48,8 +52,7 @@ void init(void)
 {
 	// vertex buffer object, used for uploading the geometry
 	unsigned int vertexBufferObjID;
-	// Reference to shader program
-	//GLuint program;
+	unsigned int colorBufferObjID;
 
 	dumpInfo();
 
@@ -59,22 +62,30 @@ void init(void)
 	printError("GL inits");
 
 	// Load and compile shader
-	program = loadShaders("lab1-2.vert", "lab1-2.frag");
+	program = loadShaders("lab1-4.vert", "lab1-4.frag");
 	printError("init shader");
 	
 	// Upload geometry to the GPU:
 	
 	// Allocate and activate Vertex Array Object
-	glGenVertexArrays(1, &vertexArrayObjID);
+	glGenVertexArrays(1, &vertexArrayObjID);	
 	glBindVertexArray(vertexArrayObjID);
+
 	// Allocate Vertex Buffer Objects
 	glGenBuffers(1, &vertexBufferObjID);
+	glGenBuffers(1, &colorBufferObjID);
 	
 	// VBO for vertex data
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID);
 	glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(glGetAttribLocation(program, "in_Position"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
 	glEnableVertexAttribArray(glGetAttribLocation(program, "in_Position"));
+
+	// VBO for color data
+	glBindBuffer(GL_ARRAY_BUFFER, colorBufferObjID);
+	glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), colors, GL_STATIC_DRAW);
+	glVertexAttribPointer(glGetAttribLocation(program, "in_Color"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
+	glEnableVertexAttribArray(glGetAttribLocation(program, "in_Color"));
 	
 	// End of upload of geometry
 	
@@ -92,7 +103,13 @@ void display(void)
 
 
 	// clear the screen
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME); // t in milisecunds
+
+	// animation
+	mat4 rot = Rz(t/1000);
+ 	glUniformMatrix4fv(glGetUniformLocation(program, "myMatrix"), 1, GL_TRUE, rot.m);
 	
 	glBindVertexArray(vertexArrayObjID);	// Select VAO
 	glDrawArrays(GL_TRIANGLES, 0, 3);	// draw object
@@ -108,6 +125,7 @@ int main(int argc, char *argv[])
 	glutInitContextVersion(3, 2);
 	glutCreateWindow ("GL3 white triangle example");
 	glutDisplayFunc(display); 
+	glutRepeatingTimerFunc(20); // timer that will cause a redisplay every d milliseconds
 	init ();
 	glutMainLoop();
 	return 0;

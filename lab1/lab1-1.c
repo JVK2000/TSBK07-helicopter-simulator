@@ -47,8 +47,7 @@ void init(void)
 	// Upload geometry to the GPU:
 	
 	// Allocate and activate Vertex Array Object
-	glGenVertexArrays(1
-                      , &vertexArrayObjID);
+	glGenVertexArrays(1, &vertexArrayObjID);
 	glBindVertexArray(vertexArrayObjID);
 	// Allocate Vertex Buffer Objects
 	glGenBuffers(1, &vertexBufferObjID);

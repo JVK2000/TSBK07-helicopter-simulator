@@ -1,4 +1,4 @@
-// Lab 3.
+// Lab 1-3.
 
 // Should work as is on Linux and Mac. MS Windows needs GLEW or glee.
 // See separate Visual Studio version of my demos.
@@ -62,8 +62,7 @@ void init(void)
 	// Upload geometry to the GPU:
 	
 	// Allocate and activate Vertex Array Object
-	glGenVertexArrays(1
-                      , &vertexArrayObjID);
+	glGenVertexArrays(1, &vertexArrayObjID);
 	glBindVertexArray(vertexArrayObjID);
 	// Allocate Vertex Buffer Objects
 	glGenBuffers(1, &vertexBufferObjID);
