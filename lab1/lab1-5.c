@@ -23,12 +23,12 @@ GLfloat vertices[18*3] =	// 18 straigth lines, 3 is the number of points per cor
 {
 	// base plate
 	-0.5,-0.5,-0.5,		// back left
-	0.5,-0.5,-0.5,		// back rigth
 	0.5,-0.5,0.5,		// front rigth
+	0.5,-0.5,-0.5,		// back rigth
 
 	-0.5,-0.5,-0.5,		// back left
-	0.5,-0.5,0.5,		// front rigth
 	-0.5,-0.5,0.5,		// front left	
+	0.5,-0.5,0.5,		// front rigth
 
 	// triangle rigth
 	0.5,-0.5,-0.5,      // back rigth
@@ -37,8 +37,8 @@ GLfloat vertices[18*3] =	// 18 straigth lines, 3 is the number of points per cor
 
 	// triangle left
 	-0.5,-0.5,-0.5,		// back left
-	-0.5,-0.5,0.5,      // front left
 	0, 0.5, 0, 			// top
+	-0.5,-0.5,0.5,      // front left
 
 	// triangle back
 	-0.5,-0.5,-0.5,		// back left
@@ -47,8 +47,8 @@ GLfloat vertices[18*3] =	// 18 straigth lines, 3 is the number of points per cor
 
 	// triangle front
 	-0.5,-0.5,0.5,      // front left
-	0.5,-0.5,0.5,       // front rigth
 	0, 0.5, 0, 			// top
+	0.5,-0.5,0.5,       // front rigth
 
 };
 
@@ -110,7 +110,7 @@ void init(void)
     glEnable(GL_CULL_FACE);
 
 	//glCullFace(GL_BACK);
-    //glFrontFace(GL_CW);
+    glFrontFace(GL_CW);
 
 	printError("GL inits");
 
