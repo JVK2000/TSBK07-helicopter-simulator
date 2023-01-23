@@ -3,10 +3,11 @@
 #### Part 1)
 
 **Where is the origin placed in the on-screen coordinate system?**
-
-
+The origin is placed in the midddle of the screen. 
 
 **Which direction are the X and Y axes pointing in the on-screen coordinate system?**
+The x-axis go from left to rigth, while y-axis go from the bottom to the top.
+
 
 **The triangle color is controlled from the fragment shader. Would it be possible to control it from the main program? How?**
 
