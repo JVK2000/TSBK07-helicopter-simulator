@@ -123,7 +123,7 @@ void init(void)
 	glClearColor(0.2,0.2,0.5,0);
 	glDisable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-
+	
 	printError("GL inits");
 
 	// Load and compile shader

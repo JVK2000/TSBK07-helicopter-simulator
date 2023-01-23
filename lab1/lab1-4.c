@@ -42,9 +42,6 @@ GLfloat myMatrix[] =
 };
 
 
-
-
-
 // vertex array object
 unsigned int vertexArrayObjID;
 

@@ -92,7 +92,7 @@ void display(void)
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME); // t in milisecunds
 
 	// animation
-	mat4 rot, trans, total;
+	mat4 rot;
 
 	rot = Rz(t/1000);				// rotate
 	//trans = T(sin(t)/20, 0, 0);	// transport
