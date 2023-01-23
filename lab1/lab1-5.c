@@ -60,7 +60,23 @@ GLfloat colors[18*3] = {
 	1.0, 0.0, 0.0,	// Red
 	1.0, 0.0, 0.0,	// Red
 
-	1.0, 0.0, 0.0,	// Red
+	0.0, 1.0, 0.0,	// Green
+	0.0, 1.0, 0.0,	// Green
+	0.0, 1.0, 0.0,	// Green
+
+	0.0, 0.0, 1.0,	// Blue
+	0.0, 0.0, 1.0,	// Blue
+	0.0, 0.0, 1.0,	// Blue
+
+	1.0, 1.0, 0.0,	// Yellow
+	1.0, 1.0, 0.0,	// Yellow
+	1.0, 1.0, 0.0,	// Yellow
+
+	1.0, 0.0, 1.0,	// Purple
+	1.0, 0.0, 1.0,	// Purple
+	1.0, 0.0, 1.0,	// Purple
+
+	/* 1.0, 0.0, 0.0,	// Red
 	1.0, 0.0, 0.0,	// Red
 	1.0, 0.0, 0.0,	// Red
 
@@ -75,7 +91,7 @@ GLfloat colors[18*3] = {
 	1.0, 0.0, 0.0,	// Red
 	1.0, 0.0, 0.0,	// Red
 	1.0, 0.0, 0.0,	// Red
-};
+ */};
 
 // The rotation matrices will be changed for animation
 GLfloat rotationMatrixZ[] = {	
@@ -105,12 +121,8 @@ void init(void)
 
 	// GL inits
 	glClearColor(0.2,0.2,0.5,0);
-	//glEnable(GL_DEPTH_TEST);
 	glDisable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-
-	//glCullFace(GL_BACK);
-    glFrontFace(GL_CW);
 
 	printError("GL inits");
 
@@ -163,7 +175,6 @@ void display(void)
 	mat4 rot, rot2;
 	rot = Rz(t/1000);		// z rotate
 	rot2 = Rx(t/1000);		// x rotate
-	//glCullFace(GL_FRONT);
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixZ"), 1, GL_TRUE, rot.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixX"), 1, GL_TRUE, rot2.m);
