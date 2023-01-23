@@ -1,4 +1,4 @@
-// Lab 1-5.
+// Lab 1-6.
 
 // Should work as is on Linux and Mac. MS Windows needs GLEW or glee.
 // See separate Visual Studio version of my demos.
@@ -10,6 +10,7 @@
 #include "MicroGlut.h"
 #include "GL_utilities.h"
 #include "VectorUtils3.h"
+#include "LittleOBJLoader.h"
 
 
 // Reference to shader program
@@ -84,6 +85,7 @@ GLfloat rotationMatrixZ[] = {
 	0.0f, 0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
+
 GLfloat rotationMatrixX[] = {	
 	1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
@@ -91,48 +93,58 @@ GLfloat rotationMatrixX[] = {
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
 
+Model *m;
+
 
 // vertex array object
-unsigned int vertexArrayObjID;
+unsigned int bunnyVertexArrayObjID;
 
 void init(void)
 {
 	// vertex buffer object, used for uploading the geometry
-	unsigned int vertexBufferObjID;
+	unsigned int bunnyVertexBufferObjID;
+	unsigned int bunnyIndexBufferObjID;
+	unsigned int bunnyNormalBufferObjID;
 	unsigned int colorBufferObjID;
 
 	dumpInfo();
 
+	// Load model
+	m = LoadModel("bunny.obj");
+
 	// GL inits
 	glClearColor(0.2,0.2,0.5,0);
-	//glEnable(GL_DEPTH_TEST);
-	glDisable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-
-	//glCullFace(GL_BACK);
-    //glFrontFace(GL_CW);
-
+	glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_CULL_FACE);
 	printError("GL inits");
 
 	// Load and compile shader
-	program = loadShaders("lab1-5.vert", "lab1-5.frag");
+	program = loadShaders("lab1-6.vert", "lab1-6.frag");
 	printError("init shader");
 	
 	// Upload geometry to the GPU:
-	
-	// Allocate and activate Vertex Array Object
-	glGenVertexArrays(1, &vertexArrayObjID);	
-	glBindVertexArray(vertexArrayObjID);
 
-	// Allocate Vertex Buffer Objects
-	glGenBuffers(1, &vertexBufferObjID);
+	// Allocate Vertex Array and Buffer object for model 
+	glGenVertexArrays(1, &bunnyVertexArrayObjID);
+    glGenBuffers(1, &bunnyVertexBufferObjID);
+    glGenBuffers(1, &bunnyIndexBufferObjID);
+    glGenBuffers(1, &bunnyNormalBufferObjID);
+	glBindVertexArray(bunnyVertexArrayObjID);
+
 	glGenBuffers(1, &colorBufferObjID);
+
 	
 	// VBO for vertex data
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID);
-	glBufferData(GL_ARRAY_BUFFER, 18*3*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(glGetAttribLocation(program, "in_Position"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
-	glEnableVertexAttribArray(glGetAttribLocation(program, "in_Position"));
+    glBindBuffer(GL_ARRAY_BUFFER, bunnyVertexBufferObjID);
+    glBufferData(GL_ARRAY_BUFFER, m->numVertices*3*sizeof(GLfloat), m->vertexArray, GL_STATIC_DRAW);
+    glVertexAttribPointer(glGetAttribLocation(program, "in_Position"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
+    glEnableVertexAttribArray(glGetAttribLocation(program, "in_Position"));
+
+	// VBO for normal data
+    glBindBuffer(GL_ARRAY_BUFFER, bunnyNormalBufferObjID);
+    glBufferData(GL_ARRAY_BUFFER, m->numVertices*3*sizeof(GLfloat), m->normalArray, GL_STATIC_DRAW);
+    glVertexAttribPointer(glGetAttribLocation(program, "in_Normal"), 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(glGetAttribLocation(program, "in_Normal"));
 
 	// VBO for color data
 	glBindBuffer(GL_ARRAY_BUFFER, colorBufferObjID);
@@ -140,6 +152,12 @@ void init(void)
 	glVertexAttribPointer(glGetAttribLocation(program, "in_Color"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
 	glEnableVertexAttribArray(glGetAttribLocation(program, "in_Color"));
 	
+
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bunnyIndexBufferObjID);
+
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->numIndices*sizeof(GLuint), m->indexArray, GL_STATIC_DRAW);
+
 	// End of upload of geometry
 	
 	// Upload the rotation matrix
@@ -168,8 +186,8 @@ void display(void)
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixZ"), 1, GL_TRUE, rot.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixX"), 1, GL_TRUE, rot2.m);
 
-	glBindVertexArray(vertexArrayObjID);	// Select VAO
-	glDrawArrays(GL_TRIANGLES, 0, 18*3);	// draw object
+	glBindVertexArray(bunnyVertexArrayObjID);    // Select VAO
+    glDrawElements(GL_TRIANGLES, m->numIndices, GL_UNSIGNED_INT, 0L);	
 	
 	printError("display");
 	
