@@ -6,7 +6,7 @@
 The origin is placed in the middle of the screen. 
 
 **Which direction are the X and Y axes pointing in the on-screen coordinate system?**
-The x-axis is horizontal, while the y-axis is vertical.
+The x-axis is horizontal, while the y-axis is vertical (down to up). 
 
 **The triangle color is controlled from the fragment shader. Would it be possible to control it from the main program? How?**
 You can use the uniform modifier if a single color is going to be used by the model. 
@@ -17,9 +17,13 @@ You can use the uniform modifier if a single color is going to be used by the mo
 
 **What is the purpose of the "in", "out" and "uniform" modifiers?**
 
-**in**: The parameter's value will be copied into the parameter when the function is called. The function may change the parameter's value, but those changes will only be present inside the function. 
+**in**: 
+<!---The parameter's value will be copied into the parameter when the function is called. The function may change the parameter's value, but those changes will only be present inside the function. -->
+Takes an read-only parameter, which represents an vector. This vector consist data that are used by one pixel. (takes a section of the buffer)
 
-**out**: The parameter's value will not be initialized by the caller. The parameter value is set inside the function. After the function execution is completed, the parameter's value is copied into the variable that the user specifies when calling the function. (*source: https://gamedev.stackexchange.com/questions/29672/in-out-keywords-in-glsl*)
+
+**out**: <!--The parameter's value will not be initialized by the caller. The parameter value is set inside the function. After the function execution is completed, the parameter's value is copied into the variable that the user specifies when calling the function. (*source: https://gamedev.stackexchange.com/questions/29672/in-out-keywords-in-glsl*)-->
+Output only parameter. Here we are gathering a vector. 
 
 **uniform**: The variable declared with this modifier does not change between multiple executions of shader during the rendering of a primitive. They are, simply put, constants. (*source: https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Uniforms*)
 
