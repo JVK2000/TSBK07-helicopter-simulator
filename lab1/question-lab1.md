@@ -6,7 +6,8 @@
 The origin is placed in the middle of the screen. 
 
 **Which direction are the X and Y axes pointing in the on-screen coordinate system?**
-The x-axis is horizontal, while the y-axis is vertical (down to up). 
+X-axis: Left to right
+Y-axis: Bottom to top 
 
 **The triangle color is controlled from the fragment shader. Would it be possible to control it from the main program? How?**
 You can use the uniform modifier if a single color is going to be used by the model. 
@@ -16,30 +17,28 @@ You can use the uniform modifier if a single color is going to be used by the mo
 #### Part 2)
 
 **What is the purpose of the "in", "out" and "uniform" modifiers?**
+Data can be passed from shader to shader with `in` and `out` modifiers.
 
-**in**: 
-<!---The parameter's value will be copied into the parameter when the function is called. The function may change the parameter's value, but those changes will only be present inside the function. -->
-Takes an read-only parameter, which represents an vector. This vector consist data that are used by one pixel. (takes a section of the buffer)
+`in`: Takes a read-only variable, which represents a vector. This vector consists of data that are used by one pixel (takes a section of the buffer).
 
+`out`: Output only variable. Here we are gathering a vector. 
 
-**out**: <!--The parameter's value will not be initialized by the caller. The parameter value is set inside the function. After the function execution is completed, the parameter's value is copied into the variable that the user specifies when calling the function. (*source: https://gamedev.stackexchange.com/questions/29672/in-out-keywords-in-glsl*)-->
-Output only parameter. Here we are gathering a vector. 
-
-**uniform**: The variable declared with this modifier does not change between multiple executions of shader during the rendering of a primitive. They are, simply put, constants. (*source: https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Uniforms*)
+`uniform`: Constant variable. It is the same for every execution of shader during the rendering of a primitive. (*source: https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Uniforms*)
 
 
 **What is the output of the fragment shader?**
-*"The output of a fragment shader is a depth value, a possible stencil value (unmodified by the fragment shader), and zero or more color values to be potentially written to the buffers in the current framebuffers."* (*source: https://www.khronos.org/opengl/wiki/Fragment_Shader*)
+Fragment shader calculates lighting effects and texturing. In this lab, it outputs color values. 
 
 
 **What does the function glUniformMatrix4fv do?**
-Specify the value of a uniform variable for the current program object (*source: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glUniform.xhtml*)
+Pass a matrix to a shader program.
+
 
 
 #### Part 3
 
 **What is the frame rate of the animation?**
-if we are using ```glutRepeatingTimerFunc(20);``` then we will update every 20 milisecunds. There will be 1000 / 20 = 50 updates per second, aka 50 fps
+When using ```glutRepeatingTimerFunc(20);```, we update every 20 milliseconds, meaning 50 fps. This is the maximum number of frames.
 
 
 
@@ -48,11 +47,11 @@ if we are using ```glutRepeatingTimerFunc(20);``` then we will update every 20 m
 **Did you need to do anything different when uploading the color data?**
 I first needed to load the data to the vertex shader to be able to "pass" it to the fragment shader. 
 
-This is becouse is can only create (```glGenVertexArrays()```) and activate (```glBindVertexArray()```) one container per model ????
+This is because is can only create (```glGenVertexArrays()```) and activate (```glBindVertexArray()```) one container per model ????
 
 
 **The "in" and "out" modifiers are now used for something different. What?**
-They are partly used for passing data from one buffer to another. 
+Pass variables from vertex to fragment shader. 
 
 
 
@@ -74,7 +73,7 @@ They are used for calculating light. (*source: https://learnopengl.com/Lighting/
 
 
 **What did you do in your fragment shader?**
-Set the color to the nose and eyes for the model.
+Base the model's color on the normal.
 
 
 **Should a normal vector always be perpendicular to a certain triangle? If not, why?**
@@ -82,5 +81,4 @@ Yes, a normal is perpendicular to its surface (the triangle) at any given point.
 
 
 **Now we are using glBindBuffer and glBufferData again. They deal with buffers, but in what way?**
-**glBindBuffer** binds a buffer object to a target. (*source: https://registry.khronos.org/OpenGL-Refpages/gl4/html/glBindBuffer.xhtml*)
-**glBufferData** creates a data store for the buffer object bound to the specified target. (*source: https://docs.gl/gl3/glBufferData*)
+They enable a GPU buffer, reference it, and load data to it.

@@ -116,11 +116,13 @@ void display(void)
 	rot_z = Rz(t/1000);		// z rotate
 	rot_x = Rx(t/1000);		// x rotate
 
+	// Upload matrices
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixZ"), 1, GL_TRUE, rot_z.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixX"), 1, GL_TRUE, rot_x.m);
 
+	// Drawing
 	glBindVertexArray(bunnyVertexArrayObjID);    // Select VAO
-    glDrawElements(GL_TRIANGLES, m->numIndices, GL_UNSIGNED_INT, 0L);	
+    glDrawElements(GL_TRIANGLES, m->numIndices, GL_UNSIGNED_INT, 0L);	// m->numIndices length on the index array
 	
 	printError("display");
 	
