@@ -18,9 +18,9 @@
 // Data would normally be read from files
 GLfloat vertices[] =
 {
-	-0.5f,-0.5f,0.0f,
-	-0.5f,0.5f,0.0f,
-	0.5f,-0.5f,0.0f
+	1.0f, 1.0f, 0.0f,
+	0.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f
 };
 
 // vertex array object
@@ -30,13 +30,14 @@ void init(void)
 {
 	// vertex buffer object, used for uploading the geometry
 	unsigned int vertexBufferObjID;
+	
 	// Reference to shader program
 	GLuint program;
 
 	dumpInfo();
 
 	// GL inits
-	glClearColor(0.2,0.2,0.5,0);
+	glClearColor(1.0,1.0,0.0,0);  // Change background color
 	glDisable(GL_DEPTH_TEST);
 	printError("GL inits");
 
@@ -44,21 +45,22 @@ void init(void)
 	program = loadShaders("lab1-1.vert", "lab1-1.frag");
 	printError("init shader");
 	
-	// Upload geometry to the GPU:
+	// --- Upload geometry to the GPU ---
 	
 	// Allocate and activate Vertex Array Object
 	glGenVertexArrays(1, &vertexArrayObjID);
 	glBindVertexArray(vertexArrayObjID);
+	
 	// Allocate Vertex Buffer Objects
 	glGenBuffers(1, &vertexBufferObjID);
 	
-	// VBO for vertex data
+	// VBO (vertex buffer object) for vertex data
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferObjID);
 	glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(glGetAttribLocation(program, "in_Position"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
 	glEnableVertexAttribArray(glGetAttribLocation(program, "in_Position"));
 	
-	// End of upload of geometry
+	// --- End of upload of geometry ---
 	
 	printError("init arrays");
 }

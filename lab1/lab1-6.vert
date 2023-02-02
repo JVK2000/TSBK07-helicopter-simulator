@@ -14,7 +14,6 @@ out vec3 normal;
 uniform mat4 rotationMatrixZ;
 uniform mat4 rotationMatrixX;
 
-
 void main(void)
 {
 	gl_Position = rotationMatrixZ * rotationMatrixX * vec4(in_Position, 1.0);

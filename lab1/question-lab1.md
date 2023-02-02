@@ -3,11 +3,11 @@
 #### Part 1)
 
 **Where is the origin placed in the on-screen coordinate system?**
-The origin is placed in the middle of the screen. 
+Middle of the screen. 
 
 **Which direction are the X and Y axes pointing in the on-screen coordinate system?**
-X-axis: Left to right
-Y-axis: Bottom to top 
+*X-axis*: Left to right
+*Y-axis*: Bottom to top 
 
 **The triangle color is controlled from the fragment shader. Would it be possible to control it from the main program? How?**
 You can use the uniform modifier if a single color is going to be used by the model. 
@@ -19,7 +19,7 @@ You can use the uniform modifier if a single color is going to be used by the mo
 **What is the purpose of the "in", "out" and "uniform" modifiers?**
 Data can be passed from shader to shader with `in` and `out` modifiers.
 
-`in`: Takes a read-only variable, which represents a vector. This vector consists of data that are used by one pixel (takes a section of the buffer).
+`in`: Takes a read-only variable, which represents a vector (vertices in vertex shader or pixel in the fragment shader?).
 
 `out`: Output only variable. Here we are gathering a vector. 
 
@@ -45,9 +45,9 @@ When using ```glutRepeatingTimerFunc(20);```, we update every 20 milliseconds, m
 #### Part 4
 
 **Did you need to do anything different when uploading the color data?**
-I first needed to load the data to the vertex shader to be able to "pass" it to the fragment shader. 
+I first needed to load the data to the vertex shader to be able to pass it to the fragment shader. 
 
-This is because is can only create (```glGenVertexArrays()```) and activate (```glBindVertexArray()```) one container per model ????
+This is because it can only create and activate one container per model ????
 
 
 **The "in" and "out" modifiers are now used for something different. What?**
@@ -62,7 +62,8 @@ That the orientation of the vertices mattered, that there should be either clock
 
 
 **How do you change the facing of a polygon**
-you can use ```glCullFace(GL_FRONT)```. you can use ```glEnable(GL_CW)``` or ```glEnable(GL_CCW)```. 
+Change to order of which the vertices creates a polygon.
+<!-- ou can use ```glCullFace(GL_FRONT)```. you can use ```glEnable(GL_CW)``` or ```glEnable(GL_CCW)```. -->
  
 
 

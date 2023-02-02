@@ -10,7 +10,7 @@
 #include "MicroGlut.h"
 #include "GL_utilities.h"
 #include "VectorUtils3.h"
-
+#include <math.h>
 
 // Reference to shader program
 GLuint program;
@@ -35,7 +35,6 @@ GLfloat myMatrix[] =
 };
 
 
-
 // vertex array object
 unsigned int vertexArrayObjID;
 
@@ -57,7 +56,7 @@ void init(void)
 	program = loadShaders("lab1-3.vert", "lab1-3.frag");
 	printError("init shader");
 	
-	// Upload geometry to the GPU:
+	// --- Upload geometry to the GPU ---
 	
 	// Allocate and activate Vertex Array Object
 	glGenVertexArrays(1, &vertexArrayObjID);
@@ -70,12 +69,11 @@ void init(void)
 	glBufferData(GL_ARRAY_BUFFER, 9*sizeof(GLfloat), vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(glGetAttribLocation(program, "in_Position"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
 	glEnableVertexAttribArray(glGetAttribLocation(program, "in_Position"));
-	
-	// End of upload of geometry
-	
+		
 	// Upload the rotation matrix
 	glUniformMatrix4fv(glGetUniformLocation(program, "myMatrix"), 1, GL_TRUE, myMatrix);
 
+	// --- End of upload of geometry ---
 
 	printError("init arrays");
 }
@@ -85,22 +83,14 @@ void display(void)
 {
 	printError("pre display");
 
-
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME); // t in milisecunds
-
-	// animation
-	mat4 rot;
-
-	rot = Rz(t/1000);				// rotate
-	//trans = T(sin(t)/20, 0, 0);	// transport
-	//total = Mult(rot, trans);
- 	//glUniformMatrix4fv(glGetUniformLocation(program, "myMatrix"), 1, GL_TRUE, total.m);
+	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME); // t in miliseconds
+	mat4 rot = Rz(t/1000);	// rotate
+	
  	glUniformMatrix4fv(glGetUniformLocation(program, "myMatrix"), 1, GL_TRUE, rot.m);
 
-	
 	glBindVertexArray(vertexArrayObjID);	// Select VAO
 	glDrawArrays(GL_TRIANGLES, 0, 3);	// draw object
 	

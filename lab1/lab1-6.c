@@ -20,7 +20,6 @@ GLuint program;
 // Globals
 // Data would normally be read from files
 
-
 // The rotation matrices will be changed for animation
 GLfloat rotationMatrixZ[] = {	
 	1.0f, 0.0f, 0.0f, 0.0f,
@@ -38,7 +37,6 @@ GLfloat rotationMatrixX[] = {
 
 Model *m;
 
-
 // vertex array object
 unsigned int bunnyVertexArrayObjID;
 
@@ -55,7 +53,7 @@ void init(void)
 	m = LoadModel("bunny.obj");
 
 	// GL inits
-	glClearColor(0.2,0.2,0.5,0);
+	glClearColor(0.2,0.2,0.5,0);		
 	glEnable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 	//glEnable(GL_CCW);
@@ -66,7 +64,7 @@ void init(void)
 	program = loadShaders("lab1-6.vert", "lab1-6.frag");
 	printError("init shader");
 	
-	// Upload geometry to the GPU:
+	// --- Upload geometry to the GPU ---
 
 	// Allocate Vertex Array and Buffer object for model 
 	glGenVertexArrays(1, &bunnyVertexArrayObjID);
@@ -76,7 +74,6 @@ void init(void)
 	
 	glBindVertexArray(bunnyVertexArrayObjID);
 
-	
 	// VBO for vertex data
     glBindBuffer(GL_ARRAY_BUFFER, bunnyVertexBufferObjID);
     glBufferData(GL_ARRAY_BUFFER, m->numVertices*3*sizeof(GLfloat), m->vertexArray, GL_STATIC_DRAW);
@@ -92,13 +89,12 @@ void init(void)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bunnyIndexBufferObjID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->numIndices*sizeof(GLuint), m->indexArray, GL_STATIC_DRAW);
 
-	// End of upload of geometry
-	
 	// Upload the rotation matrix
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixZ"), 1, GL_TRUE, rotationMatrixZ);
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixX"), 1, GL_TRUE, rotationMatrixX);
 
-
+	// --- End of upload of geometry ---
+	
 	printError("init arrays");
 }
 

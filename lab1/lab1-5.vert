@@ -11,13 +11,14 @@ in  vec3 in_Color;
 
 out vec3 color;
 
-uniform mat4 rotationMatrixZ;
 uniform mat4 rotationMatrixX;
+uniform mat4 rotationMatrixY;
+uniform mat4 rotationMatrixZ;
 
 
 void main(void)
 {
-	gl_Position = rotationMatrixZ * rotationMatrixX * vec4(in_Position, 1.0);
+	gl_Position = rotationMatrixZ * rotationMatrixX * rotationMatrixY * vec4(in_Position, 1.0);
 	color = in_Color;
 
 }

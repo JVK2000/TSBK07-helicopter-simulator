@@ -14,13 +14,7 @@
 GLuint program;
 
 // Globals
-// Data would normally be read from files
-/* GLfloat vertices[] =
-{
-	-0.5f,-0.5f,0.0f,
-	-0.5f,0.5f,0.0f,
-	0.5f,-0.5f,0.0f
-}; */
+// Data would normally be read from file
 
 GLfloat vertices[] =
 {
@@ -36,8 +30,6 @@ GLfloat myMatrix[] =
 	0.0f, 0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f
 };
-
-
 
 
 
@@ -62,7 +54,7 @@ void init(void)
 	program = loadShaders("lab1-2.vert", "lab1-2.frag");
 	printError("init shader");
 	
-	// Upload geometry to the GPU:
+	// --- Upload geometry to the GPU ---
 	
 	// Allocate and activate Vertex Array Object
 	glGenVertexArrays(1, &vertexArrayObjID);
@@ -76,11 +68,10 @@ void init(void)
 	glVertexAttribPointer(glGetAttribLocation(program, "in_Position"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
 	glEnableVertexAttribArray(glGetAttribLocation(program, "in_Position"));
 	
-	// End of upload of geometry
-	
 	// Upload the rotation matrix
 	glUniformMatrix4fv(glGetUniformLocation(program, "myMatrix"), 1, GL_TRUE, myMatrix);
 
+	// --- End of upload of geometry ---
 
 	printError("init arrays");
 }
@@ -89,7 +80,6 @@ void init(void)
 void display(void)
 {
 	printError("pre display");
-
 
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT);
