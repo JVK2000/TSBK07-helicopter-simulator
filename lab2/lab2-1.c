@@ -66,7 +66,8 @@ void init(void)
 	program = loadShaders("lab2-1.vert", "lab2-1.frag");
 	printError("init shader");
 	
-	// Upload geometry to the GPU:
+
+	// --- Upload geometry to the GPU ---
 
 	// Allocate Vertex Array and Buffer object for model 
 	glGenVertexArrays(1, &bunnyVertexArrayObjID);
@@ -76,7 +77,6 @@ void init(void)
 	
 	glBindVertexArray(bunnyVertexArrayObjID);
 
-
 	glGenBuffers(1, &bunnyTexCoordBufferObjID);    
     if (m->texCoordArray != NULL)
     {
@@ -85,7 +85,6 @@ void init(void)
         glVertexAttribPointer(glGetAttribLocation(program, "inTexCoord"), 2, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(glGetAttribLocation(program, "inTexCoord"));
     }
-
 	
 	// VBO for vertex data
     glBindBuffer(GL_ARRAY_BUFFER, bunnyVertexBufferObjID);
@@ -102,18 +101,14 @@ void init(void)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bunnyIndexBufferObjID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->numIndices*sizeof(GLuint), m->indexArray, GL_STATIC_DRAW);
 
-	// End of upload of geometry
+	// --- End of upload of geometry ---
 	
+
 	// Upload the rotation matrix
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixZ"), 1, GL_TRUE, rotationMatrixZ);
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixX"), 1, GL_TRUE, rotationMatrixX);
 
-
 	printError("init arrays");
-
-	glUniform1i(glGetUniformLocation(program, "tex"), 0); // Texture unit 0
-	//LoadTGATextureSimple("maskros512.tga", &tex); // 5c
-
 }
 
 
