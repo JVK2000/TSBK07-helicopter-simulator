@@ -15,20 +15,36 @@
 
 // Globals
 // Data would normally be read from files
-
-// The rotation matrices will be changed for animation
-GLfloat rotationMatrixZ[] = {	
-	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f 
-};
+#define near 1.0
+#define far 30.0
+#define right 0.5
+#define left -0.5
+#define top 0.5
+#define bottom -0.5
 
 GLfloat rotationMatrixX[] = {	
 	1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f 
+};
+GLfloat rotationMatrixZ[] = {	
+	1.0f, 0.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, 0.0f,
+	0.0f, 0.0f, 0.0f, 1.0f 
+};
+GLfloat translationMatrix[] = {	
+	1.0f, 0.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, -2.0f,
+	0.0f, 0.0f, 0.0f, 1.0f 
+};
+GLfloat projectionMatrix[] = {    
+	2.0f*near/(right-left), 0.0f, (right+left)/(right-left), 0.0f,
+	0.0f, 2.0f*near/(top-bottom), (top+bottom)/(top-bottom), 0.0f,
+	0.0f, 0.0f, -(far + near)/(far - near), -2*far*near/(far - near),
+	0.0f, 0.0f, -1.0f, 0.0f 
 };
 
 
@@ -100,6 +116,13 @@ void init(void)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bunnyIndexBufferObjID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m->numIndices*sizeof(GLuint), m->indexArray, GL_STATIC_DRAW);
 
+	// Upload the matrixes
+	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixX"), 1, GL_TRUE, rotationMatrixX);
+	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixZ"), 1, GL_TRUE, rotationMatrixZ);
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
+
+
 	// --- End of upload of geometry ---
 	
 	LoadTGATextureSimple("maskros512.tga", &texUnit);			// Create texture object
@@ -108,10 +131,6 @@ void init(void)
 	//glActiveTexture(GL_TEXTURE0);
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	// Upload the rotation matrix
-	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixZ"), 1, GL_TRUE, rotationMatrixZ);
-	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixX"), 1, GL_TRUE, rotationMatrixX);
 
 	printError("init arrays");
 }
@@ -126,12 +145,14 @@ void display(void)
 
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME); // t in milisecunds
 
-	mat4 rot_z, rot_x;
+	mat4 rot_z, rot_x, trans;
+	trans = T(0, 0, -2);
 	rot_z = Rz(t/1000);		// z rotate
 	rot_x = Rx(t/1000);		// x rotate
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixZ"), 1, GL_TRUE, rot_z.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixX"), 1, GL_TRUE, rot_x.m);
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, trans.m);
 
 	glBindVertexArray(bunnyVertexArrayObjID);    // Select VAO
     glDrawElements(GL_TRIANGLES, m->numIndices, GL_UNSIGNED_INT, 0L);	

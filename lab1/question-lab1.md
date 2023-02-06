@@ -6,8 +6,9 @@
 Middle of the screen. 
 
 **Which direction are the X and Y axes pointing in the on-screen coordinate system?**
-*X-axis*: Left to right
-*Y-axis*: Bottom to top 
+*X-axis*: Left (-) to right (+)
+*Y-axis*: Bottom (-) to top (+) 
+*Z-axies*: (you - ) to (screen +)
 
 **The triangle color is controlled from the fragment shader. Would it be possible to control it from the main program? How?**
 You can use the uniform modifier if a single color is going to be used by the model. 
@@ -24,6 +25,7 @@ Data can be passed from shader to shader with `in` and `out` modifiers.
 `out`: Output only variable. Here we are gathering a vector. 
 
 `uniform`: Constant variable. It is the same for every execution of shader during the rendering of a primitive. (*source: https://www.khronos.org/opengl/wiki/Type_Qualifier_(GLSL)#Uniforms*)
+Easy put - it is contact for every frame
 
 
 **What is the output of the fragment shader?**
@@ -31,7 +33,7 @@ Fragment shader calculates lighting effects and texturing. In this lab, it outpu
 
 
 **What does the function glUniformMatrix4fv do?**
-Pass a matrix to a shader program.
+Pass a matrix to a shader program. *4* means `Vect4`, and f means `float`. 
 
 
 
@@ -47,12 +49,11 @@ When using ```glutRepeatingTimerFunc(20);```, we update every 20 milliseconds, m
 **Did you need to do anything different when uploading the color data?**
 I first needed to load the data to the vertex shader to be able to pass it to the fragment shader. 
 
-This is because it can only create and activate one container per model ????
+Data as color needs to be passed from te vertex to the fragment shader. Even if no interpellation is needed. 
 
 
 **The "in" and "out" modifiers are now used for something different. What?**
-Pass variables from vertex to fragment shader. 
-
+When they passing a variables from vertex to the fragment shader its interpellate the value.
 
 
 #### Part 5
@@ -78,7 +79,7 @@ Base the model's color on the normal.
 
 
 **Should a normal vector always be perpendicular to a certain triangle? If not, why?**
-Yes, a normal is perpendicular to its surface (the triangle) at any given point.
+No, the normal is interpellated between the vertices.  
 
 
 **Now we are using glBindBuffer and glBufferData again. They deal with buffers, but in what way?**
