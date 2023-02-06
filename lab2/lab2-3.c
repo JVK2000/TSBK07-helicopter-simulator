@@ -145,14 +145,12 @@ void display(void)
 
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME); // t in milisecunds
 
-	mat4 rot_z, rot_x, trans;
-	trans = T(0, 0, -2);
-	rot_z = Rz(t/1000);		// z rotate
-	rot_x = Rx(t/1000);		// x rotate
+	mat4 rot_z, rot_x;
+	rot_z = Rz(t/1000);
+	rot_x = Rx(t/1000);
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixZ"), 1, GL_TRUE, rot_z.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixX"), 1, GL_TRUE, rot_x.m);
-	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, trans.m);
 
 	glBindVertexArray(bunnyVertexArrayObjID);    // Select VAO
     glDrawElements(GL_TRIANGLES, m->numIndices, GL_UNSIGNED_INT, 0L);	

@@ -4,15 +4,13 @@
 
 **How are the textures coordinates mapped on the bunny? Can you see how they vary over the model?**
 
-<!--*For every vertex in the model, project it onto the surface. This point can then be transformed to a coordinate system from which we extract the texture coordinates (s,t).*
- *Each vertex has a texture coordinate; interpolate between, look up texture with interpolated coordinates.*-->
+The texture coordinates are mapped with *Linear mapping*
 
- The texture coordinates are mapped with *Linear mapping*
- 
+when texture coordinates is (s, t) = (0, 0) the color will be blue. RGB - (s, t, 1) and when the we have (s, t) = (1, 1) we will have white.
 
 **What kind of procedural texture did you make?**
 
- Interpolated texture coordinates as color
+Interpolated texture coordinates as color.
 
 
 
@@ -28,4 +26,10 @@ With GL_TEXTURE_WRAP_S and GL_TEXTURE_WRAP_T
 
 
 *- In order to use pre-generated texture data, they must be loaded into a texture object by the host program, which must then be attached to a texture unit, and then you should communicate the texture unit number to the shader.*
+
+*- Texture units are hardware resources for looking up textures*
+
+*- The shader uses the texture unit ID, not the texture object*
+
+Texture units are used because there are fast. We have 16 texture units
 
