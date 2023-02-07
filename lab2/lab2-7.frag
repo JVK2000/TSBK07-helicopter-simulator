@@ -24,5 +24,4 @@ void main(void)
 	// float b = textCoord.t;
 	// outColor = texture(texUnit, vec2(a, b));
 	outColor = vec4(shade, shade, shade, 1.0);
-
 }

@@ -22,12 +22,6 @@
 #define top 0.5
 #define bottom -0.5
 
-GLfloat rotationMatrixY[] = {	
-	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f 
-};
 GLfloat projectionMatrix[] = {    
 	2.0f*near/(right-left), 0.0f, (right+left)/(right-left), 0.0f,
 	0.0f, 2.0f*near/(top-bottom), (top+bottom)/(top-bottom), 0.0f,
@@ -40,7 +34,6 @@ GLfloat projectionMatrix[] = {
 GLuint program;
 GLuint texUnit;
 Model *m1;
-Model *m2;
 
 // vertex array object
 unsigned int bunnyVertexArrayObjID;
@@ -57,7 +50,6 @@ void init(void)
 
 	// Load model
 	m1 = LoadModel("bunnyplus.obj");
-	m2 = LoadModel("teapot.obj");
 
 	// GL inits
 	glClearColor(0.2,0.2,0.5,0);
@@ -101,21 +93,18 @@ void init(void)
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bunnyIndexBufferObjID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m1->numIndices*sizeof(GLuint), m1->indexArray, GL_STATIC_DRAW);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, m2->numIndices*sizeof(GLuint), m2->indexArray, GL_STATIC_DRAW);
 
 	// Upload the matrixes
-	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixY"), 1, GL_TRUE, rotationMatrixY);
 	glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
-
 
 	// --- End of upload of geometry ---
 
 
-	// vec3 p = {0, 1, 5};	// Camera position
-	// vec3 l = {0, 0, -2};	// Position to look at
-	// vec3 v = {0, 1, 0};	// Determines which axis is up
-	// mat4 camMatrix = lookAtv(p, l, v);
-	// glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, camMatrix.m);
+	vec3 p = {0, 0, 3};	// Camera position
+	vec3 l = {0, 0, 0};	// Position to look at
+	vec3 v = {0, 1, 0};	// Determines which axis is up
+	mat4 camMatrix = lookAtv(p, l, v);
+	glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, camMatrix.m);
 
 	LoadTGATextureSimple("maskros512.tga", &texUnit);			// Create texture object
 	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
@@ -133,23 +122,9 @@ void display(void)
 	glBindVertexArray(bunnyVertexArrayObjID);    // Select VAO
 	
 	// Upload rotation
-	// mat4 rot_y;
-	// rot_y = Ry(t/1000);
-	// glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixY"), 1, GL_TRUE, rot_y.m);
-
-	// Upload rotation
 	mat4 rot_y;
 	rot_y = Ry(t/1000);
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixY"), 1, GL_TRUE, rot_y.m);
-
-
-	// Camera position
-	vec3 p = {0, 0, 3};	// Camera position
-	vec3 l = {0, 0, 0};	// Position to look at
-	vec3 v = {0, 1, 0};	// Determines which axis is up
-	mat4 camMatrix = lookAtv(p, l, v);
-	//camMatrix = Mult(rot_y, camMatrix);
-	glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, camMatrix.m);
 
 	// Upload translation and model1 
 	GLfloat translationMatrix[] = {	
@@ -161,7 +136,7 @@ void display(void)
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrix);
 	DrawModel(m1, program, "inPosition", "inNormal", "inTexCoord");
 
-	// Upload Updated translation and model2
+	// Upload translation2 and model2
 	GLfloat translationMatrix2[] = {	
 		1.0f, 0.0f, 0.0f, 0.5f,
 		0.0f, 1.0f, 0.0f, 0.0f,
