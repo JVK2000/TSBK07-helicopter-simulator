@@ -1,4 +1,4 @@
-// Lab 2-5.
+// Lab 2-6.
 
 // Should work as is on Linux and Mac. MS Windows needs GLEW or glee.
 // See separate Visual Studio version of my demos.
@@ -72,7 +72,7 @@ void init(void)
 	printError("GL inits");
 
 	// Load and compile shader
-	program = loadShaders("lab2-5.vert", "lab2-5.frag");
+	program = loadShaders("lab2-6.vert", "lab2-6.frag");
 	printError("init shader");
 	
 
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitContextVersion(3, 2);
-	glutCreateWindow ("lab2-5: Phong shading");
+	glutCreateWindow ("lab2-6: Gouraud shading");
 	glutDisplayFunc(display); 
 	glutRepeatingTimerFunc(20); // timer that will cause a redisplay every d milliseconds
 	init ();

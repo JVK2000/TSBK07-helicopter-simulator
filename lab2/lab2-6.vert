@@ -10,7 +10,7 @@ in vec2 inTexCoord;
 
 out vec3 normal;
 out vec4 textCoord;
-out vec3 transformedNormal;
+out float shade;
 
 uniform mat4 rotationMatrixY;
 uniform mat4 translationMatrix;
@@ -21,7 +21,10 @@ uniform mat4 camMatrix;
 void main(void)
 {
 	mat3 normalMatrix = mat3(projectionMatrix * translationMatrix * camMatrix);
-    transformedNormal = normalMatrix * inNormal;
+    vec3 transformedNormal = normalMatrix * inNormal;
+	const vec3 light = vec3(0.58, 0.58, 0.58);
+	shade = dot(normalize(transformedNormal), light);
+
 	gl_Position = projectionMatrix * translationMatrix * camMatrix * rotationMatrixY * vec4(inPosition, 1.0);
 	
 	textCoord = vec4(inTexCoord, 1.0, 1.0);

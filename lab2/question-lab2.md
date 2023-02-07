@@ -58,3 +58,11 @@ The light calculations is done in the fragment shader (per-pixel basis), for thi
 **Some geometry data must be vec4, others are just as well vec3's. Which ones, and why? How about vertices, light source, normal vectors...?**
 
 When translations is needed, vec4 is used. This is because we have added an homogeneous coordinate for us to be able to move the origin.  
+
+
+#### Part 6)
+
+**Was the difference big? If not, why?**
+The lightning at the vertices is smother when using Phong shading.
+
+![alt text](gouraud_vs_phong.png "Gouraud vs Phong")
