@@ -33,3 +33,16 @@ With GL_TEXTURE_WRAP_S and GL_TEXTURE_WRAP_T
 
 Texture units are used because there are fast. We have 16 texture units
 
+
+#### Part 3)
+
+**How did you move the bunny to get it in view?**
+
+I used a transform with position (0, 0, -2).
+
+
+#### Part 4)
+
+**Given a certain vector for v, is there some place you can't place the camera?**
+
+you cant give l (up-vector) the value (0, 0, 0). In that case, no axis is up, and therefore, nothing is shown.  

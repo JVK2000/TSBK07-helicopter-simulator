@@ -1,4 +1,4 @@
-// Lab 2-3.
+// Lab 2-4.
 
 // Should work as is on Linux and Mac. MS Windows needs GLEW or glee.
 // See separate Visual Studio version of my demos.
@@ -37,7 +37,7 @@ GLfloat rotationMatrixZ[] = {
 GLfloat translationMatrix[] = {	
 	1.0f, 0.0f, 0.0f, 0.0f,		// pos x-led bör -1<x<x annars utanför skärm
 	0.0f, 1.0f, 0.0f, 0.0f,		// pos y-led
-	0.0f, 0.0f, 1.0f, -2.0f,	// djup, bör vara mindre än 0
+	0.0f, 0.0f, 1.0f, 0.0f,	// djup, bör vara mindre än 0
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
 GLfloat projectionMatrix[] = {    
@@ -78,7 +78,7 @@ void init(void)
 	printError("GL inits");
 
 	// Load and compile shader
-	program = loadShaders("lab2-3.vert", "lab2-3.frag");
+	program = loadShaders("lab2-4.vert", "lab2-4.frag");
 	printError("init shader");
 	
 
@@ -125,6 +125,13 @@ void init(void)
 
 	// --- End of upload of geometry ---
 	
+	vec3 p = {0, 1, 2};	// Camera position
+	vec3 l = {0, 0, 0};	// Position to look at
+	vec3 v = {0, 1, 0};	// Determines which axis is up
+
+	mat4 camMatrix = lookAtv(p, l, v);
+	glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, camMatrix.m);
+
 	LoadTGATextureSimple("maskros512.tga", &texUnit);			// Create texture object
 	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
 	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
