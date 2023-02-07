@@ -10,7 +10,7 @@ in vec2 inTexCoord;
 
 out vec3 normal;
 out vec4 textCoord;
-out vac3 transformedNormal;
+out vec3 transformedNormal;
 
 uniform mat4 rotationMatrixZ;
 uniform mat4 rotationMatrixX;
@@ -22,8 +22,8 @@ uniform mat4 camMatrix;
 void main(void)
 {
 	//gl_Position = projectionMatrix * translationMatrix * rotationMatrixZ * rotationMatrixX * vec4(inPosition, 1.0);
-	mat3 normalMatrix = mat3(projectionMatrix * translationMatrix * camMatrix)
-    transformedNormal = normalMatrix1 * inNormal;
+	mat3 normalMatrix = mat3(projectionMatrix * translationMatrix * camMatrix);
+    transformedNormal = normalMatrix * inNormal;
 
 	gl_Position = projectionMatrix * translationMatrix * camMatrix * vec4(inPosition, 1.0);
 

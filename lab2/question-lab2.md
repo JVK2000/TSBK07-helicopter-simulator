@@ -46,3 +46,15 @@ I used a transform with position (0, 0, -2).
 **Given a certain vector for v, is there some place you can't place the camera?**
 
 you cant give l (up-vector) the value (0, 0, 0). In that case, no axis is up, and therefore, nothing is shown.  
+
+
+#### Part 5)
+
+**Did you implement your light calculations in the vertex or fragment shader? So, which kind of shading did you implement?**
+
+The light calculations is done in the fragment shader (per-pixel basis), for this reason the Phong shading is used. 
+
+
+**Some geometry data must be vec4, others are just as well vec3's. Which ones, and why? How about vertices, light source, normal vectors...?**
+
+When translations is needed, vec4 is used. This is because we have added an homogeneous coordinate for us to be able to move the origin.  
