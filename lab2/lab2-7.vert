@@ -23,7 +23,11 @@ void main(void)
 	mat3 normalMatrix = mat3(projectionMatrix * translationMatrix * camMatrix);
     transformedNormal = normalMatrix * inNormal;
 	
-	gl_Position = rotationMatrixY * projectionMatrix * translationMatrix *  camMatrix * vec4(inPosition, 1.0);
+	//gl_Position = rotationMatrixY * projectionMatrix * translationMatrix *  camMatrix * vec4(inPosition, 1.0);
+	gl_Position = projectionMatrix * camMatrix * rotationMatrixY * translationMatrix * vec4(inPosition, 1.0);
+	
+	// If the models should rotates aswell.
+	//gl_Position = projectionMatrix * camMatrix * rotationMatrixY * translationMatrix * rotationMatrixY * vec4(inPosition, 1.0);
 	
 	textCoord = vec4(inTexCoord, 1.0, 1.0);
 }
