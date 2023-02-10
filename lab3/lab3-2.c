@@ -146,9 +146,12 @@ void init(void)
 	mat4 rot_y = Ry(0);
 	//rot_y = Ry(-M_PI/2);		// Non rotation of the model
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrixRotation"), 1, GL_TRUE, rot_y.m);
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrixPos"), 1, GL_TRUE, rot_y.m);
 
 	printError("init arrays");
 }
+
+float x_move = 0;
 
 float global_x = 0;
 float global_y = 0;
@@ -162,25 +165,34 @@ void display(void)
 	glBindVertexArray(bunnyVertexArrayObjID);    // Select VAO
 
 	if (glutKeyIsDown('d')) { // d button
-		p.x = p.x + MOVEMENT_SPEED;
-		l.x = l.x + MOVEMENT_SPEED;
+		global_x -= MOVEMENT_SPEED * cos(x_move); 
+		global_y -= MOVEMENT_SPEED * sin(x_move); 
+		// p.x = (p.x + MOVEMENT_SPEED);
+		// l.x = l.x + MOVEMENT_SPEED;
 	}
 	else if (glutKeyIsDown('a')) { // d button
-		p.x = p.x - MOVEMENT_SPEED;
-		l.x = l.x - MOVEMENT_SPEED;
+		global_x += MOVEMENT_SPEED * cos(x_move); 
+		global_y += MOVEMENT_SPEED * sin(x_move); 
+		// p.x = p.x - MOVEMENT_SPEED;
+		// l.x = l.x - MOVEMENT_SPEED;
 	}
 	if (glutKeyIsDown('w')) { // d button
-		p.z = p.z - MOVEMENT_SPEED;
-		l.z = l.z - MOVEMENT_SPEED;
+		global_x -= MOVEMENT_SPEED * sin(x_move); 
+		global_y += MOVEMENT_SPEED * cos(x_move); 
+		// p.z = p.z - MOVEMENT_SPEED;
+		// l.z = l.z - MOVEMENT_SPEED;
 	}
 	else if (glutKeyIsDown('s')) { // d button
-		p.z = p.z + MOVEMENT_SPEED;
-		l.z = l.z + MOVEMENT_SPEED;
+		global_x += MOVEMENT_SPEED * sin(x_move); 
+		global_y -= MOVEMENT_SPEED * cos(x_move);
+		// p.z = p.z + MOVEMENT_SPEED;
+		// l.z = l.z + MOVEMENT_SPEED;
 	}
 	
 
-	mat4 cameraMatrix = lookAtv(p, l, v);
-	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
+	mat4 fff = T(global_x, 0, global_y);
+	//mat4 cameraMatrix = lookAtv(p, l, v);
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrixPos"), 1, GL_TRUE, fff.m);
 
 
 	// Upload rotation
@@ -227,6 +239,8 @@ float prev_y = 0;
 float init_x = 0;
 float init_y = 0;
 bool first = true;
+
+float y_move;
 void myMouseMove(int x, int y)
 {
 	if (first) {
@@ -239,8 +253,8 @@ void myMouseMove(int x, int y)
 	float curr_x = x - init_x;
 	float curr_y = y - init_y;
 
-	float x_move = (curr_x/400)*M_PI;
-	float y_move = (curr_y/400)*M_PI;
+	x_move = (curr_x/400)*M_PI;
+	y_move = (curr_y/400)*M_PI;
 
 
 	// float y_move = 0;
