@@ -15,12 +15,12 @@ uniform mat4 rotationMatrixZ;
 uniform mat4 rotationMatrixX;
 uniform mat4 translationMatrix;
 uniform mat4 projectionMatrix;
-uniform mat4 camMatrix;
+uniform mat4 cameraMatrix;
 
 
 void main(void)
 {
-	gl_Position = projectionMatrix * translationMatrix * camMatrix * vec4(inPosition, 1.0);
+	gl_Position = projectionMatrix * translationMatrix * cameraMatrix * vec4(inPosition, 1.0);
 	//gl_Position = projectionMatrix * translationMatrix * rotationMatrixZ * rotationMatrixX * vec4(inPosition, 1.0);
 	normal = inNormal;
 	

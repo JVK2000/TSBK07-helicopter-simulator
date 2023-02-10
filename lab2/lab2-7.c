@@ -103,8 +103,8 @@ void init(void)
 	vec3 p = {0, 0, 3};	// Camera position
 	vec3 l = {0, 0, 0};	// Position to look at
 	vec3 v = {0, 1, 0};	// Determines which axis is up
-	mat4 camMatrix = lookAtv(p, l, v);
-	glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, camMatrix.m);
+	mat4 cameraMatrix = lookAtv(p, l, v);
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
 
 	LoadTGATextureSimple("maskros512.tga", &texUnit);			// Create texture object
 	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
