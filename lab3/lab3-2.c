@@ -22,14 +22,6 @@
 #define top 0.5
 #define bottom -0.5
 
-float near1 = 1.0;
-float far1 = 60.0;
-float right1 = 0.5;
-float left1 = -0.5;
-float top1 = 0.5;
-float bottom1 = -0.5;
-
-
 GLfloat projectionMatrix[] = {    
 	2.0f*near/(right-left), 0.0f, (right+left)/(right-left), 0.0f,
 	0.0f, 2.0f*near/(top-bottom), (top+bottom)/(top-bottom), 0.0f,
@@ -60,6 +52,17 @@ GLfloat translationMatrixBlade[] = {
 	0.0f, 0.0f, 1.0f, 0.0f,		// Horizon
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
+
+GLfloat cccc[] = {	
+	1.0f, 0.0f, 0.0f, 0.0f,		// Blade depth
+	0.0f, 1.0f, 0.0f, 0.0f,	// Vertical
+	0.0f, 0.0f, 1.0f, 0.0f,		// Horizon
+	0.0f, 0.0f, 0.0f, 1.0f 
+};
+vec3 p = {0, 0, 10};	// Camera position
+vec3 l = {0, 0, 0};		// Position to look at
+vec3 v = {0, 1, 0};		// Determines which axis is up
+
 
 // References
 GLuint program;
@@ -137,51 +140,47 @@ void init(void)
 
 	// --- End of upload of geometry ---
 
-	vec3 p = {0, 0, 30};	// Camera position
-	vec3 l = {0, 0, 0};		// Position to look at
-	vec3 v = {0, 1, 0};		// Determines which axis is up
 	mat4 cameraMatrix = lookAtv(p, l, v);
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
+	// glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrixRotation"), 1, GL_TRUE, cccc);
+	mat4 rot_y = Ry(0);
+	//rot_y = Ry(-M_PI/2);		// Non rotation of the model
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrixRotation"), 1, GL_TRUE, rot_y.m);
 
 	printError("init arrays");
 }
 
-float MOVEMENT_SPEED = 0.005;
+float global_x = 0;
+float global_y = 0;
+// float MOVEMENT_SPEED = 0.005;
+float MOVEMENT_SPEED = 1;
 void display(void)
 {
 	printError("pre display");
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the screen
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
 	glBindVertexArray(bunnyVertexArrayObjID);    // Select VAO
-	
+
 	if (glutKeyIsDown('d')) { // d button
-		printf("D pressed\n");
-		left1 -= MOVEMENT_SPEED;
-		right1 -= MOVEMENT_SPEED;
+		p.x = p.x + MOVEMENT_SPEED;
+		l.x = l.x + MOVEMENT_SPEED;
 	}
 	else if (glutKeyIsDown('a')) { // d button
-		printf("D pressed\n");
-		left1 += MOVEMENT_SPEED;
-		right1 += MOVEMENT_SPEED;
+		p.x = p.x - MOVEMENT_SPEED;
+		l.x = l.x - MOVEMENT_SPEED;
 	}
-	else if (glutKeyIsDown('w')) { // d button
-		printf("D pressed\n");
-		near1 += MOVEMENT_SPEED;
-		near1 += MOVEMENT_SPEED;
+	if (glutKeyIsDown('w')) { // d button
+		p.z = p.z - MOVEMENT_SPEED;
+		l.z = l.z - MOVEMENT_SPEED;
 	}
 	else if (glutKeyIsDown('s')) { // d button
-		printf("D pressed\n");
-		near1 -= MOVEMENT_SPEED;
-		near1 -= MOVEMENT_SPEED;
+		p.z = p.z + MOVEMENT_SPEED;
+		l.z = l.z + MOVEMENT_SPEED;
 	}
+	
 
-	GLfloat projectionMatrixMove[] = {    
-	2.0f*near1/(right1-left1), 0.0f, (right1+left1)/(right1-left1), 0.0f,
-	0.0f, 2.0f*near1/(top1-bottom1), (top1+bottom1)/(top1-bottom1), 0.0f,
-	0.0f, 0.0f, -(far1 + near1)/(far1 - near1), -2*far1*near1/(far1 - near1),
-	0.0f, 0.0f, -1.0f, 0.0f 
-	};
-	glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrixMove);
+	mat4 cameraMatrix = lookAtv(p, l, v);
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
 
 
 	// Upload rotation
@@ -221,69 +220,66 @@ void display(void)
 	glutSwapBuffers();
 }
 
+float MOUSE_MOVE_SPEED = 1;
+float c = 0;
+float prev_x = 0;
+float prev_y = 0;
+float init_x = 0;
+float init_y = 0;
+bool first = true;
 void myMouseMove(int x, int y)
 {
-	// // printf("width: %d", glutGet(102));	// GLUT_WINDOW_WIDTH not working
-
-	// float width = glutGet(102);
-	// float height = glutGet(103);
-	// float x_move = (x - width/2)/width;
-	// float y_move = (y - height/2)/height;
-
-	// float near1 = 1.0;
-	// float far1 = 60.0;
-	// float right1 = 0.5 + x_move;
-	// float left1 = -0.5 + x_move;
-	// float top1 = 0.5 - y_move;
-	// float bottom1 = -0.5 - y_move;
-
-	// GLfloat projectionMatrixMove[] = {    
-	// 	2.0f*near1/(right1-left1), 0.0f, (right1+left1)/(right1-left1), 0.0f,
-	// 	0.0f, 2.0f*near1/(top1-bottom1), (top1+bottom1)/(top1-bottom1), 0.0f,
-	// 	0.0f, 0.0f, -(far1 + near1)/(far1 - near1), -2*far1*near1/(far1 - near1),
-	// 	0.0f, 0.0f, -1.0f, 0.0f 
-	// };
-
-	// glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrixMove);
-
-
-	// glutPostRedisplay();
-}
-
-void keyboard(unsigned char key, int x, int y) {
-
-	// float width = glutGet(102);
-	// float height = glutGet(103);
-	// float x_move = (x - width/2)/width;
-	//float y_move = (y - height/2)/height;
-
-	if (key == 119) { // w button
-		printf("W pressed\n");
+	if (first) {
+		init_x = x;
+		init_y = y;
+		first = false;
 	}
-	else if (key == 97) { // a button
-		printf("A pressed\n");
-		right1 += 0.02;
-		left1 += 0.02;
-	}
-	else if (key == 115) { // s button
-		printf("S pressed\n");
-	}
-	// else if (key == 100) { // d button
-	// 	printf("D pressed\n");
-	// 	left1 -= 0.02;
-	// 	right1 -= 0.02;
+	// float width = glutGet(102);		// GLUT_WINDOW_WIDTH
+	// float height = glutGet(103);	//GLUT_WINDOW_HEIGHT
+	float curr_x = x - init_x;
+	float curr_y = y - init_y;
+
+	float x_move = (curr_x/400)*M_PI;
+	float y_move = (curr_y/400)*M_PI;
+
+
+	// float y_move = 0;
+	// if (y > prev_y) {
+	// 	y_move = 1;
+	// } else if (y < prev_y) {
+	// 	y_move = -1;
 	// }
 
-	GLfloat projectionMatrixMove[] = {    
-		2.0f*near1/(right1-left1), 0.0f, (right1+left1)/(right1-left1), 0.0f,
-		0.0f, 2.0f*near1/(top1-bottom1), (top1+bottom1)/(top1-bottom1), 0.0f,
-		0.0f, 0.0f, -(far1 + near1)/(far1 - near1), -2*far1*near1/(far1 - near1),
-		0.0f, 0.0f, -1.0f, 0.0f 
-	};
-	glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrixMove);
+	mat4 cccc = Mult(Rx(y_move), Ry(x_move));
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrixRotation"), 1, GL_TRUE, cccc.m);
+
+
+	// float x_move = 0;
+	// if (x > prev_x) {
+	// 	x_move = 1;
+	// } else if (x < prev_x) {
+	// 	x_move = -1;
+	// }
+
+	// float y_move = 0;
+	// if (y > prev_y) {
+	// 	y_move = 1;
+	// } else if (y < prev_y) {
+	// 	y_move = -1;
+	// }
+
+	// l.x = l.x + x_move;
+	// l.y = l.y + y_move;
+	// mat4 cameraMatrix = lookAtv(p, l, v);
+	// glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
+
+	prev_x = x;
+	prev_y = y;
+
 	glutPostRedisplay();
 
 }
+
 
 int main(int argc, char *argv[])
 {
@@ -295,9 +291,6 @@ int main(int argc, char *argv[])
 	glutRepeatingTimerFunc(20); // timer that will cause a redisplay every d milliseconds
 	init ();
 	glutPassiveMotionFunc(myMouseMove);
-    
-    // glutKeyboardFunc(keyboard); 
-
 	glutMainLoop();
 	return 0;
 }
