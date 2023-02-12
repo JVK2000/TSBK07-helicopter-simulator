@@ -28,3 +28,10 @@ After all transformations are done (related to all models positioning and the bl
 </br>
 
 #### Part 2)
+
+**What kind of control did you implement?**
+Movement: w - forward, s - backward, a - left, d - right. 
+Looking: mouse - up, down, left, right
+
+**Can you make this kind of control in some other way than manipulating a "look-at" matrix?**
+By creating an extra matrix for movement and one for rotation of the projectionMatrix

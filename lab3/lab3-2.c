@@ -151,12 +151,55 @@ void init(void)
 	printError("init arrays");
 }
 
-float x_move = 0;
 
-float global_x = 0;
-float global_y = 0;
-// float MOVEMENT_SPEED = 0.005;
-float MOVEMENT_SPEED = 1;
+float MOUSE_MOVE_SPEED = 400;
+float init_x = 0;
+float init_z = 0;
+float angle_z = 0;
+float angle_x = 0;
+bool first = true;
+
+void mouseMovement(int x, int y)
+{
+	if (first) {
+		init_x = x;
+		init_z = y;
+		first = false;
+	}
+	float curr_x = x - init_x;
+	float curr_y = y - init_z;
+	angle_x = (curr_x/MOUSE_MOVE_SPEED)*M_PI;
+	angle_z = (curr_y/MOUSE_MOVE_SPEED)*M_PI;
+	mat4 cccc = Mult(Rx(angle_z), Ry(angle_x));
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrixRotation"), 1, GL_TRUE, cccc.m);
+}
+
+
+float MOVEMENT_SPEED = 0.2;
+float pos_x = 0;
+float pos_z = 0;
+
+void keyboardMovement()
+{
+	if (glutKeyIsDown('d')) {
+		pos_x -= MOVEMENT_SPEED * cos(angle_x); 
+		pos_z -= MOVEMENT_SPEED * sin(angle_x); 
+	} else if (glutKeyIsDown('a')) {
+		pos_x += MOVEMENT_SPEED * cos(angle_x); 
+		pos_z += MOVEMENT_SPEED * sin(angle_x); 
+	} 
+	if (glutKeyIsDown('w')) {
+		pos_x -= MOVEMENT_SPEED * sin(angle_x); 
+		pos_z += MOVEMENT_SPEED * cos(angle_x); 
+	} else if (glutKeyIsDown('s')) {
+		pos_x += MOVEMENT_SPEED * sin(angle_x); 
+		pos_z -= MOVEMENT_SPEED * cos(angle_x);
+	}
+	mat4 cameraMatrixPos = T(pos_x, 0, pos_z);
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrixPos"), 1, GL_TRUE, cameraMatrixPos.m);
+}
+
+
 void display(void)
 {
 	printError("pre display");
@@ -164,36 +207,7 @@ void display(void)
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
 	glBindVertexArray(bunnyVertexArrayObjID);    // Select VAO
 
-	if (glutKeyIsDown('d')) { // d button
-		global_x -= MOVEMENT_SPEED * cos(x_move); 
-		global_y -= MOVEMENT_SPEED * sin(x_move); 
-		// p.x = (p.x + MOVEMENT_SPEED);
-		// l.x = l.x + MOVEMENT_SPEED;
-	}
-	else if (glutKeyIsDown('a')) { // d button
-		global_x += MOVEMENT_SPEED * cos(x_move); 
-		global_y += MOVEMENT_SPEED * sin(x_move); 
-		// p.x = p.x - MOVEMENT_SPEED;
-		// l.x = l.x - MOVEMENT_SPEED;
-	}
-	if (glutKeyIsDown('w')) { // d button
-		global_x -= MOVEMENT_SPEED * sin(x_move); 
-		global_y += MOVEMENT_SPEED * cos(x_move); 
-		// p.z = p.z - MOVEMENT_SPEED;
-		// l.z = l.z - MOVEMENT_SPEED;
-	}
-	else if (glutKeyIsDown('s')) { // d button
-		global_x += MOVEMENT_SPEED * sin(x_move); 
-		global_y -= MOVEMENT_SPEED * cos(x_move);
-		// p.z = p.z + MOVEMENT_SPEED;
-		// l.z = l.z + MOVEMENT_SPEED;
-	}
-	
-
-	mat4 fff = T(global_x, 0, global_y);
-	//mat4 cameraMatrix = lookAtv(p, l, v);
-	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrixPos"), 1, GL_TRUE, fff.m);
-
+	keyboardMovement();
 
 	// Upload rotation
 	mat4 rot_y;
@@ -232,68 +246,6 @@ void display(void)
 	glutSwapBuffers();
 }
 
-float MOUSE_MOVE_SPEED = 1;
-float c = 0;
-float prev_x = 0;
-float prev_y = 0;
-float init_x = 0;
-float init_y = 0;
-bool first = true;
-
-float y_move;
-void myMouseMove(int x, int y)
-{
-	if (first) {
-		init_x = x;
-		init_y = y;
-		first = false;
-	}
-	// float width = glutGet(102);		// GLUT_WINDOW_WIDTH
-	// float height = glutGet(103);	//GLUT_WINDOW_HEIGHT
-	float curr_x = x - init_x;
-	float curr_y = y - init_y;
-
-	x_move = (curr_x/400)*M_PI;
-	y_move = (curr_y/400)*M_PI;
-
-
-	// float y_move = 0;
-	// if (y > prev_y) {
-	// 	y_move = 1;
-	// } else if (y < prev_y) {
-	// 	y_move = -1;
-	// }
-
-	mat4 cccc = Mult(Rx(y_move), Ry(x_move));
-	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrixRotation"), 1, GL_TRUE, cccc.m);
-
-
-	// float x_move = 0;
-	// if (x > prev_x) {
-	// 	x_move = 1;
-	// } else if (x < prev_x) {
-	// 	x_move = -1;
-	// }
-
-	// float y_move = 0;
-	// if (y > prev_y) {
-	// 	y_move = 1;
-	// } else if (y < prev_y) {
-	// 	y_move = -1;
-	// }
-
-	// l.x = l.x + x_move;
-	// l.y = l.y + y_move;
-	// mat4 cameraMatrix = lookAtv(p, l, v);
-	// glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
-
-	prev_x = x;
-	prev_y = y;
-
-	glutPostRedisplay();
-
-}
-
 
 int main(int argc, char *argv[])
 {
@@ -304,7 +256,7 @@ int main(int argc, char *argv[])
 	glutDisplayFunc(display); 
 	glutRepeatingTimerFunc(20); // timer that will cause a redisplay every d milliseconds
 	init ();
-	glutPassiveMotionFunc(myMouseMove);
+	glutPassiveMotionFunc(mouseMovement);
 	glutMainLoop();
 	return 0;
 }
