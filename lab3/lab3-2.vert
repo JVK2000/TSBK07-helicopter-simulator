@@ -28,7 +28,7 @@ void main(void)
 	
 	// An matrix is affected by it right neigbour. 
 	// gl_Position = projectionMatrix * cameraMatrix * globalTransform * rotationMatrixY * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
-	gl_Position =  projectionMatrix  * cameraMatrixRotation * cameraMatrixPos * globalTransform * cameraMatrix * /*rotationMatrixY * */translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
+	gl_Position =  projectionMatrix  * cameraMatrix * globalTransform * /*rotationMatrixY * */translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
 	
 	// If the models should rotates aswell.
 	//gl_Position = projectionMatrix * cameraMatrix * rotationMatrixY * translationMatrix * rotationMatrixY * vec4(inPosition, 1.0);
