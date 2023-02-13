@@ -20,7 +20,7 @@ uniform mat4 cameraMatrix;
 
 void main(void)
 {
-	mat3 normalMatrix = mat3(projectionMatrix * translationMatrix * cameraMatrix);
+	mat3 normalMatrix = mat3(rotationMatrixY);
     vec3 transformedNormal = normalMatrix * inNormal;
 	const vec3 light = vec3(0.58, 0.58, 0.58);
 	shade = dot(normalize(transformedNormal), light);

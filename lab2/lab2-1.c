@@ -77,6 +77,7 @@ void init(void)
 	
 	glBindVertexArray(bunnyVertexArrayObjID);
 
+	// Load the bunny model
 	glGenBuffers(1, &bunnyTexCoordBufferObjID);    
     if (m->texCoordArray != NULL)
     {

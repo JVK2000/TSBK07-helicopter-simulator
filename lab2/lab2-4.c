@@ -37,7 +37,7 @@ GLfloat rotationMatrixZ[] = {
 GLfloat translationMatrix[] = {	
 	1.0f, 0.0f, 0.0f, 0.0f,		// pos x-led bör -1<x<x annars utanför skärm
 	0.0f, 1.0f, 0.0f, 0.0f,		// pos y-led
-	0.0f, 0.0f, 1.0f, 0.0f,	// djup, bör vara mindre än 0
+	0.0f, 0.0f, 1.0f, 0.0f,		// djup, bör vara mindre än 0
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
 GLfloat projectionMatrix[] = {    
@@ -128,17 +128,12 @@ void init(void)
 	vec3 p = {0, 1, 2};	// Camera position
 	vec3 l = {0, 0, 0};	// Position to look at
 	vec3 v = {0, 1, 0};	// Determines which axis is up
-
 	mat4 cameraMatrix = lookAtv(p, l, v);
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
 
 	LoadTGATextureSimple("maskros512.tga", &texUnit);			// Create texture object
 	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
 	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
-	//glActiveTexture(GL_TEXTURE0);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
 	printError("init arrays");
 }
 

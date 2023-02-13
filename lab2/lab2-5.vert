@@ -20,7 +20,8 @@ uniform mat4 cameraMatrix;
 
 void main(void)
 {
-	mat3 normalMatrix = mat3(projectionMatrix * translationMatrix * cameraMatrix);
+	// mat3 normalMatrix = mat3(projectionMatrix * translationMatrix * cameraMatrix);
+	mat3 normalMatrix = mat3(rotationMatrixY);
     transformedNormal = normalMatrix * inNormal;
 	gl_Position = projectionMatrix * translationMatrix * cameraMatrix * rotationMatrixY * vec4(inPosition, 1.0);
 	

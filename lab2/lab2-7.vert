@@ -20,11 +20,11 @@ uniform mat4 cameraMatrix;
 
 void main(void)
 {
-	mat3 normalMatrix = mat3(projectionMatrix * translationMatrix * cameraMatrix);
+	mat3 normalMatrix = mat3 (translationMatrix);
     transformedNormal = normalMatrix * inNormal;
 	
 	// An matrix is affected by it right neigbour. 
-	gl_Position = projectionMatrix * cameraMatrix * rotationMatrixY * translationMatrix * vec4(inPosition, 1.0);
+	gl_Position = projectionMatrix * cameraMatrix * translationMatrix * vec4(inPosition, 1.0);
 	
 	// If the models should rotates aswell.
 	//gl_Position = projectionMatrix * cameraMatrix * rotationMatrixY * translationMatrix * rotationMatrixY * vec4(inPosition, 1.0);

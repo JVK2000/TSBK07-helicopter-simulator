@@ -16,5 +16,5 @@ void main(void)
 	// Linear mapping
 	float a = textCoord.s;
 	float b = textCoord.t;
-	outColor = texture(texUnit, vec2(a, b));
+	outColor = texture(texUnit, vec2(a, b)*5);
 }

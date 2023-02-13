@@ -170,16 +170,6 @@ void mouseMovement(int x, int y)
 	float curr_y = y - init_z;
 	angle_x = (curr_x/MOUSE_MOVE_SPEED)*M_PI;
 	angle_z = (curr_y/MOUSE_MOVE_SPEED)*M_PI;
-	// mat4 cccc = Mult(Rx(angle_z), Ry(angle_x));
-	// glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrixRotation"), 1, GL_TRUE, cccc.m);
-
-	printf(" %f,", angle_x);
-	// l.x += (angle_x);
-	// l.z = l.z * sin(angle_x);
-	// mat4 cameraMatrix = lookAtv(p, l, v);
-	
-	// glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
-
 }
 
 
@@ -205,19 +195,12 @@ void keyboardMovement()
 		pos_x -= MOVEMENT_SPEED * sin(angle_x); 
 		pos_z += MOVEMENT_SPEED * cos(angle_x); 
 	}
-	// mat4 cameraMatrixPos = T(pos_x, 0, pos_z);
-	// glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrixPos"), 1, GL_TRUE, cameraMatrixPos.m);
-
-	// vec3 p = {0, 0, 10};	// Camera position
-	// vec3 l = {0, 0, 0};		// Position to look at
-	// vec3 v = {0, 1, 0};		// Determines which axis is up
 	p.x += pos_x; 
 	l.x += pos_x;
 	p.z += pos_z; 
 	l.z += pos_z;
 	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
-
 }
 
 

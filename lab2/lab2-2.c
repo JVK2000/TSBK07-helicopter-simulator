@@ -102,6 +102,7 @@ void init(void)
 
 	// --- End of upload of geometry ---
 	
+	//  Texture reference
 	LoadTGATextureSimple("maskros512.tga", &texUnit);			// Create texture object
 	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
 	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
