@@ -127,17 +127,9 @@ Model *ground_model;
 Model *teapot;
 Model *skybox;
 
-// vertex array object
-unsigned int bunnyVertexArrayObjID;
 
 void init(void)
 {
-	// vertex buffer object, used for uploading the geometry
-	unsigned int bunnyVertexBufferObjID;
-	unsigned int bunnyIndexBufferObjID;
-	unsigned int bunnyNormalBufferObjID;
-	unsigned int bunnyTexCoordBufferObjID;
-
 	dumpInfo();
 
 	// Load model 
@@ -158,31 +150,14 @@ void init(void)
 
 	// Load and compile shader
 	program = loadShaders("lab3-3.vert", "lab3-3.frag");
-	program_no_shader = loadShaders("lab3-3.vert", "lab3-3-no-shader.frag");
-	program_no_texture = loadShaders("lab3-3.vert", "lab3-3-no-texture.frag");
+	// program_no_shader = loadShaders("lab3-3.vert", "lab3-3-no-shader.frag");
+	// program_no_texture = loadShaders("lab3-3.vert", "lab3-3-no-texture.frag");
 	glUseProgram(program);
 
 	printError("init shader");
 	
 
 	// --- Upload geometry to the GPU ---
-
-	// Allocate Vertex Array and Buffer object for model 
-	glGenVertexArrays(1, &bunnyVertexArrayObjID);
-    glGenBuffers(1, &bunnyVertexBufferObjID);
-    glGenBuffers(1, &bunnyIndexBufferObjID);
-    glGenBuffers(1, &bunnyNormalBufferObjID);
-	glGenBuffers(1, &bunnyTexCoordBufferObjID);  
-
-	glBindVertexArray(bunnyVertexArrayObjID);
-
-    if (windmill_wall->texCoordArray != NULL)
-    {
-        glBindBuffer(GL_ARRAY_BUFFER, bunnyTexCoordBufferObjID);
-        glBufferData(GL_ARRAY_BUFFER, windmill_wall->numVertices*2*sizeof(GLfloat), windmill_wall->texCoordArray, GL_STATIC_DRAW);
-        glVertexAttribPointer(glGetAttribLocation(program, "inTexCoord"), 2, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(glGetAttribLocation(program, "inTexCoord"));
-    }
 
 	// VBO for vertex data
     glVertexAttribPointer(glGetAttribLocation(program, "inPosition"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
@@ -191,9 +166,6 @@ void init(void)
 	// VBO for normal data
     glVertexAttribPointer(glGetAttribLocation(program, "inNormal"), 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(glGetAttribLocation(program, "inNormal"));
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bunnyIndexBufferObjID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, windmill_wall->numIndices*sizeof(GLuint), windmill_wall->indexArray, GL_STATIC_DRAW);
 
 	// Upload the matrixes
 	glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
@@ -206,7 +178,6 @@ void init(void)
 
 	printf("size: %lu", sizeof(vertices[0]));
 	ground_model = LoadDataToModel(vertices, vertex_normals, tex_coords, colors, indices, sizeof(vertices[0]), sizeof(indices[0]));
-
 
 	printError("init arrays");
 }
@@ -263,24 +234,18 @@ void keyboardMovement()
 }
 
 
-void display(void)
-{
-	printError("pre display");
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the screen
-	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
-	glBindVertexArray(bunnyVertexArrayObjID);    // Select VAO
-
-	keyboardMovement();
-	
+void drawSkybox(void) {
 	glUseProgram(program);
+	LoadTGATextureSimple("labskybox512.tga", &texUnit);			// Create texture object
+	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
+	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixSkybox);
+	DrawModel(skybox, program, "inPosition", "inNormal", "inTexCoord");
+}
 
-	// Ground
-	// glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixGround);
-	// DrawModel(ground_model, program, "inPosition", "inNormal", "inTexCoord");
-	
-	// Teapot
-	// glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot);
-	// DrawModel(teapot, program, "inPosition", "inNormal", "inTexCoord");
+
+void drawWindmill(void) {
+	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
 
 	// Walls, Roof, Balcony
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixStaticObj);
@@ -308,16 +273,27 @@ void display(void)
 	// Remove X-rotation used by the blades
 	rotationMatrixBlade = Rx(0);
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixExtra"), 1, GL_TRUE, rotationMatrixBlade.m);
+}
 
 
-	// Skybox
-	glUseProgram(program);
-	LoadTGATextureSimple("labskybox512.tga", &texUnit);			// Create texture object
-	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
-	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
-	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixSkybox);
-	DrawModel(skybox, program, "inPosition", "inNormal", "inTexCoord");
+void display(void)
+{
+	printError("pre display");
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the screen
 
+	keyboardMovement();
+	
+	// Ground
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixGround);
+	DrawModel(ground_model, program, "inPosition", "inNormal", "inTexCoord");
+	
+	// Teapot
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot);
+	DrawModel(teapot, program, "inPosition", "inNormal", "inTexCoord");
+
+	drawWindmill();
+
+	drawSkybox();
 
 	printError("display");
 	glutSwapBuffers();
