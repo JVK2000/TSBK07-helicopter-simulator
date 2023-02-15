@@ -28,7 +28,6 @@ GLfloat projectionMatrix[] = {
 	0.0f, 0.0f, -(far + near)/(far - near), -2*far*near/(far - near),
 	0.0f, 0.0f, -1.0f, 0.0f 
 };
-
 // To move the whole combinations of models
 GLfloat globalTransform[] = {	
 	1.0f, 0.0f, 0.0f, 0.0f,
@@ -36,7 +35,6 @@ GLfloat globalTransform[] = {
 	0.0f, 0.0f, 1.0f, -10.0f,
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
-
 // Used by static positioned windmill models (walls, balcony, roof) 
 GLfloat translationMatrixStaticObj[] = {	
 	1.0f, 0.0f, 0.0f, 0.0f,
@@ -44,11 +42,10 @@ GLfloat translationMatrixStaticObj[] = {
 	0.0f, 0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
-
-GLfloat translationMatrixGround[] = {	
-	1.0f, 0.0f, 0.0f, 50.0f,
+mat4 translationMatrixGround = {	
+	1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, -10.0f,
-	0.0f, 0.0f, 1.0f, 50.0f,
+	0.0f, 0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
 GLfloat translationMatrixTeapot[] = {	
@@ -57,15 +54,13 @@ GLfloat translationMatrixTeapot[] = {
 	0.0f, 0.0f, 1.0f, 15.0f,
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
-
 GLfloat translationMatrixSkybox[] = {	
 	1.0f, 0.0f, 0.0f, 2.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
-
-// Model is pointing to the right on start, axis are tossed around  
+// NOTE: Model is pointing to the right on start, axis are tossed around  
 GLfloat translationMatrixBlade[] = {	
 	1.0f, 0.0f, 0.0f, 4.5f,		// Blade depth
 	0.0f, 1.0f, 0.0f, -0.8f,	// Vertical
@@ -73,12 +68,12 @@ GLfloat translationMatrixBlade[] = {
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
 
-
+// Camera
 vec3 p = {0, 0, 10};	// Camera position
 vec3 l = {0, 0, 0};		// Position to look at
 vec3 v = {0, 1, 0};		// Determines which axis is up
 
-
+// Used by the ground model
 #define kGroundSize 100.0f
 vec3 vertices[] =
 {
@@ -117,7 +112,6 @@ vec3 colors[] =
 // References
 GLuint program;
 GLuint texUnit;
-
 Model *windmill_wall;
 Model *windmill_roof;
 Model *windmill_balcony;
@@ -125,7 +119,7 @@ Model *windmill_blade;
 Model *ground_model;
 Model *teapot;
 Model *skybox;
-
+mat4 mirroredGroundMatrix;
 
 void init(void)
 {
@@ -156,7 +150,7 @@ void init(void)
 	glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(program, "globalTransform"), 1, GL_TRUE, globalTransform);
 
-	printf("size: %lu", sizeof(vertices[0]));
+	mirroredGroundMatrix = Mult(Ry(M_PI), translationMatrixGround);
 	ground_model = LoadDataToModel(vertices, vertex_normals, tex_coords, colors, indices, sizeof(vertices[0]), sizeof(indices[0]));
 
 	printError("init arrays");
@@ -262,9 +256,11 @@ void drawWindmill(void) {
 void drawGround(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), false);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
-	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixGround);
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixGround.m);
 	DrawModel(ground_model, program, "inPosition", "inNormal", "inTexCoord");
 
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, mirroredGroundMatrix.m);
+	DrawModel(ground_model, program, "inPosition", "inNormal", "inTexCoord");
 }
 
 void drawTeapot(void) {
