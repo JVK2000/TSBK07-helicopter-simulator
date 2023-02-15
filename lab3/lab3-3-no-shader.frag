@@ -17,9 +17,7 @@ void main(void)
 	const vec3 light = vec3(0.58, 0.58, 0.58);
 	float shade = dot(normalize(transformedNormal), light);
 
-	// Linear mapping
-	// float a = textCoord.s;
-	// float b = textCoord.t;
+	// outColor = texture(texUnit, textCoord);
 	outColor = shade * texture(texUnit, textCoord); 
-	// outColor = vec4(shade, shade, shade, 1.0);
+
 }

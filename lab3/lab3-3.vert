@@ -9,7 +9,7 @@ in vec3 inNormal;
 in vec2 inTexCoord;
 
 out vec3 normal;
-out vec4 textCoord;
+out vec2 textCoord;
 out vec3 transformedNormal;
 
 uniform mat4 rotationMatrixY;
@@ -26,5 +26,5 @@ void main(void)
 	
 	gl_Position =  projectionMatrix  * cameraMatrix * globalTransform * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
 		
-	textCoord = vec4(inTexCoord, 1.0, 1.0);
+	textCoord = inTexCoord;
 }

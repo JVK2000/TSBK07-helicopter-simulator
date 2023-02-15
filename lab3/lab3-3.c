@@ -58,6 +58,13 @@ GLfloat translationMatrixTeapot[] = {
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
 
+GLfloat translationMatrixSkybox[] = {	
+	1.0f, 0.0f, 0.0f, 2.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, 0.0f,
+	0.0f, 0.0f, 0.0f, 1.0f 
+};
+
 // Model is pointing to the right on start, axis are tossed around  
 GLfloat translationMatrixBlade[] = {	
 	1.0f, 0.0f, 0.0f, 4.5f,		// Blade depth
@@ -109,6 +116,8 @@ vec3 colors[] =
 
 // References
 GLuint program;
+GLuint program_no_shader;
+GLuint program_no_texture;
 GLuint texUnit;
 Model *windmill_wall;
 Model *windmill_roof;
@@ -116,6 +125,7 @@ Model *windmill_balcony;
 Model *windmill_blade;
 Model *ground_model;
 Model *teapot;
+Model *skybox;
 
 // vertex array object
 unsigned int bunnyVertexArrayObjID;
@@ -136,6 +146,7 @@ void init(void)
 	windmill_balcony = LoadModel("windmill/windmill-balcony.obj");
 	windmill_blade = LoadModel("windmill/blade.obj");
 	teapot = LoadModel("models/various/teapot.obj");
+	skybox = LoadModel("skybox/skyboxfull.obj");
 
 	// GL inits
 	glClearColor(0.2,0.2,0.5,0);
@@ -147,6 +158,10 @@ void init(void)
 
 	// Load and compile shader
 	program = loadShaders("lab3-3.vert", "lab3-3.frag");
+	program_no_shader = loadShaders("lab3-3.vert", "lab3-3-no-shader.frag");
+	program_no_texture = loadShaders("lab3-3.vert", "lab3-3-no-texture.frag");
+	glUseProgram(program);
+
 	printError("init shader");
 	
 
@@ -229,14 +244,13 @@ void keyboardMovement()
 	if (glutKeyIsDown('d')) {
 		pos_x += MOVEMENT_SPEED * cos(angle_x); 
 		pos_z += MOVEMENT_SPEED * sin(angle_x); 
-	} else if (glutKeyIsDown('a')) {
+	} if (glutKeyIsDown('a')) {
 		pos_x -= MOVEMENT_SPEED * cos(angle_x); 
 		pos_z -= MOVEMENT_SPEED * sin(angle_x); 
-	} 
-	if (glutKeyIsDown('w')) {
+	} if (glutKeyIsDown('w')) {
 		pos_x += MOVEMENT_SPEED * sin(angle_x); 
 		pos_z -= MOVEMENT_SPEED * cos(angle_x);
-	} else if (glutKeyIsDown('s')) {
+	} if (glutKeyIsDown('s')) {
 		pos_x -= MOVEMENT_SPEED * sin(angle_x); 
 		pos_z += MOVEMENT_SPEED * cos(angle_x); 
 	}
@@ -257,18 +271,16 @@ void display(void)
 	glBindVertexArray(bunnyVertexArrayObjID);    // Select VAO
 
 	keyboardMovement();
-
-	// Remove X-rotation used by the blades
-	mat4 rotationMatrixBlade = Rx(0);
-	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixExtra"), 1, GL_TRUE, rotationMatrixBlade.m);
+	
+	glUseProgram(program);
 
 	// Ground
-	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixGround);
-	DrawModel(ground_model, program, "inPosition", "inNormal", "inTexCoord");
+	// glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixGround);
+	// DrawModel(ground_model, program, "inPosition", "inNormal", "inTexCoord");
 	
 	// Teapot
-	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot);
-	DrawModel(teapot, program, "inPosition", "inNormal", "inTexCoord");
+	// glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot);
+	// DrawModel(teapot, program, "inPosition", "inNormal", "inTexCoord");
 
 	// Walls, Roof, Balcony
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixStaticObj);
@@ -276,7 +288,7 @@ void display(void)
 	DrawModel(windmill_roof, program, "inPosition", "inNormal", "inTexCoord");
 	DrawModel(windmill_balcony, program, "inPosition", "inNormal", "inTexCoord");
 
-	rotationMatrixBlade = Rx(0 + t/1000);
+	mat4 rotationMatrixBlade = Rx(0 + t/1000);
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixBlade);
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixExtra"), 1, GL_TRUE, rotationMatrixBlade.m);
 	DrawModel(windmill_blade, program, "inPosition", "inNormal", "inTexCoord");
@@ -292,6 +304,20 @@ void display(void)
 	rotationMatrixBlade = Rx(-M_PI/2 + t/1000);
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixExtra"), 1, GL_TRUE, rotationMatrixBlade.m);
 	DrawModel(windmill_blade, program, "inPosition", "inNormal", "inTexCoord");
+
+	// Remove X-rotation used by the blades
+	rotationMatrixBlade = Rx(0);
+	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixExtra"), 1, GL_TRUE, rotationMatrixBlade.m);
+
+
+	// Skybox
+	glUseProgram(program);
+	LoadTGATextureSimple("labskybox512.tga", &texUnit);			// Create texture object
+	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
+	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixSkybox);
+	DrawModel(skybox, program, "inPosition", "inNormal", "inTexCoord");
+
 
 	printError("display");
 	glutSwapBuffers();
