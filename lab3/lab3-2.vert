@@ -13,7 +13,7 @@ out vec4 textCoord;
 out vec3 transformedNormal;
 
 uniform mat4 rotationMatrixY;
-uniform mat4 rotationMatrixExtra;
+uniform mat4 rotationMatrixExtra;	// Used for the rotation of the windmill blades
 uniform mat4 translationMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 cameraMatrix;
@@ -23,15 +23,10 @@ uniform mat4 cameraMatrixPos;
 
 void main(void)
 {
-	mat3 normalMatrix = mat3(projectionMatrix * translationMatrix * cameraMatrix);
+	mat3 normalMatrix = mat3(translationMatrix);
     transformedNormal = normalMatrix * inNormal;
 	
-	// An matrix is affected by it right neigbour. 
-	// gl_Position = projectionMatrix * cameraMatrix * globalTransform * rotationMatrixY * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
-	gl_Position =  projectionMatrix  * cameraMatrix * globalTransform * /*rotationMatrixY * */translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
-	
-	// If the models should rotates aswell.
-	//gl_Position = projectionMatrix * cameraMatrix * rotationMatrixY * translationMatrix * rotationMatrixY * vec4(inPosition, 1.0);
-	
+	gl_Position =  projectionMatrix  * cameraMatrix * globalTransform * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
+		
 	textCoord = vec4(inTexCoord, 1.0, 1.0);
 }
