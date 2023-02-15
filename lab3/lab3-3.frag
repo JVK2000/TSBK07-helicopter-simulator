@@ -11,6 +11,7 @@ in vec3 transformedNormal; // Phong
 out vec4 outColor;
 
 uniform sampler2D texUnit;
+uniform bool shadingEnabled;
 
 void main(void)
 {
@@ -20,6 +21,14 @@ void main(void)
 	// Linear mapping
 	// float a = textCoord.s;
 	// float b = textCoord.t;
-	outColor = shade * texture(texUnit, textCoord); 
+	float color;
+	if (shadingEnabled) {
+		outColor = shade * texture(texUnit, textCoord); 
+	} 
+	else {
+		outColor = texture(texUnit, textCoord); 
+	}
+
+	// outColor = color
 	// outColor = vec4(shade, shade, shade, 1.0);
 }

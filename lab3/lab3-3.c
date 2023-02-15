@@ -116,8 +116,6 @@ vec3 colors[] =
 
 // References
 GLuint program;
-GLuint program_no_shader;
-GLuint program_no_texture;
 GLuint texUnit;
 
 Model *windmill_wall;
@@ -151,18 +149,12 @@ void init(void)
 
 	// Load and compile shader
 	program = loadShaders("lab3-3.vert", "lab3-3.frag");
-	program_no_shader = loadShaders("lab3-3.vert", "lab3-3.frag");
-	// program_no_texture = loadShaders("lab3-3.vert", "lab3-3-no-texture.frag");
 
 	printError("init shader");
 	
 	glUseProgram(program);
 	glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(program, "globalTransform"), 1, GL_TRUE, globalTransform);
-
-	glUseProgram(program_no_shader);
-	glUniformMatrix4fv(glGetUniformLocation(program_no_shader, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
-	glUniformMatrix4fv(glGetUniformLocation(program_no_shader, "globalTransform"), 1, GL_TRUE, globalTransform);
 
 	printf("size: %lu", sizeof(vertices[0]));
 	ground_model = LoadDataToModel(vertices, vertex_normals, tex_coords, colors, indices, sizeof(vertices[0]), sizeof(indices[0]));
@@ -219,23 +211,21 @@ void keyboardMovement()
 	l.z += pos_z;
 	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
-	glUniformMatrix4fv(glGetUniformLocation(program_no_shader, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
 }
 
 
 void drawSkybox(void) {
-	glUseProgram(program_no_shader);
-
+	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), false);
 	LoadTGATextureSimple("labskybox512.tga", &texUnit);			// Create texture object
 	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
-	glUniform1i(glGetUniformLocation(program_no_shader, "texUnit"), 0); 	// Texture unit 0
-	glUniformMatrix4fv(glGetUniformLocation(program_no_shader, "translationMatrix"), 1, GL_TRUE, translationMatrixSkybox);
-	DrawModel(skybox, program_no_shader, "inPosition", "inNormal", "inTexCoord");
+	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixSkybox);
+	DrawModel(skybox, program, "inPosition", "inNormal", "inTexCoord");
 }
 
 
 void drawWindmill(void) {
-	glUseProgram(program);
+	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
 
 	// Walls, Roof, Balcony
@@ -244,6 +234,7 @@ void drawWindmill(void) {
 	DrawModel(windmill_roof, program, "inPosition", "inNormal", "inTexCoord");
 	DrawModel(windmill_balcony, program, "inPosition", "inNormal", "inTexCoord");
 
+	// Blades
 	mat4 rotationMatrixBlade = Rx(0 + t/1000);
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixBlade);
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixExtra"), 1, GL_TRUE, rotationMatrixBlade.m);
@@ -266,27 +257,30 @@ void drawWindmill(void) {
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixExtra"), 1, GL_TRUE, rotationMatrixBlade.m);
 }
 
+void drawGround(void) {
+	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), false);
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixGround);
+	DrawModel(ground_model, program, "inPosition", "inNormal", "inTexCoord");
+
+}
+
+void drawTeapot(void) {
+	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot);
+	DrawModel(teapot, program, "inPosition", "inNormal", "inTexCoord");
+}
 
 void display(void)
 {
 	printError("pre display");
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the screen
-	glUseProgram(program);
 
 	keyboardMovement();
 	
-	// Ground
-	// glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixGround);
-	// DrawModel(ground_model, program, "inPosition", "inNormal", "inTexCoord");
-	
-	// Teapot
-	glUseProgram(program_no_shader);
-	glUniformMatrix4fv(glGetUniformLocation(program_no_shader, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot);
-	DrawModel(teapot, program_no_shader, "inPosition", "inNormal", "inTexCoord");
-
+	drawGround();
 	drawWindmill();
-
 	drawSkybox();
+	drawTeapot();
 
 	printError("display");
 	glutSwapBuffers();
