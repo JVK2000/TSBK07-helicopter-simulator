@@ -35,3 +35,29 @@ Looking: mouse - up, down, left, right
 
 **Can you make this kind of control in some other way than manipulating a "look-at" matrix?**
 By creating an extra matrix for movement and one for rotation of the projectionMatrix
+
+
+
+</br>
+
+#### Part 3)
+
+**How did you handle the camera matrix for the skybox?**
+
+
+
+</br>
+
+**How did you represent the objects? Is this a good way to manage a scene or would you do it differently for a "real" application?**
+
+
+
+</br>
+
+**What special considerations are needed when rendering a skybox?**
+
+
+
+</br>
+
+**What is the problem with the “labskybox" object used in the lab? (The problem doesn't have to be corrected.)**
