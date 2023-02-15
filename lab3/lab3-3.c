@@ -216,6 +216,7 @@ void keyboardMovement()
 
 void drawSkybox(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), false);
+	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
 	LoadTGATextureSimple("labskybox512.tga", &texUnit);			// Create texture object
 	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
 	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
@@ -226,6 +227,7 @@ void drawSkybox(void) {
 
 void drawWindmill(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
+	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
 
 	// Walls, Roof, Balcony
@@ -259,6 +261,7 @@ void drawWindmill(void) {
 
 void drawGround(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), false);
+	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixGround);
 	DrawModel(ground_model, program, "inPosition", "inNormal", "inTexCoord");
 
@@ -266,6 +269,7 @@ void drawGround(void) {
 
 void drawTeapot(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
+	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot);
 	DrawModel(teapot, program, "inPosition", "inNormal", "inTexCoord");
 }
