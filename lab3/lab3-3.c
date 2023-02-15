@@ -119,6 +119,7 @@ GLuint program;
 GLuint program_no_shader;
 GLuint program_no_texture;
 GLuint texUnit;
+
 Model *windmill_wall;
 Model *windmill_roof;
 Model *windmill_balcony;
@@ -150,31 +151,18 @@ void init(void)
 
 	// Load and compile shader
 	program = loadShaders("lab3-3.vert", "lab3-3.frag");
-	// program_no_shader = loadShaders("lab3-3.vert", "lab3-3-no-shader.frag");
+	program_no_shader = loadShaders("lab3-3.vert", "lab3-3.frag");
 	// program_no_texture = loadShaders("lab3-3.vert", "lab3-3-no-texture.frag");
-	glUseProgram(program);
 
 	printError("init shader");
 	
-
-	// --- Upload geometry to the GPU ---
-
-	// VBO for vertex data
-    glVertexAttribPointer(glGetAttribLocation(program, "inPosition"), 3, GL_FLOAT, GL_FALSE, 0, 0); 
-    glEnableVertexAttribArray(glGetAttribLocation(program, "inPosition"));
-
-	// VBO for normal data
-    glVertexAttribPointer(glGetAttribLocation(program, "inNormal"), 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(glGetAttribLocation(program, "inNormal"));
-
-	// Upload the matrixes
+	glUseProgram(program);
 	glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(program, "globalTransform"), 1, GL_TRUE, globalTransform);
 
-	// --- End of upload of geometry ---
-
-	mat4 cameraMatrix = lookAtv(p, l, v);
-	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
+	glUseProgram(program_no_shader);
+	glUniformMatrix4fv(glGetUniformLocation(program_no_shader, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(program_no_shader, "globalTransform"), 1, GL_TRUE, globalTransform);
 
 	printf("size: %lu", sizeof(vertices[0]));
 	ground_model = LoadDataToModel(vertices, vertex_normals, tex_coords, colors, indices, sizeof(vertices[0]), sizeof(indices[0]));
@@ -231,20 +219,23 @@ void keyboardMovement()
 	l.z += pos_z;
 	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
+	glUniformMatrix4fv(glGetUniformLocation(program_no_shader, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
 }
 
 
 void drawSkybox(void) {
-	glUseProgram(program);
+	glUseProgram(program_no_shader);
+
 	LoadTGATextureSimple("labskybox512.tga", &texUnit);			// Create texture object
 	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
-	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
-	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixSkybox);
-	DrawModel(skybox, program, "inPosition", "inNormal", "inTexCoord");
+	glUniform1i(glGetUniformLocation(program_no_shader, "texUnit"), 0); 	// Texture unit 0
+	glUniformMatrix4fv(glGetUniformLocation(program_no_shader, "translationMatrix"), 1, GL_TRUE, translationMatrixSkybox);
+	DrawModel(skybox, program_no_shader, "inPosition", "inNormal", "inTexCoord");
 }
 
 
 void drawWindmill(void) {
+	glUseProgram(program);
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
 
 	// Walls, Roof, Balcony
@@ -280,16 +271,18 @@ void display(void)
 {
 	printError("pre display");
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the screen
+	glUseProgram(program);
 
 	keyboardMovement();
 	
 	// Ground
-	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixGround);
-	DrawModel(ground_model, program, "inPosition", "inNormal", "inTexCoord");
+	// glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixGround);
+	// DrawModel(ground_model, program, "inPosition", "inNormal", "inTexCoord");
 	
 	// Teapot
-	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot);
-	DrawModel(teapot, program, "inPosition", "inNormal", "inTexCoord");
+	glUseProgram(program_no_shader);
+	glUniformMatrix4fv(glGetUniformLocation(program_no_shader, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot);
+	DrawModel(teapot, program_no_shader, "inPosition", "inNormal", "inTexCoord");
 
 	drawWindmill();
 

@@ -17,7 +17,7 @@ void main(void)
 	const vec3 light = vec3(0.58, 0.58, 0.58);
 	float shade = dot(normalize(transformedNormal), light);
 
-	// outColor = texture(texUnit, textCoord);
-	outColor = shade * texture(texUnit, textCoord); 
+	outColor = texture(texUnit, textCoord);
+	// outColor = shade * texture(texUnit, textCoord); 
 
 }
