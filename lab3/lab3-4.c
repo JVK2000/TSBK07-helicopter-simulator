@@ -28,13 +28,6 @@ GLfloat projectionMatrix[] = {
 	0.0f, 0.0f, -(far + near)/(far - near), -2*far*near/(far - near),
 	0.0f, 0.0f, -1.0f, 0.0f 
 };
-// To move the whole combinations of models
-GLfloat globalTransform[] = {	
-	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, -10.0f,
-	0.0f, 0.0f, 0.0f, 1.0f 
-};
 // Used by static positioned windmill models (walls, balcony, roof) 
 GLfloat translationMatrixStaticObj[] = {	
 	1.0f, 0.0f, 0.0f, 0.0f,
@@ -49,12 +42,11 @@ mat4 translationMatrixGround = {
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
 GLfloat translationMatrixTeapot[] = {	
-	1.0f, 0.0f, 0.0f, 15.0f,
+	1.0f, 0.0f, 0.0f, 20.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 15.0f,
+	0.0f, 0.0f, 1.0f, 20.0f,
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
-
 // NOTE: Model is pointing to the right on start, axis are tossed around  
 GLfloat translationMatrixBlade[] = {	
 	1.0f, 0.0f, 0.0f, 4.5f,		// Blade depth
@@ -104,6 +96,31 @@ vec3 colors[] =
 	{1.0f,0.0f,1.0f}
 };
 
+// light sources
+vec3 lightSourcesColorsArr[] = 
+{ 
+	{1.0f, 0.0f, 0.0f}, // Red light
+	{0.0f, 1.0f, 0.0f}, // Green light
+	{0.0f, 0.0f, 1.0f}, // Blue light
+	{1.0f, 1.0f, 1.0f}  // White light
+}; 
+GLint isDirectional[] = 
+{
+	0,0,1,1
+};
+vec3 lightSourcesDirectionsPositions[] = 
+{ 
+	{10.0f, 5.0f, 0.0f}, // Red light, positional
+	{0.0f, 5.0f, 10.0f}, // Green light, positional
+	{-1.0f, 0.0f, 0.0f}, // Blue light along X
+	{0.0f, 0.0f, -1.0f}  // White light along Z
+}; 
+GLfloat specularExponent[] = 
+{
+	100.0, 200.0, 60.0
+};
+
+
 // References
 GLuint program;
 GLuint texUnit;
@@ -143,7 +160,10 @@ void init(void)
 	
 	glUseProgram(program);
 	glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
-	glUniformMatrix4fv(glGetUniformLocation(program, "globalTransform"), 1, GL_TRUE, globalTransform);
+
+	glUniform3fv(glGetUniformLocation(program, "lightSourcesDirPosArr"), 4, &lightSourcesDirectionsPositions[0].x);
+	glUniform3fv(glGetUniformLocation(program, "lightSourcesColorArr"), 4, &lightSourcesColorsArr[0].x);
+	glUniform1iv(glGetUniformLocation(program, "isDirectional"), 4, isDirectional);
 
 	mirroredGroundMatrix = Mult(Ry(M_PI), translationMatrixGround);
 	ground_model = LoadDataToModel(vertices, vertex_normals, tex_coords, colors, indices, sizeof(vertices[0]), sizeof(indices[0]));
@@ -210,7 +230,7 @@ void drawSkybox(void) {
 	mat4 translationMatrixSkybox = {	
 		1.0f, 0.0f, 0.0f, 0.0f + p.x,	// Compensate for camera movement
 		0.0f, 1.0f, 0.0f, 1.5f + p.y,
-		0.0f, 0.0f, 1.0f, 10.0f + p.z,
+		0.0f, 0.0f, 1.0f, 0.0f + p.z,
 		0.0f, 0.0f, 0.0f, 1.0f 
 	};
 
@@ -231,6 +251,9 @@ void drawWindmill(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
+
+	// lightning
+	glUniform1f(glGetUniformLocation(program, "specularExponent"), specularExponent[1]);
 
 	// Walls, Roof, Balcony
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixStaticObj);
@@ -262,6 +285,9 @@ void drawWindmill(void) {
 }
 
 void drawGround(void) {
+	// lightning
+	glUniform1f(glGetUniformLocation(program, "specularExponent"), specularExponent[0]);
+
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixGround.m);
@@ -272,6 +298,9 @@ void drawGround(void) {
 }
 
 void drawTeapot(void) {
+	// lightning
+	glUniform1f(glGetUniformLocation(program, "specularExponent"), specularExponent[2]);
+
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot);

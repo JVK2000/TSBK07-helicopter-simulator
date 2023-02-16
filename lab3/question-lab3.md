@@ -66,3 +66,15 @@ I updated the translation matrix before drawing each model. I used the same shad
 
 The clouds is not aligned in the corners.
 
+
+----
+
+#### Part 4)
+
+**Where is the camera in view coordinates?**
+
+I have `p = {0, 10, 10}` which is used in `lookAtv(p, l, v)`
+
+
+
+

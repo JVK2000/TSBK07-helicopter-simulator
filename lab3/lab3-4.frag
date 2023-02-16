@@ -4,7 +4,6 @@ Per-pixel calculations.
 
 #version 150
 
-in vec3 normal;
 in vec2 textCoord;
 in vec3 transformedNormal; // Phong
 
@@ -14,18 +13,34 @@ uniform sampler2D texUnit;
 uniform bool shadingEnabled;
 uniform bool textureEnabled;
 
+// 4 light sources
+uniform vec3 lightSourcesDirPosArr[4];
+uniform vec3 lightSourcesColorArr[4];
+uniform float specularExponent;
+uniform bool isDirectional[4];
+
+uniform mat4 cameraMatrix;
+
+
 void main(void)
 {
-	const vec3 light = vec3(0.58, 0.58, 0.58);
-	float shade = dot(normalize(transformedNormal), light);
+	vec3 color = vec3(1, 1, 1);
 
-	vec4 color = vec4(1, 1, 1, 1);
-	if (shadingEnabled) {
-		color = shade * color; 
-	} 
+    if (shadingEnabled) {
+		color = vec3(0, 0, 0);
+
+		for(int i = 0; i < 4; i++){
+
+			vec3 light = (mat3(cameraMatrix) * normalize(lightSourcesDirPosArr[i]));
+			float shade = dot(normalize(transformedNormal),light);
+
+			color += vec3(shade) * lightSourcesColorArr[i];
+		}
+	}
+
 	if (textureEnabled) {
-		color = color * texture(texUnit, textCoord);
-	} 
+        color = color * vec3(texture(texUnit, textCoord));
+    } 
 
-	outColor = color;
+	outColor = vec4(color, 1);
 }
