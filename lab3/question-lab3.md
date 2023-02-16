@@ -18,14 +18,14 @@ I decided to this instead
 mat4 tot_rot = Rx(M_PI/2 + t/1000) 
 ```
 
-</br>
+<br>
 
 **How do you make the wings follow the body's movements?**
 
 After all transformations are done (related to all models positioning and the blades rotation) you can transform the compleat set of models with an transformation. 
 
 
-</br>
+---
 
 #### Part 2)
 
@@ -37,27 +37,32 @@ Looking: mouse - up, down, left, right
 By creating an extra matrix for movement and one for rotation of the projectionMatrix
 
 
-
-</br>
+----
 
 #### Part 3)
 
 **How did you handle the camera matrix for the skybox?**
 
-
+I added the camera position to the translation matrix for the skybox to cancel the translation. In this way, the skybox rotated accordingly to the camera matrix, but the skybox always used the same position as the camera. 
 
 </br>
 
 **How did you represent the objects? Is this a good way to manage a scene or would you do it differently for a "real" application?**
 
+I updated the translation matrix before drawing each model. I used the same shaders but updated a uniform value to decide if lighting and textures were to be used. 
 
 
 </br>
 
 **What special considerations are needed when rendering a skybox?**
 
+* No Z-buffering. 
+* Skybox should have the same rotation as the world, but it should not moving. 
 
 
 </br>
 
 **What is the problem with the “labskybox" object used in the lab? (The problem doesn't have to be corrected.)**
+
+The clouds is not aligned in the corners.
+
