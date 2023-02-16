@@ -208,14 +208,14 @@ void drawSkybox(void) {
     glDisable(GL_CULL_FACE);
 
 	vec3 p2 = {0, 0, 0};	// Camera position
-	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p2, l, v)));
+	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
 
 
 	mat4 translationMatrixSkybox = {	
-		1.0f, 0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, 2.0f,
-		0.0f, 0.0f, 1.0f, 10.0f,
+		1.0f, 0.0f, 0.0f, 0.0f+p.x,
+		0.0f, 1.0f, 0.0f, 1.5f+p.y,
+		0.0f, 0.0f, 1.0f, 10.0f+p.z,
 		0.0f, 0.0f, 0.0f, 1.0f 
 	};
 	// mat4 totMat = Mult(InvertMat4(cameraMatrix), translationMatrixSkybox);
