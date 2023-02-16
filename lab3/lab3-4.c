@@ -1,4 +1,4 @@
-// Lab 3-3.
+// Lab 3-4.
 
 // Should work as is on Linux and Mac. MS Windows needs GLEW or glee.
 // See separate Visual Studio version of my demos.
@@ -38,19 +38,19 @@ GLfloat globalTransform[] = {
 // Used by static positioned windmill models (walls, balcony, roof) 
 GLfloat translationMatrixStaticObj[] = {	
 	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, -10.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
 mat4 translationMatrixGround = {	
 	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, -10.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
 GLfloat translationMatrixTeapot[] = {	
 	1.0f, 0.0f, 0.0f, 15.0f,
-	0.0f, 1.0f, 0.0f, -10.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 15.0f,
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
@@ -58,14 +58,14 @@ GLfloat translationMatrixTeapot[] = {
 // NOTE: Model is pointing to the right on start, axis are tossed around  
 GLfloat translationMatrixBlade[] = {	
 	1.0f, 0.0f, 0.0f, 4.5f,		// Blade depth
-	0.0f, 1.0f, 0.0f, -0.8f,	// Vertical
+	0.0f, 1.0f, 0.0f, 9.2f,	// Vertical
 	0.0f, 0.0f, 1.0f, 0.0f,		// Horizon
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
 
 // Camera
-vec3 p = {0, 0, 10};	// Camera position
-vec3 l = {0, 0, 0};		// Position to look at
+vec3 p = {0, 10, 10};	// Camera position
+vec3 l = {0, 10, 0};		// Position to look at
 vec3 v = {0, 1, 0};		// Determines which axis is up
 
 // Used by the ground model
@@ -137,7 +137,7 @@ void init(void)
 	printError("GL inits");
 
 	// Load and compile shader
-	program = loadShaders("lab3-3.vert", "lab3-3.frag");
+	program = loadShaders("lab3-4.vert", "lab3-4.frag");
 
 	printError("init shader");
 	
@@ -262,7 +262,7 @@ void drawWindmill(void) {
 }
 
 void drawGround(void) {
-	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), false);
+	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixGround.m);
 	DrawModel(ground_model, program, "inPosition", "inNormal", "inTexCoord");
@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitContextVersion(3, 2);
-	glutCreateWindow ("lab3-3");
+	glutCreateWindow ("lab3-4");
 	glutDisplayFunc(display); 
 	glutRepeatingTimerFunc(20); // timer that will cause a redisplay every d milliseconds
 	init ();
