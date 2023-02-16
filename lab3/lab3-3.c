@@ -54,12 +54,7 @@ GLfloat translationMatrixTeapot[] = {
 	0.0f, 0.0f, 1.0f, 15.0f,
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
-GLfloat translationMatrixSkybox[] = {	
-	1.0f, 0.0f, 0.0f, 2.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f 
-};
+
 // NOTE: Model is pointing to the right on start, axis are tossed around  
 GLfloat translationMatrixBlade[] = {	
 	1.0f, 0.0f, 0.0f, 4.5f,		// Blade depth
@@ -209,13 +204,37 @@ void keyboardMovement()
 
 
 void drawSkybox(void) {
+	glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+
+	vec3 p2 = {0, 0, 0};	// Camera position
+	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p2, l, v)));
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
+
+
+	mat4 translationMatrixSkybox = {	
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 1.0f, 0.0f, 2.0f,
+		0.0f, 0.0f, 1.0f, 10.0f,
+		0.0f, 0.0f, 0.0f, 1.0f 
+	};
+	// mat4 totMat = Mult(InvertMat4(cameraMatrix), translationMatrixSkybox);
+
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), false);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
 	LoadTGATextureSimple("labskybox512.tga", &texUnit);			// Create texture object
 	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
 	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
-	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixSkybox);
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixSkybox.m);
 	DrawModel(skybox, program, "inPosition", "inNormal", "inTexCoord");
+
+
+	cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
+
+
+    glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
 }
 
 
@@ -277,9 +296,9 @@ void display(void)
 
 	keyboardMovement();
 	
+	drawSkybox();
 	drawGround();
 	drawWindmill();
-	drawSkybox();
 	drawTeapot();
 
 	printError("display");
