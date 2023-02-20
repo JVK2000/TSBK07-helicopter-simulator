@@ -34,15 +34,18 @@ void main(void)
 		// color = surfacePositions;	// Scene visualizing surface positions
 		// color = vec4(normal, 1);	// Scene visualizing normal
 
-		vec3 lightDir = normalize(lightSourcesDirPosArr[2]);
+		vec3 lightSource2Dir = normalize(lightSourcesDirPosArr[2]);
+		vec3 lightSource3Dir = normalize(lightSourcesDirPosArr[3]);
 
-		float diff = max(dot(transformedNormal, lightDir), 0.0);			// how closely two vectors align, in terms of the directions they point.
+		// från https://learnopengl.com/Lighting/Basic-Lighting
+		float diffuse2 = max(dot(transformedNormal, lightSource2Dir), 0.0);	// dot product is how closely two vectors align, in terms of the directions they point.
+		float diffuse3 = max(dot(transformedNormal, lightSource3Dir), 0.0);	
 
 
-		vec3 light = diff * lightSourcesColorArr[2] * 0.5;
+		vec3 light2 = diffuse2 * lightSourcesColorArr[2] * 0.5;
+		vec3 light3 = diffuse3 * lightSourcesColorArr[3] * 0.5;
 
-		color = vec4(light, 1); 
-		// color = vec4(lightSourcesColorArr[2] * lightSourcesDirPosArr[2], 1);
+		color = vec4(light2, 1) + vec4(light3, 1); 
 	}
 
 	if (textureEnabled) {
