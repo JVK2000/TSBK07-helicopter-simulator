@@ -41,7 +41,7 @@ void main(void)
 
 
 		// color = surfacePositions;	// Scene visualizing surface positions
-		color = vec4(normal, 1);
+		color = vec4(normal, 1);	// Scene visualizing normal
 	}
 
 	if (textureEnabled) {
