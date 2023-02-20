@@ -30,18 +30,19 @@ void main(void)
 	vec4 color = vec4(1, 1, 1, 1);
 
     if (shadingEnabled) {
-		// color = vec3(0, 0, 0);
-
-		// for(int i = 0; i < 4; i++){
-		// 	vec3 light = (mat3(cameraMatrix) * lightSourcesDirPosArr[i]);
-		// 	float shade = dot(normalize(transformedNormal), light);
-
-		// 	color += vec3(shade) * lightSourcesColorArr[i];
-		// }
-
-
+		
 		// color = surfacePositions;	// Scene visualizing surface positions
-		color = vec4(normal, 1);	// Scene visualizing normal
+		// color = vec4(normal, 1);	// Scene visualizing normal
+
+		vec3 lightDir = normalize(lightSourcesDirPosArr[2]);
+
+		float diff = max(dot(transformedNormal, lightDir), 0.0);			// how closely two vectors align, in terms of the directions they point.
+
+
+		vec3 light = diff * lightSourcesColorArr[2] * 0.5;
+
+		color = vec4(light, 1); 
+		// color = vec4(lightSourcesColorArr[2] * lightSourcesDirPosArr[2], 1);
 	}
 
 	if (textureEnabled) {
