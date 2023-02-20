@@ -7,7 +7,6 @@ Per-pixel calculations.
 in vec2 textCoord;
 in vec3 transformedNormal; // Phong
 in vec4 surfacePositions;
-in vec3 normal;
 
 out vec4 outColor;
 
@@ -34,16 +33,15 @@ void main(void)
 		// local vector  = fsurfacePositions -  light source pos.
 
 		// color = surfacePositions;	// Scene visualizing surface positions
-		// color = vec4(normal, 1);	// Scene visualizing normal
+		// color = vec4(mat3(cameraMatrix) * transformedNormal, 1);	// Scene visualizing normal
 
-		vec3 lightSource2Dir = normalize(mat3(cameraMatrix) *lightSourcesDirPosArr[2]);			// ska ändra till view kordinatsystem
-		vec3 lightSource3Dir = normalize(mat3(cameraMatrix) *lightSourcesDirPosArr[3]);
+		vec3 lightSource2Dir = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[2]);
+		vec3 lightSource3Dir = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[3]);
 
 		// från https://learnopengl.com/Lighting/Basic-Lighting
-		float diffuse2 = max(dot(mat3(cameraMatrix) *transformedNormal, lightSource2Dir), 0.0);	// dot product is how closely two vectors align, in terms of the directions they point.
-		float diffuse3 = max(dot(mat3(cameraMatrix) *transformedNormal, lightSource3Dir), 0.0);	
-
-		// ska använda normal istället för transformedNormal
+		vec3 normal_view_coord = mat3(cameraMatrix) * transformedNormal;
+		float diffuse2 = max(dot(normal_view_coord, lightSource2Dir), 0.0);	// dot product is how closely two vectors align, in terms of the directions they point.
+		float diffuse3 = max(dot(normal_view_coord, lightSource3Dir), 0.0);	
 
 		vec3 light2 = diffuse2 * lightSourcesColorArr[2] * 0.5;
 		vec3 light3 = diffuse3 * lightSourcesColorArr[3] * 0.5;
