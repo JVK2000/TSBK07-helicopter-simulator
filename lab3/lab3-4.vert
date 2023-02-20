@@ -10,6 +10,7 @@ in vec2 inTexCoord;
 
 out vec2 textCoord;
 out vec3 transformedNormal;
+out vec4 surfacePositions;
 
 uniform mat4 rotationMatrixExtra;	// Used for the rotation of the windmill blades
 uniform mat4 translationMatrix;
@@ -23,6 +24,7 @@ void main(void)
     transformedNormal = normalMatrix * inNormal;
 	
 	gl_Position =  projectionMatrix  * cameraMatrix * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
-		
+	surfacePositions = 	 cameraMatrix * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
+
 	textCoord = inTexCoord;
 }

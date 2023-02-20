@@ -6,6 +6,7 @@ Per-pixel calculations.
 
 in vec2 textCoord;
 in vec3 transformedNormal; // Phong
+in vec4 surfacePositions;
 
 out vec4 outColor;
 
@@ -20,27 +21,29 @@ uniform float specularExponent;
 uniform bool isDirectional[4];
 
 uniform mat4 cameraMatrix;
+uniform mat4 projectionMatrix;
 
 
 void main(void)
 {
-	vec3 color = vec3(1, 1, 1);
+	vec4 color = vec4(1, 1, 1, 1);
 
     if (shadingEnabled) {
-		color = vec3(0, 0, 0);
+		// color = vec3(0, 0, 0);
 
-		for(int i = 0; i < 4; i++){
+		// for(int i = 0; i < 4; i++){
+		// 	vec3 light = (mat3(cameraMatrix) * lightSourcesDirPosArr[i]);
+		// 	float shade = dot(normalize(transformedNormal), light);
 
-			vec3 light = (mat3(cameraMatrix) * normalize(lightSourcesDirPosArr[i]));
-			float shade = dot(normalize(transformedNormal),light);
+		// 	color += vec3(shade) * lightSourcesColorArr[i];
+		// }
 
-			color += vec3(shade) * lightSourcesColorArr[i];
-		}
+		color = surfacePositions;
 	}
 
 	if (textureEnabled) {
-        color = color * vec3(texture(texUnit, textCoord));
+        color = color * vec4(vec3(texture(texUnit, textCoord)), 1);
     } 
 
-	outColor = vec4(color, 1);
+	outColor = color;
 }
