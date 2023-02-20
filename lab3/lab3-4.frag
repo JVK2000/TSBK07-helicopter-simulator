@@ -7,6 +7,7 @@ Per-pixel calculations.
 in vec2 textCoord;
 in vec3 transformedNormal; // Phong
 in vec4 surfacePositions;
+in vec3 normal;
 
 out vec4 outColor;
 
@@ -38,7 +39,9 @@ void main(void)
 		// 	color += vec3(shade) * lightSourcesColorArr[i];
 		// }
 
-		color = surfacePositions;
+
+		// color = surfacePositions;	// Scene visualizing surface positions
+		color = vec4(normal, 1);
 	}
 
 	if (textureEnabled) {
