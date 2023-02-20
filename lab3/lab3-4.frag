@@ -36,12 +36,12 @@ void main(void)
 		// color = surfacePositions;	// Scene visualizing surface positions
 		// color = vec4(normal, 1);	// Scene visualizing normal
 
-		vec3 lightSource2Dir = normalize(lightSourcesDirPosArr[2]);			// ska ändra till view kordinatsystem
-		vec3 lightSource3Dir = normalize(lightSourcesDirPosArr[3]);
+		vec3 lightSource2Dir = normalize(mat3(cameraMatrix) *lightSourcesDirPosArr[2]);			// ska ändra till view kordinatsystem
+		vec3 lightSource3Dir = normalize(mat3(cameraMatrix) *lightSourcesDirPosArr[3]);
 
 		// från https://learnopengl.com/Lighting/Basic-Lighting
-		float diffuse2 = max(dot(transformedNormal, lightSource2Dir), 0.0);	// dot product is how closely two vectors align, in terms of the directions they point.
-		float diffuse3 = max(dot(transformedNormal, lightSource3Dir), 0.0);	
+		float diffuse2 = max(dot(mat3(cameraMatrix) *transformedNormal, lightSource2Dir), 0.0);	// dot product is how closely two vectors align, in terms of the directions they point.
+		float diffuse3 = max(dot(mat3(cameraMatrix) *transformedNormal, lightSource3Dir), 0.0);	
 
 		// ska använda normal istället för transformedNormal
 
