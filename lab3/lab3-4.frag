@@ -58,7 +58,7 @@ void main(void)
 		
 
 //		color = vec4(light2, 1) + vec4(light3, 1);
-		color = vec4(light0 + light1, 1);
+		color = vec4(light0 + light1 + light2 + light3, 1);
 	}
 
 	if (textureEnabled) {
