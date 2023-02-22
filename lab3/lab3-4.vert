@@ -23,8 +23,8 @@ void main(void)
 	mat3 normalMatrix = mat3(translationMatrix);
     transformedNormal = normalMatrix * inNormal;
 	
-	gl_Position =  projectionMatrix  * cameraMatrix * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
-	surfacePositions = 	 cameraMatrix * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
+	gl_Position = projectionMatrix  * cameraMatrix * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
+	surfacePositions = cameraMatrix * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
 
 	textCoord = inTexCoord;
 }

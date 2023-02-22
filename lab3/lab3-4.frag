@@ -42,21 +42,32 @@ void main(void)
 		// från https://learnopengl.com/Lighting/Basic-Lighting
 		vec3 normal_view_coord = mat3(cameraMatrix) * transformedNormal;
 		float diffuse2 = max(dot(normal_view_coord, lightSource2Dir), 0.0);	// dot product is how closely two vectors align, in terms of the directions they point.
-		float diffuse3 = max(dot(normal_view_coord, lightSource3Dir), 0.0);	
+		float diffuse3 = max(dot(normal_view_coord, lightSource3Dir), 0.0);
 
 		vec3 light2 = diffuse2 * lightSourcesColorArr[2] * 0.5;
 		vec3 light3 = diffuse3 * lightSourcesColorArr[3] * 0.5;
 		// ------
 
 		// Positional diffuse light
-		// vec3 locVec0 = vec3(surfacePositions) - lightSourcesDirPosArr[0];
-		// vec3 light0 = locVec0 * lightSourcesColorArr[0] * 0.5;
-		vec3 locVec0 = vec3(surfacePositions) - lightSourcesDirPosArr[0];
-		vec3 light0dd = locVec0 * lightSourcesColorArr[0] * 0.5;
+//		vec3 lightSource0Dir = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[0]);
+//		vec3 locVec0 = normalize(vec3(lightSource0Dir - vec3(surfacePositions)));
+//		vec3 tempLight0 = locVec0 * lightSourcesColorArr[0] * 0.5;
 
-		float diffuse0 = max(dot(normal_view_coord, light0dd), 0.0);	
+		vec3 lightSource0Dir = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[0]);
+		vec3 lightSource0DirRes = normalize(lightSource0Dir - vec3(surfacePositions));
+
+		// från https://learnopengl.com/Lighting/Basic-Lighting
+//		vec3 normal_view_coord = mat3(cameraMatrix) * transformedNormal;
+		float diffuse0 = max(dot(normal_view_coord, lightSource0DirRes), 0.0);	// dot product is how closely two vectors align, in terms of the directions they point.
 
 		vec3 light0 = diffuse0 * lightSourcesColorArr[0] * 0.5;
+
+
+
+
+//		float diffuse0 = max(dot(normal_view_coord, light0dd), 0.0);
+
+//		vec3 light0 = tempLight0 * lightSourcesColorArr[0] * 0.5;
 
 		// ------
 
@@ -64,12 +75,13 @@ void main(void)
 
 
 
-		color = vec4(light2, 1) + vec4(light3, 1) + vec4(light0, 1); 
+//		color = vec4(light2, 1) + vec4(light3, 1);
+		color = vec4(light0, 1);
 	}
 
 	if (textureEnabled) {
         color = color * vec4(vec3(texture(texUnit, textCoord)), 1);
-    } 
+    }
 
 	outColor = color;
 }
