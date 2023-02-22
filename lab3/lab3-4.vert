@@ -29,7 +29,6 @@ void main(void)
 
 	// surfacePositions = cameraMatrix * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
 	surfacePos = vec3(translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0));
-	pos_to_fragment = vec3(cameraMatrix * translationMatrix * rotationMatrixExtra * vec4(inPosition,1.0));
 
 
 	textCoord = inTexCoord;

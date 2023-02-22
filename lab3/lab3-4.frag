@@ -25,7 +25,6 @@ uniform mat4 cameraMatrix;
 uniform mat4 projectionMatrix;
 uniform vec3 cameraPos;
 
-in vec3 pos_to_fragment;
 
 void main(void)
 {
@@ -66,9 +65,8 @@ void main(void)
 
 	outColor = color;
 
-
-	// outColor = vec4(pos_to_fragment, 1);	// Scene visualizing surface positions
-
+	// outColor = vec4(camMat * surfacePos, 1);	// Scene visualizing surface positions
+	// outColor = vec4(surfacePositions, 1);	// Scene visualizing surface positions
 	// outColor = vec4(normal_view, 1);	// Scene visualizing normal
 
 }
