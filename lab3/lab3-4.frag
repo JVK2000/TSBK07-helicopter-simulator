@@ -32,41 +32,32 @@ void main(void)
 
     if (shadingEnabled) {
 //		 color = surfacePositions;	// Scene visualizing surface positions
-
 		vec3 normal_view = mat3(cameraMatrix) * transformedNormal;
-		vec3 light, lightDirection;
-		vec4 totLight = vec4(0, 0, 0, 0);
-		vec3 lightDirSpecular;
+		color = vec4(0, 0, 0, 0);
 
 //		for(int i = 3; i < 4; i++) {
 		for(int i = 0; i < 4; i++) {
-
+			vec3 lightDirection;
 			if (isDirectional[i]) {
-				// Directional diffuse light
+				// Directional light
 				lightDirection = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[i]);
-				lightDirSpecular = normalize(lightSourcesDirPosArr[i]);
-
 			} else {
-				// Positional diffuse light
+				// Positional light
 				lightDirection = normalize(mat3(cameraMatrix) *  (lightSourcesDirPosArr[i] - fragPos));
-				lightDirSpecular = normalize(lightSourcesDirPosArr[i] - fragPos);
 			}
+			// Diffuse light
 			float diffuse = max(dot(normal_view, lightDirection), 0.0);
-			light = diffuse * lightSourcesColorArr[i] * 0.5;
+			vec3 diffuseLight = diffuse * lightSourcesColorArr[i] * 0.5;
 
 			// Specular light
-			vec3 viewDir = normalize(cameraPos - fragPos);
-			vec3 reflectDir = reflect(-lightDirSpecular, normalize(transformedNormal));
+			vec3 viewDir = normalize(mat3(cameraMatrix) * (cameraPos - fragPos));
+			vec3 reflectDir = reflect(-lightDirection, normalize(normal_view));
 			float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
-			vec3 specular = .8 * spec * lightSourcesColorArr[i];
-			light = light + specular;
-			// ------
-			totLight = totLight + vec4(light, 1);
+			vec3 specularLight = .8 * spec * lightSourcesColorArr[i];
+
+			color = color + vec4(diffuseLight + specularLight, 1);
 
 		}
-
-		color = totLight;
-//		color = vec4(light0 + light1 + light2 + light3, 1);
 	}
 
 	if (textureEnabled) {
