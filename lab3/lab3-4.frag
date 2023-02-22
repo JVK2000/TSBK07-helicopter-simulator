@@ -23,60 +23,42 @@ uniform bool isDirectional[4];
 uniform mat4 cameraMatrix;
 uniform mat4 projectionMatrix;
 
+in vec3 surfPos;
 
 void main(void)
 {
 	vec4 color = vec4(1, 1, 1, 1);
 
     if (shadingEnabled) {
+//		 color = surfacePositions;	// Scene visualizing surface positions
+
+		vec3 normal_view = mat3(cameraMatrix) * transformedNormal;
+
+
+		// Positional diffuse light
+		vec3 lightSourceDir0 = normalize(mat3(cameraMatrix) *  (lightSourcesDirPosArr[0] - surfPos));
+		float diffuse0 = max(dot(normal_view, lightSourceDir0), 0.0);
+		vec3 light0 = diffuse0 * lightSourcesColorArr[0] * 0.5;
+
+		vec3 lightSourceDir1 = normalize(mat3(cameraMatrix) *  (lightSourcesDirPosArr[1] - surfPos));
+		float diffuse1 = max(dot(normal_view, lightSourceDir1), 0.0);
+		vec3 light1 = diffuse1 * lightSourcesColorArr[1] * 0.5;
+		// ------	
 		
-		// local vector  = fsurfacePositions -  light source pos.
-
-		// color = surfacePositions;	// Scene visualizing surface positions
-		// color = vec4(mat3(cameraMatrix) * transformedNormal, 1);	// Scene visualizing normal
-
 		// Directional diffuse light
-		vec3 lightSource2Dir = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[2]);
-		vec3 lightSource3Dir = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[3]);
-
-		// från https://learnopengl.com/Lighting/Basic-Lighting
-		vec3 normal_view_coord = mat3(cameraMatrix) * transformedNormal;
-		float diffuse2 = max(dot(normal_view_coord, lightSource2Dir), 0.0);	// dot product is how closely two vectors align, in terms of the directions they point.
-		float diffuse3 = max(dot(normal_view_coord, lightSource3Dir), 0.0);
-
+		vec3 lightSourceDir2 = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[2]);
+		float diffuse2 = max(dot(normal_view, lightSourceDir2), 0.0);
 		vec3 light2 = diffuse2 * lightSourcesColorArr[2] * 0.5;
+		
+		vec3 lightSourceDir3 = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[3]);
+		float diffuse3 = max(dot(normal_view, lightSourceDir3), 0.0);
 		vec3 light3 = diffuse3 * lightSourcesColorArr[3] * 0.5;
 		// ------
 
-		// Positional diffuse light
-//		vec3 lightSource0Dir = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[0]);
-//		vec3 locVec0 = normalize(vec3(lightSource0Dir - vec3(surfacePositions)));
-//		vec3 tempLight0 = locVec0 * lightSourcesColorArr[0] * 0.5;
-
-		vec3 lightSource0Dir = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[0]);
-		vec3 lightSource0DirRes = normalize(lightSource0Dir - vec3(surfacePositions));
-
-		// från https://learnopengl.com/Lighting/Basic-Lighting
-//		vec3 normal_view_coord = mat3(cameraMatrix) * transformedNormal;
-		float diffuse0 = max(dot(normal_view_coord, lightSource0DirRes), 0.0);	// dot product is how closely two vectors align, in terms of the directions they point.
-
-		vec3 light0 = diffuse0 * lightSourcesColorArr[0] * 0.5;
-
-
-
-
-//		float diffuse0 = max(dot(normal_view_coord, light0dd), 0.0);
-
-//		vec3 light0 = tempLight0 * lightSourcesColorArr[0] * 0.5;
-
-		// ------
-
-
-
-
+		
 
 //		color = vec4(light2, 1) + vec4(light3, 1);
-		color = vec4(light0, 1);
+		color = vec4(light0 + light1, 1);
 	}
 
 	if (textureEnabled) {
