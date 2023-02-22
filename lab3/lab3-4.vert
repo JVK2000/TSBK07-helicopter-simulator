@@ -18,6 +18,7 @@ uniform mat4 projectionMatrix;
 uniform mat4 cameraMatrix;
 
 out vec3 surfacePos;
+out vec3 pos_to_fragment;
 
 void main(void)
 {
@@ -28,6 +29,7 @@ void main(void)
 
 	// surfacePositions = cameraMatrix * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
 	surfacePos = vec3(translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0));
+	pos_to_fragment = vec3(cameraMatrix * translationMatrix * rotationMatrixExtra * vec4(inPosition,1.0));
 
 
 	textCoord = inTexCoord;

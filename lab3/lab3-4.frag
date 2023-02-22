@@ -25,31 +25,34 @@ uniform mat4 cameraMatrix;
 uniform mat4 projectionMatrix;
 uniform vec3 cameraPos;
 
+in vec3 pos_to_fragment;
 
 void main(void)
 {
 	vec4 color = vec4(1, 1, 1, 1);
+	mat3 camMat = mat3(cameraMatrix);
+	vec3 normal_view = normalize(camMat * transformedNormal);
 
-    if (shadingEnabled) {
-		vec3 normal_view = normalize(transformedNormal);
+	if (shadingEnabled) {
 		color = vec4(0, 0, 0, 0);
 
+		//		for(int i = 3; i < 4; i++) {
 		for(int i = 0; i < 4; i++) {
 			vec3 lightDirection;
 			if (isDirectional[i]) {
 				// Directional light
-				lightDirection = normalize(lightSourcesDirPosArr[i]);
+				lightDirection = normalize(camMat * lightSourcesDirPosArr[i]);
 			} else {
 				// Positional light
-				lightDirection = normalize(lightSourcesDirPosArr[i] - surfacePos);
+				lightDirection = normalize(camMat *  (lightSourcesDirPosArr[i] - surfacePos));
 			}
 			// Diffuse light
 			float diffuse = max(dot(normal_view, lightDirection), 0.0);
 			vec3 diffuseLight = diffuse * lightSourcesColorArr[i] * 0.5;
 
 			// Specular light
-			vec3 viewDir = normalize(cameraPos - surfacePos);
-			vec3 reflectDir = reflect(-lightDirection, normal_view);
+			vec3 viewDir = normalize(camMat * (cameraPos - surfacePos));
+			vec3 reflectDir = reflect(-lightDirection, normalize(normal_view));
 			float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
 			vec3 specularLight = .8 * spec * lightSourcesColorArr[i];
 
@@ -62,6 +65,12 @@ void main(void)
     }
 
 	outColor = color;
+
+
+	// outColor = vec4(pos_to_fragment, 1);	// Scene visualizing surface positions
+
+	// outColor = vec4(normal_view, 1);	// Scene visualizing normal
+
 }
 
 
