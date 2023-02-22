@@ -22,8 +22,11 @@ uniform bool isDirectional[4];
 
 uniform mat4 cameraMatrix;
 uniform mat4 projectionMatrix;
+uniform vec3 cameraPos;
 
-in vec3 surfPos;
+uniform vec3 camPos;
+
+in vec3 fragPos;
 
 void main(void)
 {
@@ -34,13 +37,12 @@ void main(void)
 
 		vec3 normal_view = mat3(cameraMatrix) * transformedNormal;
 
-
 		// Positional diffuse light
-		vec3 lightSourceDir0 = normalize(mat3(cameraMatrix) *  (lightSourcesDirPosArr[0] - surfPos));
+		vec3 lightSourceDir0 = normalize(mat3(cameraMatrix) *  (lightSourcesDirPosArr[0] - fragPos));
 		float diffuse0 = max(dot(normal_view, lightSourceDir0), 0.0);
 		vec3 light0 = diffuse0 * lightSourcesColorArr[0] * 0.5;
 
-		vec3 lightSourceDir1 = normalize(mat3(cameraMatrix) *  (lightSourcesDirPosArr[1] - surfPos));
+		vec3 lightSourceDir1 = normalize(mat3(cameraMatrix) *  (lightSourcesDirPosArr[1] - fragPos));
 		float diffuse1 = max(dot(normal_view, lightSourceDir1), 0.0);
 		vec3 light1 = diffuse1 * lightSourcesColorArr[1] * 0.5;
 		// ------	
@@ -55,10 +57,18 @@ void main(void)
 		vec3 light3 = diffuse3 * lightSourcesColorArr[3] * 0.5;
 		// ------
 
-		
+		// Specular light
+		vec3 viewDir = normalize(camPos - fragPos);
+		vec3 reflectDir = reflect(-lightSourcesDirPosArr[3], normal_view);
+		float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
+		vec3 specular = 0.5 * spec * lightSourcesColorArr[3];
+		light3 = light3 + specular;
 
-//		color = vec4(light2, 1) + vec4(light3, 1);
-		color = vec4(light0 + light1 + light2 + light3, 1);
+
+
+
+		color = vec4(light3, 1);
+//		color = vec4(light0 + light1 + light2 + light3, 1);
 	}
 
 	if (textureEnabled) {

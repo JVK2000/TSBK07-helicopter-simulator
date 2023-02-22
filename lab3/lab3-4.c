@@ -313,8 +313,12 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the screen
 
 	keyboardMovement();
-	
-	drawSkybox();
+
+
+    glUniform3f(glGetUniformLocation(program, "cameraPos"), p.x, p.y, p.z);
+
+
+    drawSkybox();
 	drawGround();
 	drawWindmill();
 	drawTeapot();

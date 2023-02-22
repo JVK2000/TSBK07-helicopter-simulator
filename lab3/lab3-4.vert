@@ -17,7 +17,7 @@ uniform mat4 translationMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 cameraMatrix;
 
-out vec3 surfPos;
+out vec3 fragPos;
 
 void main(void)
 {
@@ -27,7 +27,7 @@ void main(void)
 	gl_Position = projectionMatrix  * cameraMatrix * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
 
 	surfacePositions = cameraMatrix * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
-	surfPos = vec3(translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0));
+	fragPos = vec3(translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0));
 
 
 	textCoord = inTexCoord;
