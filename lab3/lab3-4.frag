@@ -34,55 +34,38 @@ void main(void)
 //		 color = surfacePositions;	// Scene visualizing surface positions
 
 		vec3 normal_view = mat3(cameraMatrix) * transformedNormal;
+		vec3 light, lightDirection;
+		vec4 totLight = vec4(0, 0, 0, 0);
+		vec3 lightDirSpecular;
 
-		// Positional diffuse light
-		vec3 lightSourceDir0 = normalize(mat3(cameraMatrix) *  (lightSourcesDirPosArr[0] - fragPos));
-		float diffuse0 = max(dot(normal_view, lightSourceDir0), 0.0);
-		vec3 light0 = diffuse0 * lightSourcesColorArr[0] * 0.5;
+//		for(int i = 3; i < 4; i++) {
+		for(int i = 0; i < 4; i++) {
 
-		vec3 lightSourceDir1 = normalize(mat3(cameraMatrix) *  (lightSourcesDirPosArr[1] - fragPos));
-		float diffuse1 = max(dot(normal_view, lightSourceDir1), 0.0);
-		vec3 light1 = diffuse1 * lightSourcesColorArr[1] * 0.5;
-		// ------	
-		
-		// Directional diffuse light
-		vec3 lightSourceDir2 = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[2]);
-		float diffuse2 = max(dot(normal_view, lightSourceDir2), 0.0);
-		vec3 light2 = diffuse2 * lightSourcesColorArr[2] * 0.5;
-		
-		vec3 lightSourceDir3 = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[3]);
-		float diffuse3 = max(dot(normal_view, lightSourceDir3), 0.0);
-		vec3 light3 = diffuse3 * lightSourcesColorArr[3] * 0.5;
-		// ------
+			if (isDirectional[i]) {
+				// Directional diffuse light
+				lightDirection = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[i]);
+				lightDirSpecular = normalize(lightSourcesDirPosArr[i]);
 
-		// Specular light
-//		vec3 viewDir = normalize(cameraPos - fragPos);
-//		vec3 reflectDir = reflect(-lightSourcesDirPosArr[3], normal_view);
-//		float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
-//		vec3 specular = 0.8 * spec * lightSourcesColorArr[3];
-//		light3 = light3 + specular;
+			} else {
+				// Positional diffuse light
+				lightDirection = normalize(mat3(cameraMatrix) *  (lightSourcesDirPosArr[i] - fragPos));
+				lightDirSpecular = normalize(lightSourcesDirPosArr[i] - fragPos);
+			}
+			float diffuse = max(dot(normal_view, lightDirection), 0.0);
+			light = diffuse * lightSourcesColorArr[i] * 0.5;
 
-		vec3 viewDir = normalize(cameraPos - fragPos);
-		vec3 lightDir = normalize(lightSourcesDirPosArr[3]);
-		vec3 reflectDir = reflect(-lightDir, normalize(transformedNormal));
-		float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
-		vec3 specular = 2 * spec * lightSourcesColorArr[3];
-		light3 = light3 + specular;
+			// Specular light
+			vec3 viewDir = normalize(cameraPos - fragPos);
+			vec3 reflectDir = reflect(-lightDirSpecular, normalize(transformedNormal));
+			float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
+			vec3 specular = .8 * spec * lightSourcesColorArr[i];
+			light = light + specular;
+			// ------
+			totLight = totLight + vec4(light, 1);
 
+		}
 
-//
-//		vec3 lightDir = normalize(lightSourcesDirPosArr[3]);
-//		vec3 viewDir = normalize(camPos - fragPosition);
-//		vec3 reflectDir = reflect(-lightDir, norm);
-//
-//		// After that, we calculate the specular component.
-//		spec	 = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
-//		specular = specularStrength * spec * lightSourcesColorArr[i];
-
-
-
-
-color = vec4(light3, 1);
+		color = totLight;
 //		color = vec4(light0 + light1 + light2 + light3, 1);
 	}
 
