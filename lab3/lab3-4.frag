@@ -5,8 +5,9 @@ Per-pixel calculations.
 #version 150
 
 in vec2 textCoord;
-in vec3 transformedNormal; // Phong
+in vec3 transformedNormal;
 in vec4 surfacePositions;
+in vec3 surfacePos;
 
 out vec4 outColor;
 
@@ -24,7 +25,6 @@ uniform mat4 cameraMatrix;
 uniform mat4 projectionMatrix;
 uniform vec3 cameraPos;
 
-in vec3 fragPos;
 
 void main(void)
 {
@@ -41,14 +41,14 @@ void main(void)
 				lightDirection = normalize(lightSourcesDirPosArr[i]);
 			} else {
 				// Positional light
-				lightDirection = normalize(lightSourcesDirPosArr[i] - fragPos);
+				lightDirection = normalize(lightSourcesDirPosArr[i] - surfacePos);
 			}
 			// Diffuse light
 			float diffuse = max(dot(normal_view, lightDirection), 0.0);
 			vec3 diffuseLight = diffuse * lightSourcesColorArr[i] * 0.5;
 
 			// Specular light
-			vec3 viewDir = normalize(cameraPos - fragPos);
+			vec3 viewDir = normalize(cameraPos - surfacePos);
 			vec3 reflectDir = reflect(-lightDirection, normal_view);
 			float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
 			vec3 specularLight = .8 * spec * lightSourcesColorArr[i];
@@ -77,14 +77,14 @@ void main(void)
 //				lightDirection = normalize(mat3(cameraMatrix) * lightSourcesDirPosArr[i]);
 //			} else {
 //				// Positional light
-//				lightDirection = normalize(mat3(cameraMatrix) *  (lightSourcesDirPosArr[i] - fragPos));
+//				lightDirection = normalize(mat3(cameraMatrix) *  (lightSourcesDirPosArr[i] - surfacePos));
 //			}
 //			// Diffuse light
 //			float diffuse = max(dot(normal_view, lightDirection), 0.0);
 //			vec3 diffuseLight = diffuse * lightSourcesColorArr[i] * 0.5;
 //
 //			// Specular light
-//			vec3 viewDir = normalize(mat3(cameraMatrix) * (cameraPos - fragPos));
+//			vec3 viewDir = normalize(mat3(cameraMatrix) * (cameraPos - surfacePos));
 //			vec3 reflectDir = reflect(-lightDirection, normalize(normal_view));
 //			float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
 //			vec3 specularLight = .8 * spec * lightSourcesColorArr[i];

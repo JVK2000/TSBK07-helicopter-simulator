@@ -71,9 +71,34 @@ The clouds is not aligned in the corners.
 
 #### Part 4)
 
-**Where is the camera in view coordinates?**
+**Why was blue facing the camera when visualizing the normal vectors?**
 
-I have `p = {0, 10, 10}` which is used in `lookAtv(p, l, v)`
+Because we are faxing the direction in which the blue light is coming from.
+
+
+
+</br>
+
+**For light source 3, why did we get a white area in the distance for the specular light but not for the diffuse?**
+
+
+
+
+</br>
+
+**How do you generate a vector from the surface to the eye?**
+
+`cameraPosition - surfacePosition`
+
+
+
+</br>
+
+**Which vectors need renormalization in the fragment shader?**
+
+- `lightSourcesDirPosArr`
+- `transformedNormal`
+- `cameraPosition - surfacePosition`
 
 
 
