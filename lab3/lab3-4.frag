@@ -24,8 +24,6 @@ uniform mat4 cameraMatrix;
 uniform mat4 projectionMatrix;
 uniform vec3 cameraPos;
 
-uniform vec3 camPos;
-
 in vec3 fragPos;
 
 void main(void)
@@ -58,16 +56,33 @@ void main(void)
 		// ------
 
 		// Specular light
-		vec3 viewDir = normalize(camPos - fragPos);
-		vec3 reflectDir = reflect(-lightSourcesDirPosArr[3], normal_view);
+//		vec3 viewDir = normalize(cameraPos - fragPos);
+//		vec3 reflectDir = reflect(-lightSourcesDirPosArr[3], normal_view);
+//		float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
+//		vec3 specular = 0.8 * spec * lightSourcesColorArr[3];
+//		light3 = light3 + specular;
+
+		vec3 viewDir = normalize(cameraPos - fragPos);
+		vec3 lightDir = normalize(lightSourcesDirPosArr[3]);
+		vec3 reflectDir = reflect(-lightDir, normalize(transformedNormal));
 		float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
-		vec3 specular = 0.5 * spec * lightSourcesColorArr[3];
+		vec3 specular = 2 * spec * lightSourcesColorArr[3];
 		light3 = light3 + specular;
 
 
+//
+//		vec3 lightDir = normalize(lightSourcesDirPosArr[3]);
+//		vec3 viewDir = normalize(camPos - fragPosition);
+//		vec3 reflectDir = reflect(-lightDir, norm);
+//
+//		// After that, we calculate the specular component.
+//		spec	 = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
+//		specular = specularStrength * spec * lightSourcesColorArr[i];
 
 
-		color = vec4(light3, 1);
+
+
+color = vec4(light3, 1);
 //		color = vec4(light0 + light1 + light2 + light3, 1);
 	}
 
