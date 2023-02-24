@@ -38,7 +38,7 @@ void main(void)
 
 		color = color + vec4(diffuseLight, 1);
 
-		// color = vec4(surfacePos, 1);
+		// color = vec4(normal_view, 1);
 	}
 
 	if (textureEnabled) {

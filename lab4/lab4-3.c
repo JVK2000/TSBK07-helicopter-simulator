@@ -226,6 +226,8 @@ void keyboardMovement()
 	l.z += pos_z;
 	p.y += pos_y; 
 	l.y += pos_y;
+
+	// used by light: 
 	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
 
