@@ -13,6 +13,42 @@
 #include "LittleOBJLoader.h"
 #include "LoadTGA.h"
 
+
+// beginning Light
+vec3 colors[] =
+{
+	{0.0f,1.0f,0.0f},
+	{1.0f,1.0f,0.0f},
+	{1.0f,0.0f,1.0f}
+};
+
+// light sources
+vec3 lightSourcesColorsArr[] = 
+{ 
+	{1.0f, 0.0f, 0.0f}, // Red light
+	{0.0f, 1.0f, 0.0f}, // Green light
+	{0.0f, 0.0f, 1.0f}, // Blue light
+	{1.0f, 1.0f, 1.0f}  // White light
+}; 
+GLint isDirectional[] = 
+{
+	0,0,1,1
+};
+vec3 lightSourcesDirectionsPositions[] = 
+{ 
+	{10.0f, 5.0f, 0.0f}, // Red light, positional
+	{0.0f, 5.0f, 10.0f}, // Green light, positional
+	{-1.0f, 0.0f, 0.0f}, // Blue light along X
+	{0.0f, 0.0f, -1.0f}  // White light along Z
+}; 
+GLfloat specularExponent[] = 
+{
+	100.0, 200.0, 60.0
+};
+// end Light
+
+
+
 // Camera
 vec3 p = {0, 10, 10};	// Camera position
 vec3 l = {0, 10, 0};		// Position to look at
@@ -48,8 +84,12 @@ Model* GenerateTerrain(TextureData *tex)
 				float R = tex->imageData[((x + 1) + z * tex->width) * (tex->bpp/8)] / 25.0;
 				float T = tex->imageData[(x + (z + 1) * tex->width) * (tex->bpp/8)] / 25.0;
 				float B = tex->imageData[(x + (z - 1) * tex->width) * (tex->bpp/8)] / 25.0;
-				vec3 map_vec = {2*(R-L), 2*(B-T), -4};
+				vec3 map_vec = {2*(R-L), 1, 2*(B-T)};	// y värdet påverkar hur känslig normalen är?? små färden ger tydligare skillnad
 				vec3 map_normal = normalize(map_vec);
+				if (map_normal.y < 0) {
+					map_normal = ScalarMult(map_normal , -1);
+				}
+				// printf("bpp %f, %f, %f\n", map_normal.x, map_normal.y, map_normal.z);
 				normalArray[(x + z * tex->width)].x = map_normal.x;
 				normalArray[(x + z * tex->width)].y = map_normal.y;
 				normalArray[(x + z * tex->width)].z = map_normal.z;
@@ -120,7 +160,13 @@ void init(void)
 	glUniformMatrix4fv(glGetUniformLocation(program, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	glUniform1i(glGetUniformLocation(program, "tex"), 0); // Texture unit 0
 	LoadTGATextureSimple("maskros512.tga", &tex1);
-	
+
+	glUniform3fv(glGetUniformLocation(program, "lightSourcesDirPosArr"), 4, &lightSourcesDirectionsPositions[0].x);
+	glUniform3fv(glGetUniformLocation(program, "lightSourcesColorArr"), 4, &lightSourcesColorsArr[0].x);
+	glUniform1iv(glGetUniformLocation(program, "isDirectional"), 4, isDirectional);
+	glUniform1f(glGetUniformLocation(program, "specularExponent"), specularExponent[1]);
+
+
 	// Load terrain data
 	LoadTGATextureData("fft-terrain.tga", &ttex);
 	tm = GenerateTerrain(&ttex);
@@ -180,6 +226,9 @@ void keyboardMovement()
 	l.z += pos_z;
 	p.y += pos_y; 
 	l.y += pos_y;
+	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
+
 }
 
 void display(void)
@@ -187,6 +236,12 @@ void display(void)
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
+
+	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
+	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
+    glUniform3f(glGetUniformLocation(program, "cameraPos"), p.x, p.y, p.z);
+
+
 	keyboardMovement();
 
 	mat4 total, modelView, camMatrix;

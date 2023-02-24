@@ -6,6 +6,7 @@ in vec2 inTexCoord;
 
 out vec2 texCoord;
 out vec3 normal;
+out vec3 surfacePos;
 
 // NY
 uniform mat4 projMatrix;
@@ -17,4 +18,5 @@ void main(void)
 	texCoord = inTexCoord;
 	normal = inNormal;
 	gl_Position = projMatrix * mdlMatrix * vec4(inPosition, 1.0);
+	surfacePos = vec3(mdlMatrix * vec4(inPosition, 1.0));
 }
