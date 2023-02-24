@@ -29,3 +29,12 @@ Add added the ability to move upp and down (along the y-axis)
 
 Movement: **w** - forward, **s** - backward, **a** - left, **d** - right, **q** - down, **e** - up. 
 Looking: **mouse** - up, down, left, right
+
+
+----
+
+#### Part 3)
+
+**Which method did you use to find the normal vector?**
+
+I used the cross method.
