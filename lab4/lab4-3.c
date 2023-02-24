@@ -79,12 +79,12 @@ Model* GenerateTerrain(TextureData *tex)
 			vertexArray[(x + z * tex->width)].z = z / 1.0;
 
 			// Normal vectors. You need to calculate these.
-			if (x != 0 && x != tex->width && z != 0 && z != tex->height) 
+			if (x != 0 && x != (tex->width - 1) && z != 0 && z != (tex->height - 1)) 
 			{
 				float L = tex->imageData[((x - 1) + z * tex->width) * (tex->bpp/8)] / 25.0;
 				float R = tex->imageData[((x + 1) + z * tex->width) * (tex->bpp/8)] / 25.0;
-				float T = tex->imageData[(x + (z + 1) * tex->width) * (tex->bpp/8)] / 25.0;
 				float B = tex->imageData[(x + (z - 1) * tex->width) * (tex->bpp/8)] / 25.0;
+				float T = tex->imageData[(x + (z + 1) * tex->width) * (tex->bpp/8)] / 25.0;
 				vec3 map_vec = {2*(R-L), 1, 2*(B-T)};	// y värdet påverkar hur känslig normalen är?? små färden ger tydligare skillnad
 				vec3 map_normal = normalize(map_vec);
 				if (map_normal.y < 0) {
@@ -96,8 +96,7 @@ Model* GenerateTerrain(TextureData *tex)
 				// 	map_normal.y = -0.5;
 				// 	map_normal.z = -1.0;
 				// }
-
-				printf("bpp %f, %f, %f\n", map_normal.x, map_normal.y, map_normal.z);
+				// printf("bpp %f, %f, %f\n", map_normal.x, map_normal.y, map_normal.z);
 				normalArray[(x + z * tex->width)].x = map_normal.x;
 				normalArray[(x + z * tex->width)].y = map_normal.y;
 				normalArray[(x + z * tex->width)].z = map_normal.z;
@@ -112,6 +111,38 @@ Model* GenerateTerrain(TextureData *tex)
 			texCoordArray[(x + z * tex->width)].x = x; // (float)x / tex->width;
 			texCoordArray[(x + z * tex->width)].y = z; // (float)z / tex->height;
 		}
+
+	// Gives the edges of the map the normals of its neighbour
+	for (z = 0; z < tex->height; z++)
+	{
+		vec3 map_normal = normalArray[(x + z * tex->width)];
+		printf("bpp %f, %f, %f\n", map_normal.x, map_normal.y, map_normal.z);
+		normalArray[(z * tex->width)].x = normalArray[(1 + z * tex->width)].x;
+		normalArray[(z * tex->width)].y = normalArray[(1 + z * tex->width)].y;
+		normalArray[(z * tex->width)].z = normalArray[(1 + z * tex->width)].z;
+		
+		int max_width = tex->width - 1;
+		int access_idx = (max_width - 1) + z * tex->width;
+		int update_idx = max_width + z * tex->width;
+		normalArray[update_idx].x = normalArray[access_idx].x;
+		normalArray[update_idx].y = normalArray[access_idx].y;
+		normalArray[update_idx].z = normalArray[access_idx].z;
+	}
+	for (x = 0; x < tex->width; x++)
+	{
+		normalArray[x].x = normalArray[(x + tex->width)].x;
+		normalArray[x].y = normalArray[(x + tex->width)].y;
+		normalArray[x].z = normalArray[(x + tex->width)].z;
+
+		int max_height = tex->height - 1;
+		int access_idx = x + (max_height - 1) * tex->width;
+		int update_idx = x + max_height * tex->width;
+		normalArray[update_idx].x = normalArray[access_idx].x;
+		normalArray[update_idx].y = normalArray[access_idx].y;
+		normalArray[update_idx].z = normalArray[access_idx].z;
+	}
+
+	
 	for (x = 0; x < tex->width-1; x++)
 		for (z = 0; z < tex->height-1; z++)
 		{
@@ -202,7 +233,8 @@ void mouseMovement(int x, int y)
 }
 
 
-float MOVEMENT_SPEED = 0.2;
+// float MOVEMENT_SPEED = 0.2;
+float MOVEMENT_SPEED = 2.0;
 float pos_x = 0;
 float pos_z = 0;
 float const_ang = M_PI/4;
