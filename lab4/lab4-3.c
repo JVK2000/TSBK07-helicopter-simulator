@@ -90,7 +90,14 @@ Model* GenerateTerrain(TextureData *tex)
 				if (map_normal.y < 0) {
 					map_normal = ScalarMult(map_normal , -1);
 				}
-				// printf("bpp %f, %f, %f\n", map_normal.x, map_normal.y, map_normal.z);
+				// if (map_normal.y == 1) {
+				// 	printf("vector: %f,%f,%f\n", map_normal.x, map_normal.y, map_normal.z);
+				// 	map_normal.x = -1.0;
+				// 	map_normal.y = -0.5;
+				// 	map_normal.z = -1.0;
+				// }
+
+				printf("bpp %f, %f, %f\n", map_normal.x, map_normal.y, map_normal.z);
 				normalArray[(x + z * tex->width)].x = map_normal.x;
 				normalArray[(x + z * tex->width)].y = map_normal.y;
 				normalArray[(x + z * tex->width)].z = map_normal.z;
