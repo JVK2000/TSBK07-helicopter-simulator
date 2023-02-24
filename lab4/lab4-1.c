@@ -1,7 +1,12 @@
 // Lab 4, terrain generation
 
+// Should work as is on Linux and Mac. MS Windows needs GLEW or glee.
+// See separate Visual Studio version of my demos.
+#ifdef __APPLE__
+	#include <OpenGL/gl3.h>
+	// Linking hint for Lightweight IDE
 	// uses framework Cocoa
-	// uses framework OpenGL
+#endif
 #include "MicroGlut.h"
 #include "GL_utilities.h"
 #include "VectorUtils3.h"
@@ -25,26 +30,26 @@ Model* GenerateTerrain(TextureData *tex)
 	for (x = 0; x < tex->width; x++)
 		for (z = 0; z < tex->height; z++)
 		{
-// Vertex array. You need to scale this properly
+			// Vertex array. You need to scale this properly
 			vertexArray[(x + z * tex->width)].x = x / 1.0;
 			vertexArray[(x + z * tex->width)].y = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / 100.0;
 			vertexArray[(x + z * tex->width)].z = z / 1.0;
-// Normal vectors. You need to calculate these.
+			// Normal vectors. You need to calculate these.
 			normalArray[(x + z * tex->width)].x = 0.0;
 			normalArray[(x + z * tex->width)].y = 1.0;
 			normalArray[(x + z * tex->width)].z = 0.0;
-// Texture coordinates. You may want to scale them.
+			// Texture coordinates. You may want to scale them.
 			texCoordArray[(x + z * tex->width)].x = x; // (float)x / tex->width;
 			texCoordArray[(x + z * tex->width)].y = z; // (float)z / tex->height;
 		}
 	for (x = 0; x < tex->width-1; x++)
 		for (z = 0; z < tex->height-1; z++)
 		{
-		// Triangle 1
+			// Triangle 1
 			indexArray[(x + z * (tex->width-1))*6 + 0] = x + z * tex->width;
 			indexArray[(x + z * (tex->width-1))*6 + 1] = x + (z+1) * tex->width;
 			indexArray[(x + z * (tex->width-1))*6 + 2] = x+1 + z * tex->width;
-		// Triangle 2
+			// Triangle 2
 			indexArray[(x + z * (tex->width-1))*6 + 3] = x+1 + z * tex->width;
 			indexArray[(x + z * (tex->width-1))*6 + 4] = x + (z+1) * tex->width;
 			indexArray[(x + z * (tex->width-1))*6 + 5] = x+1 + (z+1) * tex->width;
@@ -93,8 +98,7 @@ void init(void)
 	glUniform1i(glGetUniformLocation(program, "tex"), 0); // Texture unit 0
 	LoadTGATextureSimple("maskros512.tga", &tex1);
 	
-// Load terrain data
-	
+	// Load terrain data
 	LoadTGATextureData("44-terrain.tga", &ttex);
 	tm = GenerateTerrain(&ttex);
 	printError("init terrain");
@@ -115,7 +119,6 @@ void display(void)
 	glUseProgram(program);
 
 	// Build matrix
-	
 	vec3 cam = {0, 5, 8};
 	vec3 lookAtPoint = {2, 0, 2};
 	camMatrix = lookAt(cam.x, cam.y, cam.z,
