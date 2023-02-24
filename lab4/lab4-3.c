@@ -27,7 +27,8 @@ vec3 lightSourcesColorsArr[] =
 { 
 	{1.0f, 0.0f, 0.0f}, // Red light
 	{0.0f, 1.0f, 0.0f}, // Green light
-	{0.0f, 0.0f, 1.0f}, // Blue light
+	// {0.0f, 0.0f, 1.0f}, // Blue light
+	{1.0f, 1.0f, 1.0f},  // White light
 	{1.0f, 1.0f, 1.0f}  // White light
 }; 
 GLint isDirectional[] = 
@@ -150,7 +151,7 @@ void init(void)
 	glDisable(GL_CULL_FACE);
 	printError("GL inits");
 
-	projectionMatrix = frustum(-0.1, 0.1, -0.1, 0.1, 0.2, 150.0);
+	projectionMatrix = frustum(-0.1, 0.1, -0.1, 0.1, 0.2, 250.0);
 
 	// Load and compile shader
 	program = loadShaders("lab4-3.vert", "lab4-3.frag");
@@ -255,7 +256,8 @@ void display(void)
 	camMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
 	modelView = IdentityMatrix();
 	total = Mult(camMatrix, modelView);
-	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
+	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);	// not used
+	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
 	
 	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
 

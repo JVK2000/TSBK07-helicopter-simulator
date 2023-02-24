@@ -11,6 +11,7 @@ out vec3 surfacePos;
 // NY
 uniform mat4 projMatrix;
 uniform mat4 mdlMatrix;
+uniform mat4 modelView;
 
 void main(void)
 {
@@ -18,5 +19,5 @@ void main(void)
 	texCoord = inTexCoord;
 	normal = inNormal;
 	gl_Position = projMatrix * mdlMatrix * vec4(inPosition, 1.0);
-	surfacePos = vec3(mdlMatrix * vec4(inPosition, 1.0));
+	surfacePos = vec3(modelView * vec4(inPosition, 1.0));
 }

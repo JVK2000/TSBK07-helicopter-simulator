@@ -30,15 +30,30 @@ void main(void)
 	if (shadingEnabled) {
 		color = vec4(0, 0, 0, 0);
 
-		vec3 lightDirection = normalize(camMat * lightSourcesDirPosArr[3]);
-		
-		// Diffuse light
-		float diffuse = max(dot(normal_view, lightDirection), 0.0);
-		vec3 diffuseLight = diffuse * lightSourcesColorArr[3] * 0.5;
+		//		for(int i = 3; i < 4; i++) {
+		for(int i = 0; i < 4; i++) {
+			vec3 lightDirection;
+			if (isDirectional[i]) {
+				// Directional light
+				lightDirection = normalize(camMat * lightSourcesDirPosArr[i]);
+			} else {
+				// Positional light
+				lightDirection = normalize(camMat *  (lightSourcesDirPosArr[i] - surfacePos));
+			}
+			// Diffuse light
+			float diffuse = max(dot(normal_view, lightDirection), 0.0);
+			vec3 diffuseLight = diffuse * lightSourcesColorArr[i] * 0.5;
 
-		color = color + vec4(diffuseLight, 1);
+			// Specular light
+			// vec3 viewDir = normalize(camMat * (cameraPos - surfacePos));
+			// vec3 reflectDir = reflect(-lightDirection, normalize(normal_view));
+			// float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
+			// vec3 specularLight = .8 * spec * lightSourcesColorArr[i];
 
-		// color = vec4(normal_view, 1);
+			color = color + vec4(diffuseLight, 1);
+			// color = color + vec4(diffuseLight + specularLight, 1);
+		}
+		// color = vec4(surfacePos, 1);
 	}
 
 	if (textureEnabled) {
