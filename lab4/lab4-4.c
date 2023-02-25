@@ -191,7 +191,7 @@ void init(void)
 	projectionMatrix = frustum(-0.1, 0.1, -0.1, 0.1, 0.2, 250.0);
 
 	// Load and compile shader
-	program = loadShaders("lab4-3.vert", "lab4-3.frag");
+	program = loadShaders("lab4-4.vert", "lab4-4.frag");
 	glUseProgram(program);
 	printError("init shader");
 	
