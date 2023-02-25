@@ -75,7 +75,7 @@ Model* GenerateTerrain(TextureData *tex)
 		{
 			// Vertex array. You need to scale this properly
 			vertexArray[(x + z * tex->width)].x = x / 1.0;
-			vertexArray[(x + z * tex->width)].y = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / 25.0;
+			vertexArray[(x + z * tex->width)].y = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / 100.0;
 			vertexArray[(x + z * tex->width)].z = z / 1.0;
 
 			// Normal vectors. You need to calculate these.
@@ -173,8 +173,12 @@ Model* GenerateTerrain(TextureData *tex)
 }
 
 
+
+
+
+
 // vertex array object
-Model *m, *m2, *tm;
+Model *m, *m2, *tm, *octagon;
 // Reference to shader program
 GLuint program;
 GLuint tex1, tex2;
@@ -204,13 +208,44 @@ void init(void)
 	glUniform1iv(glGetUniformLocation(program, "isDirectional"), 4, isDirectional);
 	glUniform1f(glGetUniformLocation(program, "specularExponent"), specularExponent[1]);
 
+	octagon = LoadModel("octagon.obj");
 
 	// Load terrain data
 	LoadTGATextureData("fft-terrain.tga", &ttex);
+	// LoadTGATextureData("44-terrain.tga", &ttex);
 	tm = GenerateTerrain(&ttex);
 	printError("init terrain");
 
 }
+
+
+void drawOctagon(float y) {
+	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
+	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
+
+	mat4 octagonMat = IdentityMatrix();
+	mat4 trans = T(0, y, 0);
+	mat4 tot = Mult(octagonMat, trans);
+
+	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, tot.m);	// not used
+
+	// glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot);
+	DrawModel(octagon, program, "inPosition", "inNormal", "inTexCoord");
+}
+
+float find_height(float x, float z)
+{
+	int width = ttex.width;
+	// printf("WIDHT: %d", ttex.width);
+	int indx = (x + z * width);
+	// printf("   y: %f",tm->vertexArray[indx].y);
+	float y = tm->vertexArray[indx].y;
+	// vec3 r = {x, y, z};
+	// return r;
+	return y;
+}
+
+
 
 float MOUSE_MOVE_SPEED = 400;
 float init_x = 0;
@@ -232,8 +267,8 @@ void mouseMovement(int x, int y)
 }
 
 
-// float MOVEMENT_SPEED = 0.2;
-float MOVEMENT_SPEED = 2.0;
+float MOVEMENT_SPEED = 0.2;
+// float MOVEMENT_SPEED = 2.0;
 float pos_x = 0;
 float pos_z = 0;
 float const_ang = M_PI/4;
@@ -278,10 +313,7 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 
-	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
-	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
-    glUniform3f(glGetUniformLocation(program, "cameraPos"), p.x, p.y, p.z);
-
+	
 
 	keyboardMovement();
 
@@ -291,27 +323,29 @@ void display(void)
 	
 	glUseProgram(program);
 
-	camMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
+	// camMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
 	modelView = IdentityMatrix();
-	total = Mult(camMatrix, modelView);
-	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);	// not used
+	// total = Mult(camMatrix, modelView);
+	// glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);	// not used
 	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
 	
 	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
 
+	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
+	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
+    glUniform3f(glGetUniformLocation(program, "cameraPos"), p.x, p.y, p.z);
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+
+
+	float y = find_height(1.0, 1.0);
+	drawOctagon(y);
+
 
 	printError("display 2");
 	
 	glutSwapBuffers();
 }
 
-void mouse(int x, int y)
-{
-	// This function is included in case you want some hints about using passive mouse movement.
-	// Uncomment to see mouse coordinates:
-	// printf("%d %d\n", x, y);
-}
 
 int main(int argc, char **argv)
 {

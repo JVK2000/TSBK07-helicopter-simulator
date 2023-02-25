@@ -12,12 +12,14 @@ out vec3 surfacePos;
 uniform mat4 projMatrix;
 uniform mat4 mdlMatrix;
 uniform mat4 modelView;
+uniform mat4 cameraMatrix;
 
 void main(void)
 {
 	mat3 normalMatrix1 = mat3(mdlMatrix);
 	texCoord = inTexCoord;
 	normal = inNormal;
-	gl_Position = projMatrix * mdlMatrix * vec4(inPosition, 1.0);
+	// gl_Position = projMatrix * mdlMatrix * vec4(inPosition, 1.0);
+	gl_Position = projMatrix * cameraMatrix * modelView * vec4(inPosition, 1.0);
 	surfacePos = vec3(modelView * vec4(inPosition, 1.0));
 }
