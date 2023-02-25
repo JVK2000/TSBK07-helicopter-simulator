@@ -211,20 +211,76 @@ void init(void)
 	octagon = LoadModel("octagon.obj");
 
 	// Load terrain data
-	LoadTGATextureData("fft-terrain.tga", &ttex);
-	// LoadTGATextureData("44-terrain.tga", &ttex);
+	// LoadTGATextureData("fft-terrain.tga", &ttex);
+	LoadTGATextureData("44-terrain.tga", &ttex);
 	tm = GenerateTerrain(&ttex);
 	printError("init terrain");
 
 }
 
 
-void drawOctagon(float y) {
+float find_height(float x, float z)
+{
+	int x_floor = (int) x;
+	int z_floor = (int) z;
+	int width = ttex.width;
+	// 2 commun and 1 unique (depending on which triangle the point is in)
+
+	// unique
+	float xz_diff = (x - x_floor) + (z - z_floor); 
+	printf("    xz_diff:  %f", xz_diff);
+	// vec3 vertex1;
+	float x1, y1, z1;
+	if (xz_diff < 0) {
+		x1 = tm->vertexArray[x_floor + z_floor * width].x;
+		y1 = tm->vertexArray[x_floor + z_floor * width].y;
+		z1 = tm->vertexArray[x_floor + z_floor * width].z;
+	} else {
+		x1 = tm->vertexArray[((x_floor + 1) + (z_floor +1 ) * width)].x;
+		y1 = tm->vertexArray[((x_floor + 1) + (z_floor +1 ) * width)].y;
+		z1 = tm->vertexArray[((x_floor + 1) + (z_floor +1 ) * width)].z;
+	}
+	vec3 vertex1 = {x1, y1, z1};
+
+	// commun
+	float x2 = tm->vertexArray[(x_floor + 1) + z_floor * width].x;
+	float y2 = tm->vertexArray[(x_floor + 1) + z_floor * width].y;
+	float z2 = tm->vertexArray[(x_floor + 1) + z_floor * width].z;
+	vec3 vertex2 = {x2, y2, z2};
+
+	float x3 = tm->vertexArray[x_floor + (z_floor + 1) * width].x;
+	float y3 = tm->vertexArray[x_floor + (z_floor + 1) * width].y;
+	float z3 = tm->vertexArray[x_floor + (z_floor + 1) * width].z;
+	vec3 vertex3 = {x3, y3, z3};
+
+	// https://math.stackexchange.com/questions/1154340/how-to-find-the-height-of-a-2d-coordinate-on-a-3d-triangle
+	printf("  coords %f, %f, %f\n", vertex3.x, vertex3.y, vertex3.z);
+	vec3 normal = CalcNormalVector(vertex1, vertex2, vertex3);
+
+	// ---------------------------
+	// normal = (a, b, c)
+	// a*x + b*y + c*z + d = 0			(d - distance to origin / offset)
+	// y = (- d - a * x - c * z) / b
+	// ---------------------------
+	float neg_d = normal.x * vertex1.x + normal.y * vertex1.y + normal.z * vertex1.z;
+	float y = (neg_d - normal.x * vertex1.x - normal.z * vertex1.z) / normal.y;
+
+	// int indx = (x + z * width);
+	// float y = tm->vertexArray[indx].y;
+	printf("  Y: %f", y);
+	return y;
+}
+
+
+void drawOctagon() {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
 
+	float x = 1.2;
+	float z = 1.3;
+	float y = find_height(x, z);
 	mat4 octagonMat = IdentityMatrix();
-	mat4 trans = T(0, y, 0);
+	mat4 trans = T(x, y, z);
 	mat4 tot = Mult(octagonMat, trans);
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, tot.m);	// not used
@@ -232,19 +288,6 @@ void drawOctagon(float y) {
 	// glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot);
 	DrawModel(octagon, program, "inPosition", "inNormal", "inTexCoord");
 }
-
-float find_height(float x, float z)
-{
-	int width = ttex.width;
-	// printf("WIDHT: %d", ttex.width);
-	int indx = (x + z * width);
-	// printf("   y: %f",tm->vertexArray[indx].y);
-	float y = tm->vertexArray[indx].y;
-	// vec3 r = {x, y, z};
-	// return r;
-	return y;
-}
-
 
 
 float MOUSE_MOVE_SPEED = 400;
@@ -313,8 +356,6 @@ void display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 
-	
-
 	keyboardMovement();
 
 	mat4 total, modelView, camMatrix;
@@ -337,8 +378,7 @@ void display(void)
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
 
 
-	float y = find_height(1.0, 1.0);
-	drawOctagon(y);
+	drawOctagon();
 
 
 	printError("display 2");
