@@ -301,10 +301,8 @@ void drawOctagon() {
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, tot.m);	// not used
 
-	// glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot);
 	DrawModel(octagon, program, "inPosition", "inNormal", "inTexCoord");
 }
-
 
 
 float MOUSE_MOVE_SPEED = 400;
@@ -361,10 +359,8 @@ void keyboardMovement()
 	p.y += pos_y; 
 	l.y += pos_y;
 
-	// used by light: 
 	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
-
 }
 
 void display(void)
@@ -372,38 +368,26 @@ void display(void)
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
-
 	keyboardMovement();
 
-	// mat4 total, modelView, camMatrix;
-	mat4 modelView;
-	
 	printError("pre display");
 	
 	glUseProgram(program);
 
-	// camMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
-	modelView = IdentityMatrix();
-	// total = Mult(camMatrix, modelView);
-	// glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);	// not used
+	mat4 modelView = IdentityMatrix();
 	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
 	
-	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
-	// glBindTexture(GL_TEXTURE_2D, tex2);		// Bind Our Texture tex1
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, tex2);	
-
 
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
     glUniform3f(glGetUniformLocation(program, "cameraPos"), p.x, p.y, p.z);
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
 
-
 	drawOctagon();
-
 
 	printError("display 2");
 	
