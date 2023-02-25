@@ -82,3 +82,15 @@ if ((x - floor(x)) + (z - floor(z)) < 1.0) {
 ```math
 height = (- d - (a * point_x) - (c * point_z)) / b
 ```
+
+
+----
+
+#### Part 5)
+
+**What kind of multitexturing function did you implement?**
+
+I used `mix()` for textures. I based the level of blending on the normal. 
+
+
+
