@@ -38,3 +38,47 @@ Looking: **mouse** - up, down, left, right
 **Which method did you use to find the normal vector?**
 
 I used the cross method.
+
+
+----
+
+#### Part 4)
+
+**How did you figure out what surface to use?**
+
+For quad I used points:
+```math
+(⌊x⌋, ⌊y⌋)
+```
+```math
+(⌊x⌋ + 1, ⌊y⌋)
+```
+```math
+(⌊x⌋, ⌊y⌋ + 1)
+```
+```math
+(⌊x⌋ + 1, ⌊y⌋ + 1)
+```
+
+To select which triangle to use:
+```C
+if ((x - floor(x)) + (z - floor(z)) < 1.0) {
+    // Use triangle closest to origin.
+} else {
+    // ...
+}
+```
+
+
+</br>
+
+**How did you calculate the height from the surface?**
+```math
+(a, b, c) = normal(vertex1, vertex2, vertex3)
+```
+```math
+- d = (a * x) + (b * y) + (c * z)
+```
+```math
+height = (- d - (a * point_x) - (c * point_z)) / b
+```
