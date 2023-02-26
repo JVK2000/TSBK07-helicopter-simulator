@@ -397,11 +397,11 @@ void drawOctagon() {
     float angleX = angleBetweenVectors(ground_normal, xAxis);
     float angleY = angleBetweenVectors(ground_normal, yAxis);
     float angleZ = angleBetweenVectors(ground_normal, zAxis);
-	printf("\n\nangles: (%f, %f, %f)", r2d(angleX), r2d(angleY), r2d(angleZ));
+	// printf("\n\nangles: (%f, %f, %f)", r2d(angleX), r2d(angleY), r2d(angleZ));
 
-	printf("\n\pos: (%d, %d, %d)", x_ground, y_ground, z_ground);
-/* 	printf("\n\nangles: (%f, %f, %f)", r2d(xAngle), r2d(yAngle), r2d(zAngle));
- */	printf("\nnormal: (%f, %f, %f)", ground_normal.x, ground_normal.y, ground_normal.z);
+	// printf("\n\pos: (%d, %d, %d)", x_ground, y_ground, z_ground);
+ 	// printf("\n\nangles: (%f, %f, %f)", r2d(xAngle), r2d(yAngle), r2d(zAngle));
+ 	// printf("\nnormal: (%f, %f, %f)", ground_normal.x, ground_normal.y, ground_normal.z);
 	mat4 octagonMat = IdentityMatrix();
 	mat4 trans = T(octagon_pos.x, octagon_pos.y, octagon_pos.z);
 	// mat4 rotx = Ry(1.5);
@@ -448,7 +448,7 @@ void mouseMovement(int x, int y)
 }
 
 
-float MOVEMENT_SPEED = 0.2;
+float MOVEMENT_SPEED = 0.8;
 // float MOVEMENT_SPEED = 2.0;
 float pos_x = 0;
 float pos_z = 0;
@@ -486,20 +486,56 @@ void keyboardMovement()
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
 }
 
+
+void draw_terrain()
+{
+
+	float x_shift = round(p.x/ttex.width);
+	float rel_x_scale = p.x/ttex.width - x_shift;
+	float z_shift = round(p.z/ttex.height);
+	float rel_z_scale = p.z/ttex.height - z_shift;
+
+	mat4 modelView = T(x_shift * (ttex.width - 1), 0, z_shift * (ttex.height - 1));
+	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
+	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+
+	if (0.5 < rel_x_scale) {
+		modelView = T((x_shift + 1) * (ttex.width - 1), 0, z_shift * (ttex.height - 1));
+		glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
+		DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+	} else if (rel_x_scale < 0.5) {
+		modelView = T((x_shift - 1) * (ttex.width - 1), 0, z_shift * (ttex.height - 1));
+		glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
+		DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+	}
+
+	if (0.5 < rel_z_scale) {
+		modelView = T(x_shift * (ttex.width - 1), 0, (z_shift + 1) * (ttex.height - 1));
+		glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
+		DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+	} else if (rel_z_scale < 0.5) {
+		modelView = T(x_shift * (ttex.width - 1), 0, (z_shift - 1) * (ttex.height - 1));
+		glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
+		DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+	}
+
+}
+
+
+
 void display(void)
 {
 	// clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // -
+	glEnable(GL_BLEND);	// -
+
 	keyboardMovement();
 
 	printError("pre display");
 	
 	glUseProgram(program);
 
-	mat4 modelView = IdentityMatrix();
-	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
-	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
 	glActiveTexture(GL_TEXTURE1);
@@ -508,7 +544,27 @@ void display(void)
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
     glUniform3f(glGetUniformLocation(program, "cameraPos"), p.x, p.y, p.z);
-	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+
+	draw_terrain();
+
+	// mat4 modelView = IdentityMatrix();
+	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
+	// DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+
+	// modelView = T(0, 0, ttex.height - 1);
+	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
+	// DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+	
+	// // modelView = Mult(Ry(M_PI/2), modelView);
+	// // modelView = Mult(S(-1, 1, 1), modelView);
+	// modelView = T(ttex.width - 1, 0, 0);
+	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
+	// DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+
+	// modelView = T(ttex.width - 1, 0, ttex.height - 1);
+	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
+	// DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+
 
 	drawOctagon();
 
