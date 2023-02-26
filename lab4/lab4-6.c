@@ -64,6 +64,7 @@ int octagon_dir = 1;
 mat4 projectionMatrix;
 
 
+float terrainScale = 25;
 Model* GenerateTerrain(TextureData *tex)
 {
 	int vertexCount = tex->width * tex->height;
@@ -81,16 +82,16 @@ Model* GenerateTerrain(TextureData *tex)
 		{
 			// Vertex array. You need to scale this properly
 			vertexArray[(x + z * tex->width)].x = x / 1.0;
-			vertexArray[(x + z * tex->width)].y = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / 25.0;
+			vertexArray[(x + z * tex->width)].y = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / terrainScale;
 			vertexArray[(x + z * tex->width)].z = z / 1.0;
 
 			// Normal vectors. You need to calculate these.
 			if (x != 0 && x != (tex->width - 1) && z != 0 && z != (tex->height - 1)) 
 			{
-				float L = tex->imageData[((x - 1) + z * tex->width) * (tex->bpp/8)] / 25.0;
-				float R = tex->imageData[((x + 1) + z * tex->width) * (tex->bpp/8)] / 25.0;
-				float B = tex->imageData[(x + (z - 1) * tex->width) * (tex->bpp/8)] / 25.0;
-				float T = tex->imageData[(x + (z + 1) * tex->width) * (tex->bpp/8)] / 25.0;
+				float L = tex->imageData[((x - 1) + z * tex->width) * (tex->bpp/8)] / terrainScale;
+				float R = tex->imageData[((x + 1) + z * tex->width) * (tex->bpp/8)] / terrainScale;
+				float B = tex->imageData[(x + (z - 1) * tex->width) * (tex->bpp/8)] / terrainScale;
+				float T = tex->imageData[(x + (z + 1) * tex->width) * (tex->bpp/8)] / terrainScale;
 				vec3 map_vec = {2*(R-L), 1, 2*(B-T)};	// y värdet påverkar hur känslig normalen är?? små färden ger tydligare skillnad
 				vec3 map_normal = normalize(map_vec);
 				if (map_normal.y < 0) {
@@ -107,11 +108,11 @@ Model* GenerateTerrain(TextureData *tex)
 				normalArray[(x + z * tex->width)].y = map_normal.y;
 				normalArray[(x + z * tex->width)].z = map_normal.z;
 			}
-			else {
-				normalArray[(x + z * tex->width)].x = 0;
-				normalArray[(x + z * tex->width)].y = 1.0;
-				normalArray[(x + z * tex->width)].z = 0;
-			}
+			// else {
+			// 	normalArray[(x + z * tex->width)].x = 0;
+			// 	normalArray[(x + z * tex->width)].y = 1.0;
+			// 	normalArray[(x + z * tex->width)].z = 0;
+			// }
 
 			// Texture coordinates. You may want to scale them.
 			texCoordArray[(x + z * tex->width)].x = x; // (float)x / tex->width;
@@ -225,6 +226,44 @@ void init(void)
 }
 
 
+vec3 get_normal_point_in_plane(float x, float z) {
+	int x_floor = (int) x;
+	int z_floor = (int) z;
+	int width = ttex.width;
+
+	// unique vertex (depending on which triangle the point is in)
+	float xz_diff = (x - x_floor) + (z - z_floor); 	
+	float x1, y1, z1;
+	if (xz_diff < 1.0) {
+		int idx = x_floor + z_floor * width;
+		x1 = tm->vertexArray[idx].x;
+		y1 = tm->vertexArray[idx].y;
+		z1 = tm->vertexArray[idx].z;
+	} else {
+		int idx = (x_floor + 1) + (z_floor + 1) * width;
+		x1 = tm->vertexArray[idx].x;
+		y1 = tm->vertexArray[idx].y;
+		z1 = tm->vertexArray[idx].z;
+	}
+	vec3 vertex1 = {x1, y1, z1};
+
+	// shared vertex
+	float x2 = tm->vertexArray[(x_floor + 1) + z_floor * width].x;
+	float y2 = tm->vertexArray[(x_floor + 1) + z_floor * width].y;
+	float z2 = tm->vertexArray[(x_floor + 1) + z_floor * width].z;
+	vec3 vertex2 = {x2, y2, z2};
+
+	float x3 = tm->vertexArray[x_floor + (z_floor + 1) * width].x;
+	float y3 = tm->vertexArray[x_floor + (z_floor + 1) * width].y;
+	float z3 = tm->vertexArray[x_floor + (z_floor + 1) * width].z;
+	vec3 vertex3 = {x3, y3, z3};
+
+	// https://math.stackexchange.com/questions/1154340/how-to-find-the-height-of-a-2d-coordinate-on-a-3d-triangle
+	vec3 normal = CalcNormalVector(vertex1, vertex2, vertex3);
+	return normal;
+}
+
+
 float find_height(float x, float z)
 {
 	int x_floor = (int) x;
@@ -276,6 +315,31 @@ float find_height(float x, float z)
 	// printf("\nPoint: (%f, %f, %f)", x, 0.0, z);
 	// printf("\nHeight: %f", y);
 }
+float r2d(float rad){
+    return rad * (180.0 / M_PI);
+}
+
+
+
+float m_dotProduct(vec3 a, vec3 b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+// Calculate the magnitude of a vector
+float m_magnitude(vec3 v) {
+    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+}
+
+// Calculate the angle between two vectors in radians
+float angleBetweenVectors(vec3 a, vec3 b) {
+    float dot = m_dotProduct(a, b);
+    float magA = m_magnitude(a);
+    float magB = m_magnitude(b);
+    float cosTheta = dot / (magA * magB);
+    float theta = acos(cosTheta);
+    return theta;
+}
+
 
 float octagon_speed = 0.1;
 void drawOctagon() {
@@ -288,7 +352,17 @@ void drawOctagon() {
 	} else if (octagon_pos.x > (ttex.height - 1)) {
 		octagon_dir = -1;
 	}
-	
+	// if (glutKeyIsDown('f')) {
+	// 	octagon_pos.x += octagon_speed;
+	// 	octagon_pos.z += octagon_speed;
+	// 	octagon_pos.y = find_height(octagon_pos.x, octagon_pos.z);
+	// } if (glutKeyIsDown('g')) {
+	// 	octagon_pos.x -= octagon_speed;
+	// 	octagon_pos.z -= octagon_speed;
+	// 	octagon_pos.y = find_height(octagon_pos.x, octagon_pos.z);
+
+	// }
+
 	octagon_pos.x = octagon_pos.x + octagon_dir * octagon_speed;
 	octagon_pos.z = octagon_pos.z + octagon_dir * octagon_speed;
 	octagon_pos.y = find_height(octagon_pos.x, octagon_pos.z);
@@ -300,26 +374,51 @@ void drawOctagon() {
 	int y_ground = (int) octagon_pos.y;
 	int z_ground = (int) octagon_pos.z;
 	vec3 ground_normal = tm->normalArray[(x_ground + z_ground * width)];
-	float xAngle = acos(ground_normal.x);
-	float yAngle = acos(ground_normal.y);
+	// vec3 ground_normal = get_normal_point_in_plane(octagon_pos.x, octagon_pos.z);
+	// if (ground_normal.x < 0 && ground_normal.y < 0 && ground_normal.z < 0) {
+
+	// }
+	// else if (ground_normal.x < 0 || ground_normal.y < 0 || ground_normal.z < 0) {
+	// 	printf("\n\n\n ------------------ ABS");
+	// 	ground_normal.x = fabs(ground_normal.x);
+	// 	ground_normal.y = fabs(ground_normal.y);
+	// 	ground_normal.z = fabs(ground_normal.z);
+	// }
+
+	float xAngle = acos(ground_normal.x) - M_PI/2;
+	float yAngle = acos(ground_normal.y) - M_PI/2;
 	float zAngle = acos(ground_normal.z);
-	printf("\n\nangles: (%f, %f, %f)", xAngle, yAngle, zAngle);
-	printf("\nnormal: (%f, %f, %f)", ground_normal.x, ground_normal.y, ground_normal.z);
+	xAngle = - sin(ground_normal.x);
+	zAngle = - sin(ground_normal.x);
+
+    vec3 xAxis = { 1, 0, 0 };
+    vec3 yAxis = { 0, 1, 0 };
+    vec3 zAxis = { 0, 0, 1 };
+    float angleX = angleBetweenVectors(ground_normal, xAxis);
+    float angleY = angleBetweenVectors(ground_normal, yAxis);
+    float angleZ = angleBetweenVectors(ground_normal, zAxis);
+	printf("\n\nangles: (%f, %f, %f)", r2d(angleX), r2d(angleY), r2d(angleZ));
+
+	printf("\n\pos: (%d, %d, %d)", x_ground, y_ground, z_ground);
+/* 	printf("\n\nangles: (%f, %f, %f)", r2d(xAngle), r2d(yAngle), r2d(zAngle));
+ */	printf("\nnormal: (%f, %f, %f)", ground_normal.x, ground_normal.y, ground_normal.z);
 	mat4 octagonMat = IdentityMatrix();
 	mat4 trans = T(octagon_pos.x, octagon_pos.y, octagon_pos.z);
 	// mat4 rotx = Ry(1.5);
 
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
-	mat4 rotx = Rx(-M_PI/2 - xAngle);
-	mat4 rotz = Rz(-M_PI/2 - zAngle);
-	// mat4 rotx = Rx(-M_PI/2 + t/1000);
-	// mat4 rotz = Rz(-M_PI/2 + t/1000);
+
+	mat4 rotx = Rx(xAngle);
+	mat4 rotz = Rz(zAngle);
+	rotx = Rx(angleX + M_PI/2);
+	rotz = Rz(angleZ);
 
 	// mat4 tot = Mult(rotx, Mult(octagonMat, trans));
 	mat4 tot = Mult(trans, Mult(rotx, rotz));
+	// mat4 tot = Mult(trans, rotz);
 	// mat4 tot = trans;
 
-	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, tot.m);	// not used
+	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, trans.m);	// not used
 
 	DrawModel(octagon, program, "inPosition", "inNormal", "inTexCoord");
 }
@@ -331,6 +430,8 @@ float init_z = 0;
 float angle_z = 0;
 float angle_x = 0;
 bool first = true;
+bool leftMouseDown = false;
+
 void mouseMovement(int x, int y)
 {
 	if (first) {
@@ -338,10 +439,12 @@ void mouseMovement(int x, int y)
 		init_z = y;
 		first = false;
 	}
+	// if(leftMouseDown) {
 	float curr_x = x - init_x;
 	float curr_y = y - init_z;
 	angle_x = (curr_x/MOUSE_MOVE_SPEED)*M_PI;
 	angle_z = (curr_y/MOUSE_MOVE_SPEED)*M_PI;
+	// }
 }
 
 
@@ -414,6 +517,11 @@ void display(void)
 	glutSwapBuffers();
 }
 
+// void mousePress(int button, int state, int x , int y) {
+// 	if(button == 0) {
+// 		leftMouseDown = !state;
+// 	}
+// }
 
 int main(int argc, char **argv)
 {
@@ -427,6 +535,7 @@ int main(int argc, char **argv)
 	glutRepeatingTimer(20);
 
 	glutPassiveMotionFunc(mouseMovement);
+	// glutMouseFunc(mousePress);
 
 	glutMainLoop();
 	exit(0);
