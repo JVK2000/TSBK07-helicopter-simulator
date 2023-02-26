@@ -501,17 +501,36 @@ void draw_terrain()
 	float z_round = round(p.z/ttex.height);
 	float z_trunc = trunc(p.z/ttex.height);
 
-	printf("\nx_round: %f", x_round - x_trunc);
-	printf("\n_trunc: %f", x_trunc);
+	// printf("\n\nx_round: %f", x_round - x_trunc);
+	// printf("	trunc: %f", x_trunc);
+	// printf("\nz_round: %f", z_round - z_trunc);
+	// printf("	trunc: %f", z_trunc);
 
 	float x_offset = x_trunc + 1;
 	float z_offset = z_trunc + 1;
-	if (x_round - x_trunc < 0.5) {
-		x_offset = x_trunc - 1;
-	} 
+	if (x_round - x_trunc >= 0.0) {
+		if (x_round - x_trunc < 0.5) {
+			x_offset = x_trunc - 1;
+		} 
+	} else {
+		if (x_round - x_trunc < 0.0) {
+			printf("\n------------");
+
+			x_offset = x_trunc - 1 + (x_round - x_trunc);
+			x_trunc -= 1;
+		}
+	}
+	
 	if (z_round - z_trunc < 0.5) {
 		z_offset = z_trunc - 1;
 	} 
+	printf("\n\n\nx_round: %f", x_round - x_trunc);
+	printf("\ntxrunc: %f", x_trunc);
+	printf("\nx_offset: %f", x_offset);
+
+	printf("\n\nz_round: %f", z_round - z_trunc);
+	// printf("\ntrunc: %f", z_trunc);
+	// printf("\nz_offset: %f", z_offset);
 
 	// printf("\n round; %f", x_shift);
 	// printf("\n trunc; %f", trunc(p.x/ttex.width));
