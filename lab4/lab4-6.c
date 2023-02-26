@@ -486,38 +486,49 @@ void keyboardMovement()
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
 }
 
-
-void draw_terrain()
+void draw_terrain_section(float x, float z) 
 {
-
-	float x_shift = round(p.x/ttex.width);
-	float rel_x_scale = p.x/ttex.width - x_shift;
-	float z_shift = round(p.z/ttex.height);
-	float rel_z_scale = p.z/ttex.height - z_shift;
-
-	mat4 modelView = T(x_shift * (ttex.width - 1), 0, z_shift * (ttex.height - 1));
+	mat4 modelView = T(x * (ttex.width - 1), 0, z * (ttex.height - 1));
 	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+}
 
-	if (0.5 < rel_x_scale) {
-		modelView = T((x_shift + 1) * (ttex.width - 1), 0, z_shift * (ttex.height - 1));
-		glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
-		DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
-	} else if (rel_x_scale < 0.5) {
-		modelView = T((x_shift - 1) * (ttex.width - 1), 0, z_shift * (ttex.height - 1));
-		glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
-		DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
-	}
 
-	if (0.5 < rel_z_scale) {
-		modelView = T(x_shift * (ttex.width - 1), 0, (z_shift + 1) * (ttex.height - 1));
-		glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
-		DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
-	} else if (rel_z_scale < 0.5) {
-		modelView = T(x_shift * (ttex.width - 1), 0, (z_shift - 1) * (ttex.height - 1));
-		glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
-		DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
-	}
+void draw_terrain()
+{ 
+	float x_round = round(p.x/ttex.width);	// e.g. 0.4 => 0.0, 0.6 => 1.0
+	float x_trunc = trunc(p.x/ttex.width);	// e.g. 0.6 => 0.0, 1.4 => 1.0
+	float z_round = round(p.z/ttex.height);
+	float z_trunc = trunc(p.z/ttex.height);
+
+	printf("\nx_round: %f", x_round - x_trunc);
+	printf("\n_trunc: %f", x_trunc);
+
+	float x_offset = x_trunc + 1;
+	float z_offset = z_trunc + 1;
+	if (x_round - x_trunc < 0.5) {
+		x_offset = x_trunc - 1;
+	} 
+	if (z_round - z_trunc < 0.5) {
+		z_offset = z_trunc - 1;
+	} 
+
+	// printf("\n round; %f", x_shift);
+	// printf("\n trunc; %f", trunc(p.x/ttex.width));
+	draw_terrain_section(x_trunc, z_trunc);
+	draw_terrain_section(x_trunc, z_offset);
+	draw_terrain_section(x_offset, z_trunc);
+	draw_terrain_section(x_offset, z_offset);
+
+
+	// mat4 modelView = T(x_trunc * (ttex.width - 1), 0, z_trunc * (ttex.height - 1));
+	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
+	// DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+
+	// modelView = T(x_trunc * (ttex.width - 1), 0, z_trunc * (ttex.height - 1));
+	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
+	// DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+
 
 }
 
