@@ -99,7 +99,7 @@ I used `mix()` for textures. I based the level of blending on the normal.
 
 **Which kind of “infinity” did you make?**
 
-I'am drawing 4 patches. One patch where the player stand. Two patches that are second closest to the player, and the one patch which is adjacent to the other two.
+I'am drawing four patches. One patch where the player stands. Two patches that are second closest to the player, and one patch which is adjacent to the other two.
 
 ![alt text](answer-part6-image.png "Patches drawn based on player position")
 

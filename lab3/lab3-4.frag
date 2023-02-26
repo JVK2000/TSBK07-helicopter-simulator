@@ -55,8 +55,10 @@ void main(void)
 			float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
 			vec3 specularLight = .8 * spec * lightSourcesColorArr[i];
 
+			// color = color + vec4(diffuseLight, 1);
 			color = color + vec4(diffuseLight + specularLight, 1);
 		}
+		// color = vec4(surfacePos, 1);
 	}
 
 	if (textureEnabled) {

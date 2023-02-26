@@ -49,7 +49,7 @@ I added the camera position to the translation matrix for the skybox. In this wa
 
 **How did you represent the objects? Is this a good way to manage a scene, or would you do it differently for a "real" application?**
 
-I updated the translation matrix before drawing each model. I used the same shaders but updated a uniform value to decide if lighting and textures were to be used. 
+I updated the translation matrix before drawing each model. I used the same shaders but updated a uniform value to decide if lighting and textures would be used. 
 
 
 </br>
@@ -57,14 +57,14 @@ I updated the translation matrix before drawing each model. I used the same shad
 **What special considerations are needed when rendering a skybox?**
 
 * No Z-buffering. 
-* Skybox should have the same rotation as the world, but it should not move. 
+* Skybox should have the same rotation as the world but not move. 
 
 
 </br>
 
 **What is the problem with the “skybox" object used in the lab? (The problem doesn't have to be corrected.)**
 
-The clouds is not aligned in the corners.
+The clouds are not aligned in the corners.
 
 
 ----
@@ -73,7 +73,7 @@ The clouds is not aligned in the corners.
 
 **Why was blue facing the camera when visualizing the normal vectors?**
 
-When a surface is facing a camera, the normal becomes (0, 0 , 1), and when using the normal to set the color, the color becomes blue because of RGB. ????
+When a surface faces a camera, the normal becomes (0, 0, 1), and when using the normal to set the color, the color becomes blue because of RGB. ????
 
 
 </br>
