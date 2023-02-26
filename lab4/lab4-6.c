@@ -514,16 +514,23 @@ void draw_terrain()
 		} 
 	} else {
 		if (x_round - x_trunc < 0.0) {
-			printf("\n------------");
-
-			x_offset = x_trunc - 1 + (x_round - x_trunc);
 			x_trunc -= 1;
+			x_offset = x_trunc - 1 + (x_round - x_trunc);
+		}
+	}
+
+	if (z_round - z_trunc >= 0.0) {
+		if (z_round - z_trunc < 0.5) {
+			z_offset = z_trunc - 1;
+		} 
+	} else {
+		if (z_round - z_trunc < 0.0) {
+			z_trunc -= 1;
+			z_offset = z_trunc - 1 + (z_round - z_trunc);
 		}
 	}
 	
-	if (z_round - z_trunc < 0.5) {
-		z_offset = z_trunc - 1;
-	} 
+	
 	printf("\n\n\nx_round: %f", x_round - x_trunc);
 	printf("\ntxrunc: %f", x_trunc);
 	printf("\nx_offset: %f", x_offset);
