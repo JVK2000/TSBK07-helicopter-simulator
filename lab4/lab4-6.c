@@ -49,7 +49,6 @@ GLfloat specularExponent[] =
 // end Light
 
 
-
 // Camera
 vec3 p = {0, 10, 10};	// Camera position
 vec3 l = {0, 10, 0};		// Position to look at
@@ -108,11 +107,6 @@ Model* GenerateTerrain(TextureData *tex)
 				normalArray[(x + z * tex->width)].y = map_normal.y;
 				normalArray[(x + z * tex->width)].z = map_normal.z;
 			}
-			// else {
-			// 	normalArray[(x + z * tex->width)].x = 0;
-			// 	normalArray[(x + z * tex->width)].y = 1.0;
-			// 	normalArray[(x + z * tex->width)].z = 0;
-			// }
 
 			// Texture coordinates. You may want to scale them.
 			texCoordArray[(x + z * tex->width)].x = x; // (float)x / tex->width;
@@ -180,7 +174,6 @@ Model* GenerateTerrain(TextureData *tex)
 }
 
 
-
 // vertex array object
 Model *m, *m2, *tm, *octagon;
 // Reference to shader program
@@ -222,7 +215,6 @@ void init(void)
 	// LoadTGATextureData("44-terrain.tga", &ttex);
 	tm = GenerateTerrain(&ttex);
 	printError("init terrain");
-
 }
 
 
@@ -315,109 +307,25 @@ float find_height(float x, float z)
 	// printf("\nPoint: (%f, %f, %f)", x, 0.0, z);
 	// printf("\nHeight: %f", y);
 }
-float r2d(float rad){
-    return rad * (180.0 / M_PI);
-}
 
-
-
-float m_dotProduct(vec3 a, vec3 b) {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-
-// Calculate the magnitude of a vector
-float m_magnitude(vec3 v) {
-    return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-}
-
-// Calculate the angle between two vectors in radians
-float angleBetweenVectors(vec3 a, vec3 b) {
-    float dot = m_dotProduct(a, b);
-    float magA = m_magnitude(a);
-    float magB = m_magnitude(b);
-    float cosTheta = dot / (magA * magB);
-    float theta = acos(cosTheta);
-    return theta;
-}
 
 
 float octagon_speed = 0.1;
 void drawOctagon() {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
-
 	
 	if (octagon_pos.x < 0) {
 		octagon_dir = 1;
 	} else if (octagon_pos.x > (ttex.height - 1)) {
 		octagon_dir = -1;
 	}
-	// if (glutKeyIsDown('f')) {
-	// 	octagon_pos.x += octagon_speed;
-	// 	octagon_pos.z += octagon_speed;
-	// 	octagon_pos.y = find_height(octagon_pos.x, octagon_pos.z);
-	// } if (glutKeyIsDown('g')) {
-	// 	octagon_pos.x -= octagon_speed;
-	// 	octagon_pos.z -= octagon_speed;
-	// 	octagon_pos.y = find_height(octagon_pos.x, octagon_pos.z);
-
-	// }
 
 	octagon_pos.x = octagon_pos.x + octagon_dir * octagon_speed;
 	octagon_pos.z = octagon_pos.z + octagon_dir * octagon_speed;
 	octagon_pos.y = find_height(octagon_pos.x, octagon_pos.z);
-	// float x = 0.4;
-	// float z = 0.4;
-	// float y = find_height(x, z);
-	int width = ttex.width;
-	int x_ground = (int) octagon_pos.x;
-	int y_ground = (int) octagon_pos.y;
-	int z_ground = (int) octagon_pos.z;
-	vec3 ground_normal = tm->normalArray[(x_ground + z_ground * width)];
-	// vec3 ground_normal = get_normal_point_in_plane(octagon_pos.x, octagon_pos.z);
-	// if (ground_normal.x < 0 && ground_normal.y < 0 && ground_normal.z < 0) {
-
-	// }
-	// else if (ground_normal.x < 0 || ground_normal.y < 0 || ground_normal.z < 0) {
-	// 	printf("\n\n\n ------------------ ABS");
-	// 	ground_normal.x = fabs(ground_normal.x);
-	// 	ground_normal.y = fabs(ground_normal.y);
-	// 	ground_normal.z = fabs(ground_normal.z);
-	// }
-
-	float xAngle = acos(ground_normal.x) - M_PI/2;
-	float yAngle = acos(ground_normal.y) - M_PI/2;
-	float zAngle = acos(ground_normal.z);
-	xAngle = - sin(ground_normal.x);
-	zAngle = - sin(ground_normal.x);
-
-    vec3 xAxis = { 1, 0, 0 };
-    vec3 yAxis = { 0, 1, 0 };
-    vec3 zAxis = { 0, 0, 1 };
-    float angleX = angleBetweenVectors(ground_normal, xAxis);
-    float angleY = angleBetweenVectors(ground_normal, yAxis);
-    float angleZ = angleBetweenVectors(ground_normal, zAxis);
-	// printf("\n\nangles: (%f, %f, %f)", r2d(angleX), r2d(angleY), r2d(angleZ));
-
-	// printf("\n\pos: (%d, %d, %d)", x_ground, y_ground, z_ground);
- 	// printf("\n\nangles: (%f, %f, %f)", r2d(xAngle), r2d(yAngle), r2d(zAngle));
- 	// printf("\nnormal: (%f, %f, %f)", ground_normal.x, ground_normal.y, ground_normal.z);
-	mat4 octagonMat = IdentityMatrix();
+	
 	mat4 trans = T(octagon_pos.x, octagon_pos.y, octagon_pos.z);
-	// mat4 rotx = Ry(1.5);
-
-	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
-
-	mat4 rotx = Rx(xAngle);
-	mat4 rotz = Rz(zAngle);
-	rotx = Rx(angleX + M_PI/2);
-	rotz = Rz(angleZ);
-
-	// mat4 tot = Mult(rotx, Mult(octagonMat, trans));
-	mat4 tot = Mult(trans, Mult(rotx, rotz));
-	// mat4 tot = Mult(trans, rotz);
-	// mat4 tot = trans;
-
 	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, trans.m);	// not used
 
 	DrawModel(octagon, program, "inPosition", "inNormal", "inTexCoord");
@@ -496,68 +404,39 @@ void draw_terrain_section(float x, float z)
 
 void draw_terrain()
 { 
-	float x_round = round(p.x/ttex.width);	// e.g. 0.4 => 0.0, 0.6 => 1.0
-	float x_trunc = trunc(p.x/ttex.width);	// e.g. 0.6 => 0.0, 1.4 => 1.0
-	float z_round = round(p.z/ttex.height);
+	float x_trunc = trunc(p.x/ttex.width);				// trunc(): 0.6 => 0.0, 1.4 => 1.0
+	float x_round = round(p.x/ttex.width) - x_trunc;	// round(): 0.4 => 0.0, 0.6 => 1.0
 	float z_trunc = trunc(p.z/ttex.height);
-
-	// printf("\n\nx_round: %f", x_round - x_trunc);
-	// printf("	trunc: %f", x_trunc);
-	// printf("\nz_round: %f", z_round - z_trunc);
-	// printf("	trunc: %f", z_trunc);
+	float z_round = round(p.z/ttex.height) - z_trunc;
 
 	float x_offset = x_trunc + 1;
 	float z_offset = z_trunc + 1;
-	if (x_round - x_trunc >= 0.0) {
-		if (x_round - x_trunc < 0.5) {
-			x_offset = x_trunc - 1;
-		} 
-	} else {
-		if (x_round - x_trunc < 0.0) {
-			x_trunc -= 1;
-			x_offset = x_trunc - 1 + (x_round - x_trunc);
-		}
+	if (0.0 <= x_round && x_round < 0.5) {
+		x_offset = x_trunc - 1;
+	} 
+	else if (x_round < 0.0) {
+		x_trunc -= 1;
+		x_offset = x_trunc + (x_round);
 	}
 
-	if (z_round - z_trunc >= 0.0) {
-		if (z_round - z_trunc < 0.5) {
-			z_offset = z_trunc - 1;
-		} 
-	} else {
-		if (z_round - z_trunc < 0.0) {
-			z_trunc -= 1;
-			z_offset = z_trunc - 1 + (z_round - z_trunc);
-		}
+	if (0.0 <= z_round && z_round < 0.5) {
+		z_offset = z_trunc - 1;
+	} 
+	else if (z_round < 0.0) {
+		z_trunc -= 1;
+		z_offset = z_trunc + (z_round);
 	}
 	
-	
-	printf("\n\n\nx_round: %f", x_round - x_trunc);
-	printf("\ntxrunc: %f", x_trunc);
-	printf("\nx_offset: %f", x_offset);
+	// printf("\nx_trunc: %f", x_trunc);
+	// printf("\nx_offset: %f", x_offset);
+	// printf("\ny_trunc: %f", y_trunc);
+	// printf("\ny_offset: %f", y_offset);
 
-	printf("\n\nz_round: %f", z_round - z_trunc);
-	// printf("\ntrunc: %f", z_trunc);
-	// printf("\nz_offset: %f", z_offset);
-
-	// printf("\n round; %f", x_shift);
-	// printf("\n trunc; %f", trunc(p.x/ttex.width));
 	draw_terrain_section(x_trunc, z_trunc);
 	draw_terrain_section(x_trunc, z_offset);
 	draw_terrain_section(x_offset, z_trunc);
 	draw_terrain_section(x_offset, z_offset);
-
-
-	// mat4 modelView = T(x_trunc * (ttex.width - 1), 0, z_trunc * (ttex.height - 1));
-	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
-	// DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
-
-	// modelView = T(x_trunc * (ttex.width - 1), 0, z_trunc * (ttex.height - 1));
-	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
-	// DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
-
-
 }
-
 
 
 void display(void)

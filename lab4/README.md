@@ -93,4 +93,16 @@ height = (- d - (a * point_x) - (c * point_z)) / b
 I used `mix()` for textures. I based the level of blending on the normal. 
 
 
+----
+
+#### Part 6)
+
+**Which kind of “infinity” did you make?**
+
+I'am drawing 4 patches. One patch where the player stand. Two patches that are second closest to the player, and the one patch which is adjacent to the other two.
+
+![alt text](answer-part6-image.png "Patches drawn based on player position")
+
+
+
 
