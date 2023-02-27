@@ -30,14 +30,14 @@ uniform mat4 mdlMatrix;
 void main(void)
 {
 	vec4 color = vec4(1, 1, 1, 1);
-	mat3 camMat = mat3(cameraMatrix);
+	mat3 camMat = mat3(mdlMatrix);
 	vec3 normal_view = camMat * transformedNormal;
 
 	if (shadingEnabled) {
 		color = vec4(0, 0, 0, 0);
 
-		for(int i = 2; i < 4; i++) {
-		// for(int i = 0; i < 4; i++) {
+		// for(int i = 3; i < 4; i++) {
+		for(int i = 0; i < 4; i++) {
 			vec3 lightDirection;
 			if (isDirectional[i]) {
 				// Directional light
@@ -54,12 +54,12 @@ void main(void)
 			vec3 viewDir = normalize(camMat * (cameraPos - surfacePos));
 			vec3 reflectDir = reflect(-lightDirection, normalize(normal_view));
 			float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
-			vec3 specularLight = .8 * spec * lightSourcesColorArr[i];
+			vec3 specularLight = 0.8 * spec * lightSourcesColorArr[i];
 
-			color = color + vec4(diffuseLight, 1);
-			// color = color + vec4(diffuseLight + specularLight, 1);
+			// color = color + vec4(diffuseLight, 1);
+			color = color + vec4(diffuseLight + specularLight, 1);
 		}
-		// color = vec4(normal_view, 1);
+		// color = vec4(surfacePos, 1);
 	}
 
 	if (textureEnabled) {

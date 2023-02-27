@@ -29,7 +29,7 @@ void main(void)
 	gl_Position = projectionMatrix  * mdlMatrix * vec4(inPosition, 1.0);
 
 	surfacePositions = vec3(mdlMatrix * vec4(inPosition, 1.0));
-	surfacePos = vec3(translationMatrix * vec4(inPosition, 1.0));
+	surfacePos = vec3(translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0));
 
 
 	textCoord = inTexCoord;
