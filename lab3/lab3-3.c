@@ -28,46 +28,6 @@ GLfloat projectionMatrix[] = {
 	0.0f, 0.0f, -(far + near)/(far - near), -2*far*near/(far - near),
 	0.0f, 0.0f, -1.0f, 0.0f 
 };
-// To move the whole combinations of models
-GLfloat globalTransform[] = {	
-	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, -10.0f,
-	0.0f, 0.0f, 0.0f, 1.0f 
-};
-// Used by static positioned windmill models (walls, balcony, roof) 
-mat4 translationMatrixStaticObj = {	
-	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, -10.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f 
-};
-mat4 translationMatrixGround = {	
-	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, -10.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f 
-};
-mat4 translationMatrixTeapot = {
-	1.0f, 0.0f, 0.0f, 15.0f,
-	0.0f, 1.0f, 0.0f, -10.0f,
-	0.0f, 0.0f, 1.0f, 15.0f,
-	0.0f, 0.0f, 0.0f, 1.0f 
-};
-
-// NOTE: Model is pointing to the right on start, axis are tossed around  
-mat4 translationMatrixBlade = {	
-	1.0f, 0.0f, 0.0f, 4.5f,		// Blade depth
-	0.0f, 1.0f, 0.0f, -0.8f,	// Vertical
-	0.0f, 0.0f, 1.0f, 0.0f,		// Horizon
-	0.0f, 0.0f, 0.0f, 1.0f 
-};
-
-// Camera
-vec3 p = {0, 0, 0};	// Camera position
-vec3 l = {0, 0, -1};		// Position to look at
-vec3 v = {0, 1, 0};		// Determines which axis is up
-mat4 cameraMatrix;
 
 // Used by the ground model
 #define kGroundSize 100.0f
@@ -117,6 +77,13 @@ Model *teapot;
 Model *skybox;
 mat4 mirroredGroundMatrix;
 
+// Camera
+vec3 p = {0, 0, 0};	// Camera position
+vec3 l = {0, 0, -1};		// Position to look at
+vec3 v = {0, 1, 0};		// Determines which axis is up
+mat4 cameraMatrix;
+
+
 void init(void)
 {
 	dumpInfo();
@@ -144,9 +111,7 @@ void init(void)
 	
 	glUseProgram(program);
 	glUniformMatrix4fv(glGetUniformLocation(program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
-	glUniformMatrix4fv(glGetUniformLocation(program, "globalTransform"), 1, GL_TRUE, globalTransform);
 
-	mirroredGroundMatrix = Mult(Ry(M_PI), translationMatrixGround);
 	ground_model = LoadDataToModel(vertices, vertex_normals, tex_coords, colors, indices, sizeof(vertices[0]), sizeof(indices[0]));
 
 	printError("init arrays");
@@ -159,7 +124,6 @@ float init_z = 0;
 float angle_z = 0;
 float angle_x = 0;
 bool first = true;
-
 void mouseMovement(int x, int y)
 {
 	if (first) {
@@ -177,7 +141,6 @@ void mouseMovement(int x, int y)
 float MOVEMENT_SPEED = 0.2;
 float pos_x = 0;
 float pos_z = 0;
-
 void keyboardMovement()
 {
 	float pos_x = 0;
@@ -206,11 +169,10 @@ void keyboardMovement()
 void drawSkybox(void) {
 	glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
-
-	mat4 translationMatrixSkybox = Mult(Rx(angle_z), Mult(Ry(angle_x), IdentityMatrix()));
-	
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), false);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
+
+	mat4 translationMatrixSkybox = Mult(Rx(angle_z), Ry(angle_x));
 	LoadTGATextureSimple("labskybox512.tga", &texUnit);			// Create texture object
 	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
 	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
@@ -223,6 +185,9 @@ void drawSkybox(void) {
 
 
 void drawWindmillBlade(mat4 rotationMatrix) {
+	// NOTE: Model is pointing to the right on start, axis are tossed around  
+	mat4 translationMatrixBlade = T(4.5, -0.8, 0); // 4.5 : Blade depth. 	-0.8 : Vertical. 	0 : Horizon.
+
 	mat4 translationMatrix = Mult(translationMatrixBlade, rotationMatrix);
 	mat4 total = Mult(cameraMatrix, translationMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrix.m);
@@ -230,12 +195,14 @@ void drawWindmillBlade(mat4 rotationMatrix) {
 	DrawModel(windmill_blade, program, "inPosition", "inNormal", "inTexCoord");
 }
 
+
 void drawWindmill(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
 
 	// Walls, Roof, Balcony
+	mat4 translationMatrixStaticObj = T(0, -10, 0);
 	mat4 total = Mult(cameraMatrix, translationMatrixStaticObj);
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixStaticObj.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
@@ -250,27 +217,33 @@ void drawWindmill(void) {
 	drawWindmillBlade(Rx(-M_PI/2 + t/1000));
 }
 
+
 void drawGround(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), false);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
-	mat4 total = Mult(cameraMatrix, translationMatrixGround);
 
+	mat4 translationMatrixGround = T(0, -10, 0);
+	mat4 total = Mult(cameraMatrix, translationMatrixGround);
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
 	DrawModel(ground_model, program, "inPosition", "inNormal", "inTexCoord");
 
+	mat4 mirroredGroundMatrix = Mult(Ry(M_PI), translationMatrixGround);
 	total = Mult(cameraMatrix, mirroredGroundMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
 	DrawModel(ground_model, program, "inPosition", "inNormal", "inTexCoord");
 }
 
+
 void drawTeapot(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
+	mat4 translationMatrixTeapot = T(15, -10, 15);
 	mat4 total = Mult(cameraMatrix, translationMatrixTeapot);
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
 	DrawModel(teapot, program, "inPosition", "inNormal", "inTexCoord");
 }
+
 
 void display(void)
 {
