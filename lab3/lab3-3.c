@@ -48,7 +48,7 @@ mat4 translationMatrixGround = {
 	0.0f, 0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f 
 };
-mat4 translationMatrixTeapot = {	
+mat4 translationMatrixTeapot = {
 	1.0f, 0.0f, 0.0f, 15.0f,
 	0.0f, 1.0f, 0.0f, -10.0f,
 	0.0f, 0.0f, 1.0f, 15.0f,
@@ -67,12 +67,13 @@ mat4 translationMatrixBlade = {
 vec3 p = {0, 0, 0};	// Camera position
 vec3 l = {0, 0, -1};		// Position to look at
 vec3 v = {0, 1, 0};		// Determines which axis is up
+mat4 cameraMatrix;
 
 // Used by the ground model
 #define kGroundSize 100.0f
 vec3 vertices[] =
 {
- { -kGroundSize,0.0f,-kGroundSize},
+ {-kGroundSize,0.0f,-kGroundSize},
  {-kGroundSize,0.0f,kGroundSize},
  {kGroundSize,-0.0f,-kGroundSize},
  {kGroundSize,-0.0f,kGroundSize}
@@ -198,8 +199,7 @@ void keyboardMovement()
 	l.x += pos_x;
 	p.z += pos_z; 
 	l.z += pos_z;
-	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
-	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
+	cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
 }
 
 
@@ -209,10 +209,6 @@ void drawSkybox(void) {
 
 	mat4 translationMatrixSkybox = Mult(Rx(angle_z), Mult(Ry(angle_x), IdentityMatrix()));
 	
-	// model-to-world IdentityMatrix 
-	// wold-to-view look at matrix - 0 translation (använda för kameran)
-	// 142 i bok
-
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), false);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
 	LoadTGATextureSimple("labskybox512.tga", &texUnit);			// Create texture object
@@ -226,47 +222,37 @@ void drawSkybox(void) {
 }
 
 
+void drawWindmillBlade(mat4 rotationMatrix) {
+	mat4 translationMatrix = Mult(translationMatrixBlade, rotationMatrix);
+	mat4 total = Mult(cameraMatrix, translationMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrix.m);
+	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
+	DrawModel(windmill_blade, program, "inPosition", "inNormal", "inTexCoord");
+}
+
 void drawWindmill(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
 
-	mat4 modelView, total, rotationMatrixBlade;
-	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
-
 	// Walls, Roof, Balcony
-	total = Mult(cameraMatrix, translationMatrixStaticObj);
+	mat4 total = Mult(cameraMatrix, translationMatrixStaticObj);
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixStaticObj.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
 	DrawModel(windmill_wall, program, "inPosition", "inNormal", "inTexCoord");
 	DrawModel(windmill_roof, program, "inPosition", "inNormal", "inTexCoord");
 	DrawModel(windmill_balcony, program, "inPosition", "inNormal", "inTexCoord");
 
 	// Blades
-	rotationMatrixBlade = Rx(0 + t/1000);
-	total = Mult(cameraMatrix, Mult(translationMatrixBlade, rotationMatrixBlade));
-	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
-	DrawModel(windmill_blade, program, "inPosition", "inNormal", "inTexCoord");
-
-	rotationMatrixBlade = Rx(M_PI/2 + t/1000);
-	total = Mult(cameraMatrix, Mult(translationMatrixBlade, rotationMatrixBlade));
-	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
-	DrawModel(windmill_blade, program, "inPosition", "inNormal", "inTexCoord");
-
-	rotationMatrixBlade = Rx(M_PI + t/1000);
-	total = Mult(cameraMatrix, Mult(translationMatrixBlade, rotationMatrixBlade));
-	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
-	DrawModel(windmill_blade, program, "inPosition", "inNormal", "inTexCoord");
-
-	rotationMatrixBlade = Rx(-M_PI/2 + t/1000);
-	total = Mult(cameraMatrix, Mult(translationMatrixBlade, rotationMatrixBlade));
-	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
-	DrawModel(windmill_blade, program, "inPosition", "inNormal", "inTexCoord");
+	drawWindmillBlade(Rx(0 + t/1000));
+	drawWindmillBlade(Rx(M_PI/2 + t/1000));
+	drawWindmillBlade(Rx(M_PI + t/1000));
+	drawWindmillBlade(Rx(-M_PI/2 + t/1000));
 }
 
 void drawGround(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), false);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
-	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
 	mat4 total = Mult(cameraMatrix, translationMatrixGround);
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
@@ -280,8 +266,8 @@ void drawGround(void) {
 void drawTeapot(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
-	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
 	mat4 total = Mult(cameraMatrix, translationMatrixTeapot);
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
 	DrawModel(teapot, program, "inPosition", "inNormal", "inTexCoord");
 }

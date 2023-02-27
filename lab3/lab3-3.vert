@@ -21,10 +21,8 @@ uniform mat4 mdlMatrix;
 
 void main(void)
 {
-	mat3 normalMatrix = mat3(translationMatrix);
-    transformedNormal = normalMatrix * inNormal;
+    transformedNormal = mat3(translationMatrix) * inNormal;
 	
-
 	
 	gl_Position =  projectionMatrix * mdlMatrix * vec4(inPosition, 1.0);
 	// gl_Position =  projectionMatrix  * cameraMatrix * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
