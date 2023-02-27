@@ -102,8 +102,8 @@ Model *teapot;
 Model *skybox;
 
 // Camera
-vec3 p = {0, 0, 0};		// Camera position
-vec3 l = {0, 0, -1};	// Position to look at
+vec3 p = {0, 10, 0};		// Camera position
+vec3 l = {0, 10, -1};	// Position to look at
 vec3 v = {0, 1, 0};		// Determines which axis is up
 mat4 cameraMatrix;
 
@@ -218,7 +218,7 @@ void drawSkybox(void) {
 
 void drawWindmillBlade(mat4 rotationMatrix) {
 	// NOTE: Model is pointing to the right on start, axis are tossed around  
-	mat4 translationMatrixBlade = T(4.5, -0.8, 0); // 4.5 : Blade depth. 	-0.8 : Vertical. 	0 : Horizon.
+	mat4 translationMatrixBlade = T(4.5, 9.2, 0); // 4.5 : Blade depth. 	-0.8 : Vertical. 	0 : Horizon.
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixExtra"), 1, GL_TRUE, rotationMatrix.m);
 	mat4 translationMatrix = Mult(translationMatrixBlade, rotationMatrix);
 	mat4 total = Mult(cameraMatrix, translationMatrix);
@@ -235,7 +235,7 @@ void drawWindmill(void) {
 	glUniform1f(glGetUniformLocation(program, "specularExponent"), specularExponent[1]);
 
 	// Walls, Roof, Balcony
-	mat4 translationMatrixStaticObj = T(0, -10, 0);
+	mat4 translationMatrixStaticObj = T(0, 0, 0);
 	mat4 total = Mult(cameraMatrix, translationMatrixStaticObj);
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixStaticObj.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
@@ -262,7 +262,7 @@ void drawGround(void) {
 
 	glUniform1f(glGetUniformLocation(program, "specularExponent"), specularExponent[0]);
 
-	mat4 translationMatrixGround = T(0, -10, 0);
+	mat4 translationMatrixGround = T(0, 0, 0);
 	mat4 total = Mult(cameraMatrix, translationMatrixGround);
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixGround.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
@@ -282,7 +282,7 @@ void drawTeapot(void) {
 
 	glUniform1f(glGetUniformLocation(program, "specularExponent"), specularExponent[2]);
 
-	mat4 translationMatrixTeapot = T(15, -10, 15);
+	mat4 translationMatrixTeapot = T( 20.0f, 0.0f, 20.0f);
 	mat4 total = Mult(cameraMatrix, translationMatrixTeapot);
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixTeapot.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
