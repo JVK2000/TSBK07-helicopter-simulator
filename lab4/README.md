@@ -4,9 +4,9 @@
 
 **What kind of data does the heightmap image data hold? What range is the heightmap data?**
 
-Each value in the heightmap represents the height of the point on the surface. 
+Each value in the height map represents the height of the point on the surface. 
 
-Value from 0 to 1, -1 to 1 or 0 to 255
+Value from 0 to 255
 
 
 
@@ -15,7 +15,10 @@ Value from 0 to 1, -1 to 1 or 0 to 255
 **The terrain is 4x4. How many polygons does it draw?**
 
 ```math
-(width-1) * (height-1) = 3 * 3 = 9
+quads_n = 4 * 4 = 16   
+```
+```math
+triangles_n = quads_n * 2 = 32   
 ```
 
 
@@ -25,7 +28,7 @@ Value from 0 to 1, -1 to 1 or 0 to 255
 
 **Did you need to extend your camera movement code? How?**
 
-Add added the ability to move upp and down (along the y-axis)
+Add added the ability to move up and down (along the y-axis)
 
 Movement: **w** - forward, **s** - backward, **a** - left, **d** - right, **q** - down, **e** - up. 
 Looking: **mouse** - up, down, left, right
@@ -46,15 +49,15 @@ I used the cross method.
 
 **How did you figure out what surface to use?**
 
-For quad I used points:
+For quad, I used points:
 ```math
-(⌊x⌋, ⌊y⌋)
+(⌊x⌋, ⌊y⌋),
 ```
 ```math
-(⌊x⌋ + 1, ⌊y⌋)
+(⌊x⌋ + 1, ⌊y⌋),
 ```
 ```math
-(⌊x⌋, ⌊y⌋ + 1)
+(⌊x⌋, ⌊y⌋ + 1),
 ```
 ```math
 (⌊x⌋ + 1, ⌊y⌋ + 1)
@@ -63,7 +66,7 @@ For quad I used points:
 To select which triangle to use:
 ```C
 if ((x - floor(x)) + (z - floor(z)) < 1.0) {
-    // Use triangle closest to origin.
+    // Use the triangle closest to the origin.
 } else {
     // ...
 }
@@ -88,7 +91,7 @@ height = (- d - (a * point_x) - (c * point_z)) / b
 
 #### Part 5)
 
-**What kind of multitexturing function did you implement?**
+**What kind of multi-texturing function did you implement?**
 
 I used `mix()` for textures. I based the level of blending on the normal. 
 
