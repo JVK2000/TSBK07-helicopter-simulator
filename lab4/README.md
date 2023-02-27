@@ -12,13 +12,13 @@ Value from 0 to 255
 
 </br>
 
-**The terrain is 4x4. How many polygons does it draw?**
+**The terrain is 3x3. How many polygons does it draw?**
 
 ```math
-quads_n = 4 * 4 = 16   
+quads_n = 3 * 3 = 9   
 ```
 ```math
-triangles_n = quads_n * 2 = 32   
+triangles_n = quads_n * 2 = 18   
 ```
 
 
