@@ -75,11 +75,10 @@ Model *windmill_blade;
 Model *ground_model;
 Model *teapot;
 Model *skybox;
-mat4 mirroredGroundMatrix;
 
 // Camera
-vec3 p = {0, 0, 0};	// Camera position
-vec3 l = {0, 0, -1};		// Position to look at
+vec3 p = {0, 0, 0};		// Camera position
+vec3 l = {0, 0, -1};	// Position to look at
 vec3 v = {0, 1, 0};		// Determines which axis is up
 mat4 cameraMatrix;
 

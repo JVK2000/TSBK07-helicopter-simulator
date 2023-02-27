@@ -6,7 +6,7 @@ Per-pixel calculations.
 
 in vec2 textCoord;
 in vec3 transformedNormal;
-in vec4 surfacePositions;
+in vec3 surfacePositions;
 in vec3 surfacePos;
 
 out vec4 outColor;
@@ -24,19 +24,20 @@ uniform bool isDirectional[4];
 uniform mat4 cameraMatrix;
 uniform mat4 projectionMatrix;
 uniform vec3 cameraPos;
+uniform mat4 mdlMatrix;
 
 
 void main(void)
 {
 	vec4 color = vec4(1, 1, 1, 1);
 	mat3 camMat = mat3(cameraMatrix);
-	vec3 normal_view = normalize(camMat * transformedNormal);
+	vec3 normal_view = camMat * transformedNormal;
 
 	if (shadingEnabled) {
 		color = vec4(0, 0, 0, 0);
 
-		//		for(int i = 3; i < 4; i++) {
-		for(int i = 0; i < 4; i++) {
+		for(int i = 3; i < 4; i++) {
+		// for(int i = 0; i < 4; i++) {
 			vec3 lightDirection;
 			if (isDirectional[i]) {
 				// Directional light
@@ -58,7 +59,7 @@ void main(void)
 			// color = color + vec4(diffuseLight, 1);
 			color = color + vec4(diffuseLight + specularLight, 1);
 		}
-		// color = vec4(surfacePos, 1);
+		// color = vec4(normal_view, 1);
 	}
 
 	if (textureEnabled) {
