@@ -43,13 +43,13 @@ By creating an extra matrix for movement and one for rotation of the projectionM
 
 **How did you handle the camera matrix for the skybox?**
 
-I created a rotation matrix based on the camera angles I used when creating the camera matrix. In this way I *zero out the translation part*.
+I created a rotation matrix based on the camera angles I used when creating the camera matrix. In this way, I *zeroed out the translation part*.
 
 </br>
 
 **How did you represent the objects? Is this a good way to manage a scene, or would you do it differently for a "real" application?**
 
-I'am drawing each model directly to the world. For bigger projects you can use **Scene Graph** to organize models in an hierarchy.  
+I'am drawing each model directly to the world. You can use **Scene Graph** to organize models in a hierarchy for bigger projects.  
 
 See: https://learnopengl.com/Guest-Articles/2021/Scene/Scene-Graph
 
@@ -65,7 +65,7 @@ See: https://learnopengl.com/Guest-Articles/2021/Scene/Scene-Graph
 
 **What is the problem with the “skybox" object used in the lab? (The problem doesn't have to be corrected.)**
 
-There is a thin line in the coroners of the skybox.
+There is a thin line in the corners of the skybox.
 
 
 ----
@@ -87,7 +87,7 @@ Specular light uses the viewing angle, which diffuse light doesn't use.
 
 <!-- "The intensity of the specular reflection is highest when the viewer looks directly at the light source and decreases as the viewing angle deviates from this direction. This can create bright spots or white areas in the distance, especially when the light source is far away and the viewer is looking at the scene from a particular angle."
 
-So, you may have observed a white area in the distance for specular light but not for diffuse light because the Phong lighting model takes into account the viewing angle, while the Lambertian model does not. -->
+So, you may have observed a white area in the distance for specular light but not for diffuse light because the Phong lighting model considers the viewing angle, while the Lambertian model does not. -->
 
 
 </br>
