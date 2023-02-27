@@ -156,7 +156,7 @@ void display(void)
 	mat4 rotationMatrixBlade = Rx(0);
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixExtra"), 1, GL_TRUE, rotationMatrixBlade.m);
 
-	// Walls, Roof, Balcony
+	// Walls, Roof, Balcony  
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixStaticObj);
 	DrawModel(windmill_wall, program, "inPosition", "inNormal", "inTexCoord");
 	DrawModel(windmill_roof, program, "inPosition", "inNormal", "inTexCoord");

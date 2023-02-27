@@ -17,14 +17,18 @@ uniform mat4 rotationMatrixExtra;	// Used for the rotation of the windmill blade
 uniform mat4 translationMatrix;
 uniform mat4 projectionMatrix;
 uniform mat4 cameraMatrix;
-uniform mat4 globalTransform;
+uniform mat4 mdlMatrix;
 
 void main(void)
 {
 	mat3 normalMatrix = mat3(translationMatrix);
     transformedNormal = normalMatrix * inNormal;
 	
-	gl_Position =  projectionMatrix  * cameraMatrix * globalTransform * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
+
+	
+	gl_Position =  projectionMatrix * mdlMatrix * vec4(inPosition, 1.0);
+	// gl_Position =  projectionMatrix  * cameraMatrix * translationMatrix * rotationMatrixExtra * vec4(inPosition, 1.0);
+	
 		
 	textCoord = inTexCoord;
 }

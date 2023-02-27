@@ -96,6 +96,9 @@ Model* GenerateTerrain(TextureData *tex)
 				if (map_normal.y < 0) {
 					map_normal = ScalarMult(map_normal , -1);
 				}
+				/// calck Normal vect
+
+				
 				// if (map_normal.y == 1) {
 				// 	printf("vector: %f,%f,%f\n", map_normal.x, map_normal.y, map_normal.z);
 				// 	map_normal.x = -1.0;
@@ -324,7 +327,7 @@ void mouseMovement(int x, int y)
 }
 
 
-float MOVEMENT_SPEED = 0.2;
+float MOVEMENT_SPEED = 0.4;
 // float MOVEMENT_SPEED = 2.0;
 float pos_x = 0;
 float pos_z = 0;

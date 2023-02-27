@@ -40,10 +40,10 @@ void main(void)
 			}
 			// Diffuse light
 			float diffuse = max(dot(normal_view, lightDirection), 0.0);
-			vec3 diffuseLight = diffuse * lightSourcesColorArr[i] * 0.9;
+			vec3 diffuseLight = diffuse * lightSourcesColorArr[i] * 0.6;
 
 			// Ambient light
-			float ambientStrength = 0.05;
+			float ambientStrength = 0.2;
 			vec3 ambientLight = ambientStrength * lightSourcesColorArr[i];
 
 			color = color + vec4(diffuseLight + ambientLight, 1);
