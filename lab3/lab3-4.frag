@@ -36,7 +36,7 @@ void main(void)
 	if (shadingEnabled) {
 		color = vec4(0, 0, 0, 0);
 
-		for(int i = 3; i < 4; i++) {
+		for(int i = 2; i < 4; i++) {
 		// for(int i = 0; i < 4; i++) {
 			vec3 lightDirection;
 			if (isDirectional[i]) {
@@ -56,8 +56,8 @@ void main(void)
 			float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
 			vec3 specularLight = .8 * spec * lightSourcesColorArr[i];
 
-			// color = color + vec4(diffuseLight, 1);
-			color = color + vec4(diffuseLight + specularLight, 1);
+			color = color + vec4(diffuseLight, 1);
+			// color = color + vec4(diffuseLight + specularLight, 1);
 		}
 		// color = vec4(normal_view, 1);
 	}

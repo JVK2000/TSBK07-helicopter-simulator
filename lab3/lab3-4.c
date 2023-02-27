@@ -219,7 +219,7 @@ void drawSkybox(void) {
 void drawWindmillBlade(mat4 rotationMatrix) {
 	// NOTE: Model is pointing to the right on start, axis are tossed around  
 	mat4 translationMatrixBlade = T(4.5, -0.8, 0); // 4.5 : Blade depth. 	-0.8 : Vertical. 	0 : Horizon.
-
+	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixExtra"), 1, GL_TRUE, rotationMatrix.m);
 	mat4 translationMatrix = Mult(translationMatrixBlade, rotationMatrix);
 	mat4 total = Mult(cameraMatrix, translationMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrix.m);
@@ -247,6 +247,10 @@ void drawWindmill(void) {
 	drawWindmillBlade(Rx(M_PI/2 + t/1000));
 	drawWindmillBlade(Rx(M_PI + t/1000));
 	drawWindmillBlade(Rx(-M_PI/2 + t/1000));
+	mat4 reset_extra_rot = IdentityMatrix();
+	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixExtra"), 1, GL_TRUE, reset_extra_rot.m);
+
+	
 }
 
 
@@ -301,7 +305,7 @@ int main(int argc, char *argv[])
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutInitContextVersion(3, 2);
-	glutInitWindowSize (800, 800);
+	glutInitWindowSize (1200, 1200);
 	glutCreateWindow ("lab3-4");
 	glutDisplayFunc(display); 
 	glutRepeatingTimerFunc(20); // timer that will cause a redisplay every d milliseconds
