@@ -217,12 +217,12 @@ void drawSkybox(void) {
 
 
 void drawWindmillBlade(mat4 rotationMatrix) {
-	// NOTE: Model is pointing to the right on start, axis are tossed around  
+	// NOTE for translationMatrixBlade: Model is pointing to the right on start, axis are tossed around  
 	mat4 translationMatrixBlade = T(4.5, 9.2, 0); // 4.5 : Blade depth. 	-0.8 : Vertical. 	0 : Horizon.
-	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixExtra"), 1, GL_TRUE, rotationMatrix.m);
 	mat4 translationMatrix = Mult(translationMatrixBlade, rotationMatrix);
 	mat4 total = Mult(cameraMatrix, translationMatrix);
-	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, translationMatrixBlade.m);
+	mat4 transformation = Mult(translationMatrixBlade, rotationMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, transformation.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);
 	DrawModel(windmill_blade, program, "inPosition", "inNormal", "inTexCoord");
 }
@@ -231,7 +231,6 @@ void drawWindmillBlade(mat4 rotationMatrix) {
 void drawWindmill(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
-
 	glUniform1f(glGetUniformLocation(program, "specularExponent"), specularExponent[1]);
 
 	// Walls, Roof, Balcony
@@ -251,15 +250,12 @@ void drawWindmill(void) {
 	drawWindmillBlade(Rx(-M_PI/2 + t/1000));
 	mat4 reset_extra_rot = IdentityMatrix();
 	glUniformMatrix4fv(glGetUniformLocation(program, "rotationMatrixExtra"), 1, GL_TRUE, reset_extra_rot.m);
-
-	
 }
 
 
 void drawGround(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
-
 	glUniform1f(glGetUniformLocation(program, "specularExponent"), specularExponent[0]);
 
 	mat4 translationMatrixGround = T(0, 0, 0);
@@ -279,7 +275,6 @@ void drawGround(void) {
 void drawTeapot(void) {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
-
 	glUniform1f(glGetUniformLocation(program, "specularExponent"), specularExponent[2]);
 
 	mat4 translationMatrixTeapot = T( 20.0f, 0.0f, 20.0f);

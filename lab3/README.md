@@ -43,14 +43,15 @@ By creating an extra matrix for movement and one for rotation of the projectionM
 
 **How did you handle the camera matrix for the skybox?**
 
-I added the camera position to the translation matrix for the skybox. In this way, the skybox rotated accordingly to the camera matrix, but the skybox always used the same position as the camera. 
+I created a rotation matrix based on the camera angles I used when creating the camera matrix. In this way I *zero out the translation part*.
 
 </br>
 
 **How did you represent the objects? Is this a good way to manage a scene, or would you do it differently for a "real" application?**
 
-I updated the translation matrix before drawing each model. I used the same shaders but updated a uniform value to decide if lighting and textures would be used. 
+I'am drawing each model directly to the world. For bigger projects you can use **Scene Graph** to organize models in an hierarchy.  
 
+See: https://learnopengl.com/Guest-Articles/2021/Scene/Scene-Graph
 
 </br>
 
@@ -64,7 +65,7 @@ I updated the translation matrix before drawing each model. I used the same shad
 
 **What is the problem with the “skybox" object used in the lab? (The problem doesn't have to be corrected.)**
 
-The clouds are not aligned in the corners.
+There is a thin line in the coroners of the skybox.
 
 
 ----
@@ -73,7 +74,7 @@ The clouds are not aligned in the corners.
 
 **Why was blue facing the camera when visualizing the normal vectors?**
 
-When a surface faces a camera, the normal becomes (0, 0, 1), and when using the normal to set the color, the color becomes blue because of RGB. ????
+When a surface faces a camera, the normal becomes (0, 0, 1), and when using the normal to set the color, the color becomes blue because of RGB.
 
 
 </br>
