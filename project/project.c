@@ -339,6 +339,10 @@ void drawHelicopter() {
 	DrawModel(helicopter_body, program, "inPosition", "inNormal", "inTexCoord");
 	DrawModel(helicopter_components_1, program, "inPosition", "inNormal", "inTexCoord");
 	DrawModel(helicopter_components_2, program, "inPosition", "inNormal", "inTexCoord");
+
+	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
+	mat4 blade_trans = Mult(trans, Ry(t/1000));
+	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, blade_trans.m);	// not used
 	DrawModel(helicopter_blade_1, program, "inPosition", "inNormal", "inTexCoord");
 	DrawModel(helicopter_blade_2, program, "inPosition", "inNormal", "inTexCoord");
 	
