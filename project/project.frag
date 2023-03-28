@@ -14,6 +14,7 @@ uniform vec3 cameraPos;
 
 uniform bool shadingEnabled;
 uniform bool textureEnabled;
+uniform bool isHelicopter;
 
 // 4 light sources
 uniform vec3 lightSourcesDirPosArr[4];
@@ -51,7 +52,11 @@ void main(void)
 		}
 	}
 
-	if (textureEnabled) {
+	if (isHelicopter) {
+		color = color * texture(tex2, texCoord);
+	}
+
+	else if (textureEnabled) {
 		// blendFactor - 0: 100% tex. 1: 100% tex2 
 		float brake_point_1 = 0.4;
 		float brake_point_2 = 0.7;
@@ -69,9 +74,9 @@ void main(void)
     }
 
 	// Fog parameters, could make them uniforms and pass them into the fragment shader
-	float fog_maxdist = 8.0;
-	float fog_mindist = 0.1;
-	vec4  fog_colour = vec4(0.4, 0.4, 0.4, 1.0);
+	// float fog_maxdist = 8.0;
+	// float fog_mindist = 0.1;
+	// vec4  fog_colour = vec4(0.4, 0.4, 0.4, 1.0);
 
 	// Calculate fog
 	// float dist = length(cameraPos.xyz);

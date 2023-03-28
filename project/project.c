@@ -175,10 +175,11 @@ Model* GenerateTerrain(TextureData *tex)
 
 
 // vertex array object
-Model *m, *m2, *tm, *octagon;
+Model *m, *m2, *tm, *octagon, *helicopter_body, *helicopter_components_1, *helicopter_components_2, *helicopter_blade_1, *helicopter_blade_2;
+
 // Reference to shader program
 GLuint program;
-GLuint tex1, tex2;
+GLuint tex1, tex2, tex_helicopter_body;
 TextureData ttex; // terrain
 
 void init(void)
@@ -199,9 +200,11 @@ void init(void)
 	glUniformMatrix4fv(glGetUniformLocation(program, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 	glUniform1i(glGetUniformLocation(program, "tex"), 0); // Texture unit 0
 	LoadTGATextureSimple("green_grass.tga", &tex1);
-	glUniform1i(glGetUniformLocation(program, "tex2"), 1); // Texture unit 0
+	glUniform1i(glGetUniformLocation(program, "tex2"), 1); // Texture unit 1
 	LoadTGATextureSimple("stones.tga", &tex2);
-	// LoadTGATextureSimple("maskros512.tga", &tex1);
+	glUniform1i(glGetUniformLocation(program, "tex_helicopter_body"), 2); // Texture unit 2
+	// LoadTGATextureSimple("assets/helicopter_military.tga", &tex_helicopter_body);
+
 
 	glUniform3fv(glGetUniformLocation(program, "lightSourcesDirPosArr"), 4, &lightSourcesDirectionsPositions[0].x);
 	glUniform3fv(glGetUniformLocation(program, "lightSourcesColorArr"), 4, &lightSourcesColorsArr[0].x);
@@ -209,10 +212,14 @@ void init(void)
 	glUniform1f(glGetUniformLocation(program, "specularExponent"), specularExponent[1]);
 
 	octagon = LoadModel("octagon.obj");
+	helicopter_body = LoadModel("assets/helicopter_body.obj");
+	helicopter_components_1 = LoadModel("assets/helicopter_components_1.obj");
+	helicopter_components_2 = LoadModel("assets/helicopter_components_2.obj");
+	helicopter_blade_1 = LoadModel("assets/helicopter_blade_1.obj");
+	helicopter_blade_2 = LoadModel("assets/helicopter_blade_2.obj");
 
 	// Load terrain data
 	LoadTGATextureData("fft-terrain.tga", &ttex);
-	// LoadTGATextureData("44-terrain.tga", &ttex);
 	tm = GenerateTerrain(&ttex);
 	printError("init terrain");
 }
@@ -250,7 +257,6 @@ vec3 get_normal_point_in_plane(float x, float z) {
 	float z3 = tm->vertexArray[x_floor + (z_floor + 1) * width].z;
 	vec3 vertex3 = {x3, y3, z3};
 
-	// https://math.stackexchange.com/questions/1154340/how-to-find-the-height-of-a-2d-coordinate-on-a-3d-triangle
 	vec3 normal = CalcNormalVector(vertex1, vertex2, vertex3);
 	return normal;
 }
@@ -288,24 +294,11 @@ float find_height(float x, float z)
 	float y3 = tm->vertexArray[x_floor + (z_floor + 1) * width].y;
 	float z3 = tm->vertexArray[x_floor + (z_floor + 1) * width].z;
 	vec3 vertex3 = {x3, y3, z3};
-
-	// https://math.stackexchange.com/questions/1154340/how-to-find-the-height-of-a-2d-coordinate-on-a-3d-triangle
 	vec3 normal = CalcNormalVector(vertex1, vertex2, vertex3);
 
-	// ---------------------------
-	// normal = (a, b, c)
-	// (a * x) + (b * y) + (c * z) + d = 0					(d - distance to origin / offset)
-	// y = (- d - (a * point_x) - (c * point_z)) / b
-	// ---------------------------
 	float neg_d = normal.x * vertex1.x + normal.y * vertex1.y + normal.z * vertex1.z;
 	float y = (neg_d - normal.x * x - normal.z * z) / normal.y;
 	return y;
-	
-	// printf("\n\nvertex1: (%f, %f, %f)", vertex1.x, vertex1.y, vertex1.z);
-	// printf("\nvertex2: (%f, %f, %f)", vertex2.x, vertex2.y, vertex2.z);
-	// printf("\nvertex3: (%f, %f, %f)", vertex3.x, vertex3.y, vertex3.z);
-	// printf("\nPoint: (%f, %f, %f)", x, 0.0, z);
-	// printf("\nHeight: %f", y);
 }
 
 
@@ -324,12 +317,36 @@ void drawOctagon() {
 	octagon_pos.x = octagon_pos.x + octagon_dir * octagon_speed;
 	octagon_pos.z = octagon_pos.z + octagon_dir * octagon_speed;
 	octagon_pos.y = find_height(octagon_pos.x, octagon_pos.z);
-	
+
+	// printf("Octagon pos: %f, %f, %f\n", octagon_pos.x, octagon_pos.y, octagon_pos.z);
+
 	mat4 trans = T(octagon_pos.x, octagon_pos.y, octagon_pos.z);
 	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, trans.m);	// not used
 
 	DrawModel(octagon, program, "inPosition", "inNormal", "inTexCoord");
 }
+
+
+void drawHelicopter() {
+	glUniform1i(glGetUniformLocation(program, "isHelicopter"), true);
+	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
+	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
+
+	mat4 trans = T(100, 0, 100);
+	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, trans.m);	// not used
+
+	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, trans.m);	// not used
+	DrawModel(helicopter_body, program, "inPosition", "inNormal", "inTexCoord");
+	DrawModel(helicopter_components_1, program, "inPosition", "inNormal", "inTexCoord");
+	DrawModel(helicopter_components_2, program, "inPosition", "inNormal", "inTexCoord");
+	DrawModel(helicopter_blade_1, program, "inPosition", "inNormal", "inTexCoord");
+	DrawModel(helicopter_blade_2, program, "inPosition", "inNormal", "inTexCoord");
+	
+	glUniform1i(glGetUniformLocation(program, "isHelicopter"), false);
+
+	
+}
+
 
 
 float MOUSE_MOVE_SPEED = 400;
@@ -347,17 +364,14 @@ void mouseMovement(int x, int y)
 		init_z = y;
 		first = false;
 	}
-	// if(leftMouseDown) {
 	float curr_x = x - init_x;
 	float curr_y = y - init_z;
 	angle_x = (curr_x/MOUSE_MOVE_SPEED)*M_PI;
 	angle_z = (curr_y/MOUSE_MOVE_SPEED)*M_PI;
-	// }
 }
 
 
 float MOVEMENT_SPEED = 0.8;
-// float MOVEMENT_SPEED = 2.0;
 float pos_x = 0;
 float pos_z = 0;
 float const_ang = M_PI/4;
@@ -394,6 +408,7 @@ void keyboardMovement()
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
 }
 
+
 void draw_terrain_section(float x, float z) 
 {
 	mat4 modelView = T(x * (ttex.width - 1), 0, z * (ttex.height - 1));
@@ -427,11 +442,6 @@ void draw_terrain()
 		z_offset = z_trunc + (z_round);
 	}
 	
-	// printf("\nx_trunc: %f", x_trunc);
-	// printf("\nx_offset: %f", x_offset);
-	// printf("\ny_trunc: %f", y_trunc);
-	// printf("\ny_offset: %f", y_offset);
-
 	draw_terrain_section(x_trunc, z_trunc);
 	draw_terrain_section(x_trunc, z_offset);
 	draw_terrain_section(x_offset, z_trunc);
@@ -463,37 +473,13 @@ void display(void)
 
 	draw_terrain();
 
-	// mat4 modelView = IdentityMatrix();
-	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
-	// DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
-
-	// modelView = T(0, 0, ttex.height - 1);
-	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
-	// DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
-	
-	// // modelView = Mult(Ry(M_PI/2), modelView);
-	// // modelView = Mult(S(-1, 1, 1), modelView);
-	// modelView = T(ttex.width - 1, 0, 0);
-	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
-	// DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
-
-	// modelView = T(ttex.width - 1, 0, ttex.height - 1);
-	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, modelView.m);
-	// DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
-
-
 	drawOctagon();
+	drawHelicopter();
 
 	printError("display 2");
 	
 	glutSwapBuffers();
 }
-
-// void mousePress(int button, int state, int x , int y) {
-// 	if(button == 0) {
-// 		leftMouseDown = !state;
-// 	}
-// }
 
 int main(int argc, char **argv)
 {
@@ -507,7 +493,6 @@ int main(int argc, char **argv)
 	glutRepeatingTimer(20);
 
 	glutPassiveMotionFunc(mouseMovement);
-	// glutMouseFunc(mousePress);
 
 	glutMainLoop();
 	exit(0);
