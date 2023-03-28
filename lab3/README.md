@@ -12,11 +12,6 @@ mat4 time_rot = Rx(t/1000)
 mat4 tot_rot = Mult(time_rot, Rx(M_PI/2)) 
 ```
 
-I decided to do this instead
-```C
-// Do this for all blades
-mat4 tot_rot = Rx(M_PI/2 + t/1000) 
-```
 
 <br>
 
@@ -58,7 +53,7 @@ See: https://learnopengl.com/Guest-Articles/2021/Scene/Scene-Graph
 **What special considerations are needed when rendering a skybox?**
 
 * No Z-buffering. 
-* Skybox should have the same rotation as the world but not move. 
+* Skybox should have the same rotation as the camera but not move. 
 
 
 </br>
