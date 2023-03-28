@@ -15,6 +15,7 @@ uniform vec3 cameraPos;
 uniform bool shadingEnabled;
 uniform bool textureEnabled;
 uniform bool isHelicopter;
+uniform bool isSky;
 
 // 4 light sources
 uniform vec3 lightSourcesDirPosArr[4];
@@ -53,6 +54,10 @@ void main(void)
 	}
 
 	if (isHelicopter) {
+		color = color * texture(tex2, texCoord);
+	}
+	
+	else if (isSky) {
 		color = color * texture(tex2, texCoord);
 	}
 

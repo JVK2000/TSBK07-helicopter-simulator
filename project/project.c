@@ -176,6 +176,8 @@ Model* GenerateTerrain(TextureData *tex)
 
 // vertex array object
 Model *m, *m2, *tm, *octagon, *helicopter_body, *helicopter_components_1, *helicopter_components_2, *helicopter_blade_1, *helicopter_blade_2;
+Model *skybox;
+GLuint texUnit;
 
 // Reference to shader program
 GLuint program;
@@ -217,6 +219,7 @@ void init(void)
 	helicopter_components_2 = LoadModel("assets/helicopter_components_2.obj");
 	helicopter_blade_1 = LoadModel("assets/helicopter_blade_1.obj");
 	helicopter_blade_2 = LoadModel("assets/helicopter_blade_2.obj");
+	skybox = LoadModel("labskybox.obj");
 
 	// Load terrain data
 	LoadTGATextureData("fft-terrain.tga", &ttex);
@@ -303,6 +306,8 @@ float find_height(float x, float z)
 
 
 
+
+
 float octagon_speed = 0.1;
 void drawOctagon() {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
@@ -327,29 +332,7 @@ void drawOctagon() {
 }
 
 
-void drawHelicopter() {
-	glUniform1i(glGetUniformLocation(program, "isHelicopter"), true);
-	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
-	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
 
-	mat4 trans = T(100, 0, 100);
-	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, trans.m);	// not used
-
-	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, trans.m);	// not used
-	DrawModel(helicopter_body, program, "inPosition", "inNormal", "inTexCoord");
-	DrawModel(helicopter_components_1, program, "inPosition", "inNormal", "inTexCoord");
-	DrawModel(helicopter_components_2, program, "inPosition", "inNormal", "inTexCoord");
-
-	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
-	mat4 blade_trans = Mult(trans, Ry(t/1000));
-	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, blade_trans.m);	// not used
-	DrawModel(helicopter_blade_1, program, "inPosition", "inNormal", "inTexCoord");
-	DrawModel(helicopter_blade_2, program, "inPosition", "inNormal", "inTexCoord");
-	
-	glUniform1i(glGetUniformLocation(program, "isHelicopter"), false);
-
-	
-}
 
 
 
@@ -412,6 +395,42 @@ void keyboardMovement()
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
 }
 
+void drawHelicopter() {
+	glUniform1i(glGetUniformLocation(program, "isHelicopter"), true);
+	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
+	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
+
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, IdentityMatrix().m);
+
+	mat4 rotation = Mult(Ry(M_PI - 0.02), Rx(0.02));
+	mat4 trans = Mult(T(0, -5, -40), Mult(rotation, S(0.1, 0.1, 0.1)));
+	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, trans.m);	
+
+	DrawModel(helicopter_body, program, "inPosition", "inNormal", "inTexCoord");
+	DrawModel(helicopter_components_1, program, "inPosition", "inNormal", "inTexCoord");
+	DrawModel(helicopter_components_2, program, "inPosition", "inNormal", "inTexCoord");
+
+	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
+	mat4 blade_translation_1 = T(-8, 0, 20);
+	mat4 blade_trans = Mult(blade_translation_1, Mult(trans, Ry(t/1000)));
+	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, blade_trans.m);	// not used
+	DrawModel(helicopter_blade_1, program, "inPosition", "inNormal", "inTexCoord");
+	
+	mat4 blade_translation_2 = T(-25, 38.55, -195.75);
+	blade_trans = Mult(blade_translation_2, Mult(trans, Rx(t/1000)));
+	// blade_trans = Mult(blade_translation_2, trans);
+	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, blade_trans.m);	// not used
+	DrawModel(helicopter_blade_2, program, "inPosition", "inNormal", "inTexCoord");
+	
+	glUniform1i(glGetUniformLocation(program, "isHelicopter"), false);
+
+
+	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
+
+	
+}
+
 
 void draw_terrain_section(float x, float z) 
 {
@@ -452,6 +471,32 @@ void draw_terrain()
 	draw_terrain_section(x_offset, z_offset);
 }
 
+void drawSkybox(void) {
+	glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), false);
+	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
+	glUniform1i(glGetUniformLocation(program, "isSky"), true);
+
+	mat4 translationMatrixSkybox = Mult(Rx(angle_z), Ry(angle_x));
+	LoadTGATextureSimple("labskybox512.tga", &texUnit);			// Create texture object
+	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
+	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
+	
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, IdentityMatrix().m);
+
+	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, translationMatrixSkybox.m);
+	DrawModel(skybox, program, "inPosition", "inNormal", "inTexCoord");
+
+    glEnable(GL_CULL_FACE);
+	glEnable(GL_DEPTH_TEST);
+
+	mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
+	glUniform1i(glGetUniformLocation(program, "isSky"), false);
+
+}
+
 
 void display(void)
 {
@@ -465,6 +510,9 @@ void display(void)
 	printError("pre display");
 	
 	glUseProgram(program);
+
+	drawSkybox();
+
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
