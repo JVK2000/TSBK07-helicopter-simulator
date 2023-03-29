@@ -4,7 +4,7 @@
 #include "common.h"
 
 
-void helicopter_init(void);
+void helicopterInit(void);
 void drawHelicopter(GLuint program, mat4 cameraMatrix);
 
 

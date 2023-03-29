@@ -6,7 +6,7 @@
 
 extern TextureData ttex;
 
-void terrain_init(GLuint program, GLuint *tex1, GLuint *tex2);
+void terrainInit(GLuint program, GLuint *tex1, GLuint *tex2);
 Model* GenerateTerrain(TextureData *tex);
 float find_height(float x, float z);
 void draw_terrain_section(GLuint program, mat4 cameraMatrix, float x, float z);

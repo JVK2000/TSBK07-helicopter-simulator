@@ -1,54 +1,15 @@
 #include "helicopter.h"
 #include "terrain.h"
 #include "controller.h"
-
-
-// beginning Light
-vec3 colors[] =
-{
-	{0.0f,1.0f,0.0f},
-	{1.0f,1.0f,0.0f},
-	{1.0f,0.0f,1.0f}
-};
-
-// light sources
-vec3 lightSourcesColorsArr[] = 
-{ 
-	{1.0f, 0.0f, 0.0f}, // Red light
-	{0.0f, 1.0f, 0.0f}, // Green light
-	// {0.0f, 0.0f, 1.0f}, // Blue light
-	{1.0f, 1.0f, 1.0f},  // White light
-	{1.0f, 1.0f, 1.0f}  // White light
-}; 
-GLint isDirectional[] = 
-{
-	0,0,1,1
-};
-vec3 lightSourcesDirectionsPositions[] = 
-{ 
-	{10.0f, 5.0f, 0.0f}, // Red light, positional
-	{0.0f, 5.0f, 10.0f}, // Green light, positional
-	{-1.0f, 0.0f, 0.0f}, // Blue light along X
-	{0.0f, 0.0f, -1.0f}  // White light along Z
-}; 
-GLfloat specularExponent[] = 
-{
-	100.0, 200.0, 60.0
-};
-// end Light
+#include "light.h"
 
 
 // Octagon
+Model *octagon;
 vec3 octagon_pos;
 vec3 octagon_pos_start; 
 vec3 octagon_pos_end;
 int octagon_dir = 1;
-
-mat4 projectionMatrix;
-
-
-// vertex array object
-Model *m, *m2, *octagon;
 
 // Reference to shader program
 GLuint program;
@@ -63,27 +24,20 @@ void init(void)
     glDisable(GL_CULL_FACE);
     printError("GL inits");
 
-	initController();
-    projectionMatrix = frustum(-0.1, 0.1, -0.1, 0.1, 0.2, 250.0);
-
     // Load and compile shader
     program = loadShaders("project.vert", "project.frag");
     glUseProgram(program);
     printError("init shader");
     
+    mat4 projectionMatrix = frustum(-0.1, 0.1, -0.1, 0.1, 0.2, 250.0);
     glUniformMatrix4fv(glGetUniformLocation(program, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 
-    glUniform3fv(glGetUniformLocation(program, "lightSourcesDirPosArr"), 4, &lightSourcesDirectionsPositions[0].x);
-    glUniform3fv(glGetUniformLocation(program, "lightSourcesColorArr"), 4, &lightSourcesColorsArr[0].x);
-    glUniform1iv(glGetUniformLocation(program, "isDirectional"), 4, isDirectional);
-    glUniform1f(glGetUniformLocation(program, "specularExponent"), specularExponent[1]);
-
+	initLight(program);
+	initController();
+	helicopterInit();
+    terrainInit(program, &tex1, &tex2); 
+    
     octagon = LoadModel("octagon.obj");
-    helicopter_init();
-
-    // pass tex1 and tex2 as parameters to terrain_init
-    terrain_init(program, &tex1, &tex2); 
-
 }
 
 

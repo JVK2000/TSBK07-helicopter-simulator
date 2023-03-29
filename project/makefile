@@ -47,7 +47,7 @@ endif
 commondir = ../common/
 
 # list all the source files
-SRCS = project.c helicopter.c terrain.c controller.c \
+SRCS = project.c helicopter.c terrain.c controller.c light.c\
        $(commondir)GL_utilities.c \
        $(commondir)LittleOBJLoader.c \
        $(commondir)VectorUtils3.c \

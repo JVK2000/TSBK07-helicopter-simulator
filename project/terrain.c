@@ -6,7 +6,7 @@ float terrainScale = 25;
 TextureData ttex; // terrain
 
 
-void terrain_init(GLuint program, GLuint *tex1, GLuint *tex2) {
+void terrainInit(GLuint program, GLuint *tex1, GLuint *tex2) {
     // Load terrain data
     LoadTGATextureSimple("green_grass.tga", tex1); // update tex1 and tex2 values
     LoadTGATextureSimple("stones.tga", tex2);

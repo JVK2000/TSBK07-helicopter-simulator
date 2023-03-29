@@ -3,7 +3,7 @@
 
 Model *helicopter_body, *helicopter_components_1, *helicopter_components_2, *helicopter_blade_1, *helicopter_blade_2;
 
-void helicopter_init() {
+void helicopterInit() {
     helicopter_body = LoadModel("assets/helicopter_body.obj");
     helicopter_components_1 = LoadModel("assets/helicopter_components_1.obj");
     helicopter_components_2 = LoadModel("assets/helicopter_components_2.obj");
