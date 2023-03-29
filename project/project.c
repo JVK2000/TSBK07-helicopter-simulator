@@ -395,16 +395,21 @@ void keyboardMovement()
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
 }
 
+
 void drawHelicopter() {
 	glUniform1i(glGetUniformLocation(program, "isHelicopter"), true);
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
+	
+	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
+	float rotation_speed_blade1 = 15 * (t/1000);
+	float rotation_speed_blade2 = (t/1000);
 
-	// glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, IdentityMatrix().m);
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, IdentityMatrix().m);
 
 	// mat4 globalRotation = IdentityMatrix();
-	mat4 globalRotation = Mult(Ry(M_PI/4), Mult(Rx(M_PI/2), Rz(M_PI/4)));
-    mat4 globalTranslation = T(0, 5, 0);
+	mat4 globalRotation = Mult(Rx(M_PI/16), Mult(Ry(M_PI), Rz(0)));
+    mat4 globalTranslation = T(0, -10, -50);
 	mat4 globalScaling = S(0.1, 0.1, 0.1);
 
 	mat4 trans = IdentityMatrix();
@@ -412,29 +417,29 @@ void drawHelicopter() {
 	trans = Mult(T(1, 0, 0), trans);
 	trans = Mult(globalRotation, trans);
 	trans = Mult(globalTranslation, trans);
-
 	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, trans.m);	
 	DrawModel(helicopter_body, program, "inPosition", "inNormal", "inTexCoord");
+	DrawModel(helicopter_components_1, program, "inPosition", "inNormal", "inTexCoord");
+	DrawModel(helicopter_components_2, program, "inPosition", "inNormal", "inTexCoord");
+
 
 	mat4 blade_trans = IdentityMatrix();
 	blade_trans = Mult(globalScaling, blade_trans);
+	blade_trans = Mult(Ry(rotation_speed_blade1), blade_trans);
 	blade_trans = Mult(T(0.2, 0, 2), blade_trans);
 	blade_trans = Mult(globalRotation, blade_trans);
 	blade_trans = Mult(globalTranslation, blade_trans);
-
-	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, blade_trans.m);	// not used
+	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, blade_trans.m);
 	DrawModel(helicopter_blade_1, program, "inPosition", "inNormal", "inTexCoord");
 	
-	
-	// blade_trans = Mult(globalRotation, blade_trans);
-
-	// mat4 blade_translation_2 = T(-2.55, 3.85, -19.57);
-	// blade_trans = Mult(blade_translation_2, Mult(trans, Rx(t/1000)));
-	// // blade_trans = Mult(blade_translation_2, trans);
-	// glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, blade_trans.m);	// not used
-	// DrawModel(helicopter_blade_2, program, "inPosition", "inNormal", "inTexCoord");
-	
-
+	blade_trans = IdentityMatrix();
+	blade_trans = Mult(globalScaling, blade_trans);
+	blade_trans = Mult(Rx(rotation_speed_blade2), blade_trans);
+	blade_trans = Mult(T(-1.5, 3.85, -19.57), blade_trans);
+	blade_trans = Mult(globalRotation, blade_trans);
+	blade_trans = Mult(globalTranslation, blade_trans);
+	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, blade_trans.m);
+	DrawModel(helicopter_blade_2, program, "inPosition", "inNormal", "inTexCoord");
 
 	glUniform1i(glGetUniformLocation(program, "isHelicopter"), false);
 
