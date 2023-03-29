@@ -358,7 +358,7 @@ void mouseMovement(int x, int y)
 }
 
 
-float MOVEMENT_SPEED = 0.8;
+float MOVEMENT_SPEED = 0.1;
 float pos_x = 0;
 float pos_z = 0;
 float const_ang = M_PI/4;
@@ -400,10 +400,12 @@ void drawHelicopter() {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
 
-	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, IdentityMatrix().m);
+	// glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, IdentityMatrix().m);
 
 	mat4 rotation = Mult(Ry(M_PI - 0.02), Rx(0.02));
 	mat4 trans = Mult(T(0, -5, -40), Mult(rotation, S(0.1, 0.1, 0.1)));
+	trans = Mult(IdentityMatrix(), S(0.1, 0.1, 0.1));
+	// trans = Mult(T(0, 0, 20), S(0.1, 0.1, 0.1));
 	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, trans.m);	
 
 	DrawModel(helicopter_body, program, "inPosition", "inNormal", "inTexCoord");
@@ -411,12 +413,13 @@ void drawHelicopter() {
 	DrawModel(helicopter_components_2, program, "inPosition", "inNormal", "inTexCoord");
 
 	GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
-	mat4 blade_translation_1 = T(-8, 0, 20);
+	mat4 blade_translation_1 = T(-0.8, 0, 2);
 	mat4 blade_trans = Mult(blade_translation_1, Mult(trans, Ry(t/1000)));
+	blade_trans = Mult(trans, blade_translation_1);
 	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, blade_trans.m);	// not used
 	DrawModel(helicopter_blade_1, program, "inPosition", "inNormal", "inTexCoord");
 	
-	mat4 blade_translation_2 = T(-25, 38.55, -195.75);
+	mat4 blade_translation_2 = T(-2.55, 3.85, -19.57);
 	blade_trans = Mult(blade_translation_2, Mult(trans, Rx(t/1000)));
 	// blade_trans = Mult(blade_translation_2, trans);
 	glUniformMatrix4fv(glGetUniformLocation(program, "modelView"), 1, GL_TRUE, blade_trans.m);	// not used
