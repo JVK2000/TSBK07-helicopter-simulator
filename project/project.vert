@@ -5,21 +5,20 @@ in vec3 inNormal;
 in vec2 inTexCoord;
 
 out vec2 texCoord;
-out vec3 normal;
+out vec3 transformedNormal;
 out vec3 surfacePos;
 
 // NY
+uniform mat4 translationMatrix;
 uniform mat4 projMatrix;
 uniform mat4 mdlMatrix;
-uniform mat4 modelView;
-uniform mat4 cameraMatrix;
+uniform mat4 combinedMatrix;
+ 
 
 void main(void)
 {
-	mat3 normalMatrix1 = mat3(mdlMatrix);
+	transformedNormal = mat3(translationMatrix) * inNormal;
+	gl_Position = projMatrix  * mdlMatrix * vec4(inPosition, 1.0);
+	surfacePos = vec3(translationMatrix * vec4(inPosition, 1.0));
 	texCoord = inTexCoord;
-	normal = inNormal;
-	// gl_Position = projMatrix * mdlMatrix * vec4(inPosition, 1.0);
-	gl_Position = projMatrix * cameraMatrix * modelView * vec4(inPosition, 1.0);
-	surfacePos = vec3(modelView * vec4(inPosition, 1.0));
 }

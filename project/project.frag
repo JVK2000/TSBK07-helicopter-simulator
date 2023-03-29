@@ -1,16 +1,13 @@
 #version 150
 
 in vec2 texCoord;
-in vec3 normal;
+in vec3 transformedNormal;
 in vec3 surfacePos;
 
 out vec4 outColor;
 
 uniform sampler2D tex;
 uniform sampler2D tex2;
-
-uniform mat4 cameraMatrix;
-uniform vec3 cameraPos;
 
 uniform bool shadingEnabled;
 uniform bool textureEnabled;
@@ -23,11 +20,15 @@ uniform vec3 lightSourcesColorArr[4];
 uniform float specularExponent;
 uniform bool isDirectional[4];
 
+uniform mat4 mdlMatrix;
+uniform vec3 cameraPos;
+
+
 void main(void)
 {
 	vec4 color = vec4(1, 1, 1, 1);
-	mat3 camMat = mat3(cameraMatrix);
-	vec3 normal_view = normalize(camMat * normal);
+	mat3 camMat = mat3(mdlMatrix);
+	vec3 normal_view = normalize(camMat * transformedNormal);
 
 	if (shadingEnabled) {
 		color = vec4(0, 0, 0, 0);
@@ -66,12 +67,12 @@ void main(void)
 		float brake_point_1 = 0.4;
 		float brake_point_2 = 0.7;
 		float blendFactor;
-		if (normal.y < brake_point_1) {
+		if (transformedNormal.y < brake_point_1) {
 			blendFactor = 1;
-		} else if (brake_point_2 < normal.y){
+		} else if (brake_point_2 < transformedNormal.y){
 			blendFactor = 0;
 		} else {
-			blendFactor = (brake_point_2 - normal.y) * (1 / (brake_point_2 - brake_point_1));
+			blendFactor = (brake_point_2 - transformedNormal.y) * (1 / (brake_point_2 - brake_point_1));
 		}		
 		vec4 tot_tex = mix(texture(tex, texCoord), texture(tex2, texCoord), blendFactor);
 		// vec4 tot_tex = vec4(vec3(texture(tex, texCoord)), 1);
