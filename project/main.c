@@ -1,3 +1,4 @@
+#include "main.h"
 #include "helicopter.h"
 #include "terrain.h"
 #include "controller.h"
@@ -10,6 +11,7 @@ vec3 octagon_pos;
 vec3 octagon_pos_start; 
 vec3 octagon_pos_end;
 int octagon_dir = 1;
+const float octagon_speed = 0.1;
 
 // Reference to shader program
 GLuint program;
@@ -42,7 +44,6 @@ void init(void)
 }
 
 
-float octagon_speed = 0.1;
 void drawOctagon() {
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
