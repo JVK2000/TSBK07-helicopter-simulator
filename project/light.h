@@ -3,6 +3,6 @@
 
 #include "common.h"
 
-void initLight();
+void lightInit();
 
 #endif

@@ -12,7 +12,7 @@ void helicopterInit() {
 }
 
 
-void drawHelicopter(GLuint program, mat4 cameraMatrix) {
+void drawHelicopter(mat4 cameraMatrix) {
 	glUniform1i(glGetUniformLocation(program, "isHelicopter"), true);
 	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);

@@ -5,7 +5,7 @@
 
 
 void helicopterInit(void);
-void drawHelicopter(GLuint program, mat4 cameraMatrix);
+void drawHelicopter(mat4 cameraMatrix);
 
 
 #endif

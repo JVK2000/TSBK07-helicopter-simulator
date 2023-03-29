@@ -8,7 +8,7 @@ vec3 lookAtPosition;
 vec3 worldUpVector;
 mat4 cameraMatrix;
 
-void initController()
+void controllerInit()
 {
     cameraAngleZ = 0;
     cameraAngleX = 0;
@@ -39,7 +39,7 @@ float MOVEMENT_SPEED = 0.8;
 float pos_x = 0;
 float pos_z = 0;
 float const_ang = M_PI/4;
-void keyboardMovement(GLuint program)
+void keyboardMovement()
 {
 	float pos_x = 0;
 	float pos_z = 0;

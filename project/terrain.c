@@ -6,7 +6,7 @@ float terrainScale = 25;
 TextureData ttex; // terrain
 
 
-void terrainInit(GLuint program, GLuint *tex1, GLuint *tex2) {
+void terrainInit(GLuint *tex1, GLuint *tex2) {
     // Load terrain data
     LoadTGATextureSimple("green_grass.tga", tex1); // update tex1 and tex2 values
     LoadTGATextureSimple("stones.tga", tex2);
@@ -161,7 +161,7 @@ float find_height(float x, float z)
 }
 
 
-void draw_terrain_section(GLuint program, mat4 cameraMatrix, float x, float z) 
+void draw_terrain_section(mat4 cameraMatrix, float x, float z) 
 {
 	mat4 modelView = T(x * (ttex.width - 1), 0, z * (ttex.height - 1));
 	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, modelView.m);
@@ -171,7 +171,7 @@ void draw_terrain_section(GLuint program, mat4 cameraMatrix, float x, float z)
 }
 
 
-void draw_terrain(GLuint program, mat4 cameraMatrix, vec3 p)
+void draw_terrain(mat4 cameraMatrix, vec3 p)
 { 
 	float x_trunc = trunc(p.x/ttex.width);				// trunc(): 0.6 => 0.0, 1.4 => 1.0
 	float x_round = round(p.x/ttex.width) - x_trunc;	// round(): 0.4 => 0.0, 0.6 => 1.0
@@ -196,10 +196,10 @@ void draw_terrain(GLuint program, mat4 cameraMatrix, vec3 p)
 		z_offset = z_trunc + (z_round);
 	}
 	
-	draw_terrain_section(program, cameraMatrix, x_trunc, z_trunc);
-	draw_terrain_section(program, cameraMatrix, x_trunc, z_offset);
-	draw_terrain_section(program, cameraMatrix, x_offset, z_trunc);
-	draw_terrain_section(program, cameraMatrix, x_offset, z_offset);
+	draw_terrain_section(cameraMatrix, x_trunc, z_trunc);
+	draw_terrain_section(cameraMatrix, x_trunc, z_offset);
+	draw_terrain_section(cameraMatrix, x_offset, z_trunc);
+	draw_terrain_section(cameraMatrix, x_offset, z_offset);
 }
 
 
@@ -209,7 +209,7 @@ float texture_data_height()
 }
 
 
-void drawSkybox(GLuint program, GLuint texUnit, float cameraAngleZ, float cameraAngleX) 
+void drawSkybox(GLuint texUnit, float cameraAngleZ, float cameraAngleX) 
 {
 	glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);

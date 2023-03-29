@@ -16,6 +16,7 @@ GLuint program;
 GLuint texUnit;
 GLuint tex1, tex2;
 
+
 void init(void)
 {
     // GL inits
@@ -32,10 +33,10 @@ void init(void)
     mat4 projectionMatrix = frustum(-0.1, 0.1, -0.1, 0.1, 0.2, 250.0);
     glUniformMatrix4fv(glGetUniformLocation(program, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 
-	initLight(program);
-	initController();
+	lightInit();
+	controllerInit();
 	helicopterInit();
-    terrainInit(program, &tex1, &tex2); 
+    terrainInit(&tex1, &tex2); 
     
     octagon = LoadModel("octagon.obj");
 }
@@ -69,21 +70,23 @@ void drawOctagon() {
 
 void display(void)
 {
-	// clear the screen
+    // Clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // -
-	glEnable(GL_BLEND);	// -
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);	
 
 	keyboardMovement(program);
 
 	printError("pre display");
 	
+	// Use the shader program
 	glUseProgram(program);
 
-	drawSkybox(program, texUnit, cameraAngleZ, cameraAngleX);
+	drawSkybox(texUnit, cameraAngleZ, cameraAngleX);
 
+    // Bind textures and set shader uniforms
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, tex1);		// Bind Our Texture tex1
+	glBindTexture(GL_TEXTURE_2D, tex1);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, tex2);	
 
@@ -91,15 +94,16 @@ void display(void)
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
     glUniform3f(glGetUniformLocation(program, "cameraPos"), cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
-	draw_terrain(program, cameraMatrix, cameraPosition);
+	draw_terrain(cameraMatrix, cameraPosition);
 
 	drawOctagon();
-	drawHelicopter(program, cameraMatrix);
+	drawHelicopter(cameraMatrix);
 
 	printError("display 2");
 	
 	glutSwapBuffers();
 }
+
 
 int main(int argc, char **argv)
 {
@@ -111,9 +115,7 @@ int main(int argc, char **argv)
 	glutDisplayFunc(display);
 	init ();
 	glutRepeatingTimer(20);
-
 	glutPassiveMotionFunc(mouseMovement);
-
 	glutMainLoop();
 	exit(0);
 }

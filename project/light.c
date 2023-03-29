@@ -1,7 +1,7 @@
 #include "light.h"
 
 
-void initLight(GLuint program) 
+void lightInit() 
 {
     vec3 lightSourcesColorsArr[] = 
     { 
