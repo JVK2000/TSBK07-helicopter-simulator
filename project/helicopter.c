@@ -69,6 +69,6 @@ void drawHelicopter(GLuint program, mat4 cameraMatrix) {
 	DrawModel(helicopter_blade_2, program, "inPosition", "inNormal", "inTexCoord");
 	glUniform1i(glGetUniformLocation(program, "isHelicopter"), false);
 
-	// mat4 cameraMatrix = Mult(Rx(angle_z), Mult(Ry(angle_x), lookAtv(p, l, v)));
+	// mat4 cameraMatrix = Mult(Rx(cameraAngleZ), Mult(Ry(cameraAngleX), lookAtv(p, l, v)));
 	// glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
 }

@@ -6,10 +6,15 @@ float terrainScale = 25;
 TextureData ttex; // terrain
 
 
-void terrain_init(GLuint program, GLuint tex1, GLuint tex2) {
+void terrain_init(GLuint program, GLuint *tex1, GLuint *tex2) {
     // Load terrain data
-	LoadTGATextureData("fft-terrain.tga", &ttex);
-	tm = GenerateTerrain(&ttex);
+    LoadTGATextureSimple("green_grass.tga", tex1); // update tex1 and tex2 values
+    LoadTGATextureSimple("stones.tga", tex2);
+    glUniform1i(glGetUniformLocation(program, "tex"), 0); // Texture unit 0
+    glUniform1i(glGetUniformLocation(program, "tex2"), 1); // Texture unit 1
+
+    LoadTGATextureData("fft-terrain.tga", &ttex);
+    tm = GenerateTerrain(&ttex);
     printError("init terrain");
 
     skybox = LoadModel("labskybox.obj");
@@ -204,7 +209,7 @@ float texture_data_height()
 }
 
 
-void drawSkybox(GLuint program, GLuint texUnit, float angle_z, float angle_x) 
+void drawSkybox(GLuint program, GLuint texUnit, float cameraAngleZ, float cameraAngleX) 
 {
 	glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -212,7 +217,7 @@ void drawSkybox(GLuint program, GLuint texUnit, float angle_z, float angle_x)
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "isSky"), true);
 
-	mat4 translationMatrixSkybox = Mult(Rx(angle_z), Ry(angle_x));
+	mat4 translationMatrixSkybox = Mult(Rx(cameraAngleZ), Ry(cameraAngleX));
 	LoadTGATextureSimple("labskybox512.tga", &texUnit);			// Create texture object
 	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
 	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
