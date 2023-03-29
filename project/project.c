@@ -349,7 +349,7 @@ void mouseMovement(int x, int y)
 	angle_z = (curr_y/MOUSE_MOVE_SPEED)*M_PI;
 }
 
-float MOVEMENT_SPEED = 0.1;
+float MOVEMENT_SPEED = 0.8;
 float pos_x = 0;
 float pos_z = 0;
 float const_ang = M_PI/4;
@@ -398,8 +398,11 @@ void drawHelicopter() {
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, IdentityMatrix().m);
 
-	mat4 globalRotation = Mult(Rx(M_PI/16), Mult(Ry(M_PI), Rz(0)));
-    mat4 globalTranslation = T(0, -10, -50);
+	// mat4 globalRotation = Mult(Rx(M_PI/16), Mult(Ry(M_PI), Rz(0)));
+    // mat4 globalTranslation = T(0, -10, -50);
+	// mat4 globalScaling = S(0.1, 0.1, 0.1);
+	mat4 globalRotation = Ry(t/1000);
+    mat4 globalTranslation = T(10, 10, 10);
 	mat4 globalScaling = S(0.1, 0.1, 0.1);
 
 	// Static helicopter parts

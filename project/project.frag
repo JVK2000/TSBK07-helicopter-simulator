@@ -49,8 +49,17 @@ void main(void)
 			// Ambient light
 			float ambientStrength = 0.2;
 			vec3 ambientLight = ambientStrength * lightSourcesColorArr[i];
+			ambientLight = vec3(0, 0, 0);
 
-			color = color + vec4(diffuseLight + ambientLight, 1);
+			// Specular light
+			vec3 viewDir = normalize(camMat * (cameraPos - surfacePos));
+			// vec3 viewDir = normalize(camMat * (- surfacePos));
+			vec3 reflectDir = reflect(-lightDirection, normalize(normal_view));
+			float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
+			vec3 specularLight = 0.8 * spec * lightSourcesColorArr[i];
+
+			color = color + vec4(diffuseLight + ambientLight + specularLight, 1);
+			// color = color + vec4(diffuseLight + ambientLight, 1);
 		}
 	}
 
