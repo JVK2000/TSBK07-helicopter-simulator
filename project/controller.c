@@ -1,12 +1,25 @@
 #include "controller.h"
 
 
+const float ACCELERATION_HORIZONTAL = 0.1f;
+const float ACCELERATION_VERTICAL = 0.02f;
+const float FRICTION = 0.9f;
+const float MOUSE_MOVE_SPEED = 400;
+const float MAX_VELOCITY = 2.0f;
+const float VELOCITY_AMPLIFIER = 2.0f;
+
+bool first_iteration = true;
+float init_x = 0;
+float init_z = 0;
 float cameraAngleZ;
 float cameraAngleX;
+float pos_x = 0;
+float pos_z = 0;
 vec3 cameraPosition;
 vec3 lookAtPosition;
 vec3 worldUpVector;
 mat4 cameraMatrix;
+
 
 void controllerInit()
 {
@@ -17,11 +30,7 @@ void controllerInit()
     worldUpVector = (vec3){0, 1, 0};
 }
 
-float MOUSE_MOVE_SPEED = 400;
-float init_x = 0;
-float init_z = 0;
-bool first_iteration = true;
-bool leftMouseDown = false;
+
 void mouseMovement(int x, int y)
 {
 	if (first_iteration) {
@@ -35,33 +44,70 @@ void mouseMovement(int x, int y)
 	cameraAngleZ = (curr_y/MOUSE_MOVE_SPEED)*M_PI;
 }
 
-float MOVEMENT_SPEED = 0.8;
-float pos_x = 0;
-float pos_z = 0;
-float const_ang = M_PI/4;
 void keyboardMovement()
 {
-	float pos_x = 0;
-	float pos_z = 0;
-	float pos_y = 0;
-	if (glutKeyIsDown('d')) {
-		pos_x += MOVEMENT_SPEED * cos(cameraAngleX); 
-		pos_z += MOVEMENT_SPEED * sin(cameraAngleX); 
-	} if (glutKeyIsDown('a')) {
-		pos_x -= MOVEMENT_SPEED * cos(cameraAngleX); 
-		pos_z -= MOVEMENT_SPEED * sin(cameraAngleX); 
-	} if (glutKeyIsDown('w')) {
-		pos_x += MOVEMENT_SPEED * sin(cameraAngleX); 
-		pos_z -= MOVEMENT_SPEED * cos(cameraAngleX);
-	} if (glutKeyIsDown('s')) {
-		pos_x -= MOVEMENT_SPEED * sin(cameraAngleX); 
-		pos_z += MOVEMENT_SPEED * cos(cameraAngleX); 
-	} if (glutKeyIsDown('q')) {
-		pos_y -= MOVEMENT_SPEED;
-	} if (glutKeyIsDown('e')) {
-		pos_y += MOVEMENT_SPEED;
-	}
-	cameraPosition.x += pos_x; 
+    float pos_x = 0;
+    float pos_z = 0;
+    float pos_y = 0;
+    static float vel_x = 0;
+    static float vel_z = 0;
+    static float vel_y = 0;
+
+    bool moveForwardKeyDown = glutKeyIsDown('w');
+    bool moveBackwardKeyDown = glutKeyIsDown('s');
+    bool moveLeftKeyDown = glutKeyIsDown('a');
+    bool moveRightKeyDown = glutKeyIsDown('d');
+
+    if (moveForwardKeyDown) {
+        moveForward(&vel_x, &vel_z, 1);
+    }
+    if (moveBackwardKeyDown) {
+        moveBackward(&vel_x, &vel_z, 1);
+    }
+    if (moveLeftKeyDown) {
+        moveLeft(&vel_x, &vel_z, 1);
+    }
+    if (moveRightKeyDown) {
+        moveRight(&vel_x, &vel_z, 1);
+    }
+
+    else if (glutKeyIsDown('q')) {
+        vel_y -= ACCELERATION_VERTICAL;
+    }
+    else if (glutKeyIsDown('e')) {
+        vel_y += ACCELERATION_VERTICAL;
+    }
+
+    // Apply friction
+    if (!glutKeyIsDown('w') && !glutKeyIsDown('s')) {
+        vel_x *= FRICTION;
+        vel_z *= FRICTION;
+    }
+    if (!glutKeyIsDown('a') && !glutKeyIsDown('d')) {
+        vel_x *= FRICTION;
+        vel_z *= FRICTION;
+    }
+    if (!glutKeyIsDown('q') && !glutKeyIsDown('e')) {
+        vel_y *= FRICTION;
+    }
+
+    // Limit the maximum velocity
+    float currentVelocity = fabs(vel_x) + fabs(vel_z);
+    if (currentVelocity > MAX_VELOCITY) {
+        float ratio = MAX_VELOCITY / currentVelocity;
+        vel_x *= ratio;
+        vel_z *= ratio;
+    }
+
+    printf("vel: x - %f,  z - %f\n", vel_x, vel_z);
+
+
+    // Update position
+    pos_x += vel_x;
+    pos_z += vel_z;
+    pos_y += vel_y;
+
+    cameraPosition.x += pos_x; 
 	cameraPosition.z += pos_z; 
 	cameraPosition.y += pos_y; 
 	lookAtPosition.x += pos_x;
@@ -71,3 +117,61 @@ void keyboardMovement()
 	cameraMatrix = Mult(Rx(cameraAngleZ), Mult(Ry(cameraAngleX), lookAtv(cameraPosition, lookAtPosition, worldUpVector)));
 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
 }
+
+
+void moveRight(float *vel_x, float *vel_z, float fraction) 
+{
+    *vel_x += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+}
+
+void moveLeft(float *vel_x, float *vel_z, float fraction) 
+{
+    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+    *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+}
+
+void moveForward(float *vel_x, float *vel_z, float fraction) 
+{
+    *vel_x += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+    *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+}
+
+void moveBackward(float *vel_x, float *vel_z, float fraction) 
+{
+    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+}
+
+// void keyboardMovement()
+// {
+// 	float pos_x = 0;
+// 	float pos_z = 0;
+// 	float pos_y = 0;
+// 	if (glutKeyIsDown('d')) {
+// 		pos_x += MOVEMENT_SPEED * cos(cameraAngleX); 
+// 		pos_z += MOVEMENT_SPEED * sin(cameraAngleX); 
+// 	} if (glutKeyIsDown('a')) {
+// 		pos_x -= MOVEMENT_SPEED * cos(cameraAngleX); 
+// 		pos_z -= MOVEMENT_SPEED * sin(cameraAngleX); 
+// 	} if (glutKeyIsDown('w')) {
+// 		pos_x += MOVEMENT_SPEED * sin(cameraAngleX); 
+// 		pos_z -= MOVEMENT_SPEED * cos(cameraAngleX);
+// 	} if (glutKeyIsDown('s')) {
+// 		pos_x -= MOVEMENT_SPEED * sin(cameraAngleX); 
+// 		pos_z += MOVEMENT_SPEED * cos(cameraAngleX); 
+// 	} if (glutKeyIsDown('q')) {
+// 		pos_y -= MOVEMENT_SPEED;
+// 	} if (glutKeyIsDown('e')) {
+// 		pos_y += MOVEMENT_SPEED;
+// 	}
+// 	cameraPosition.x += pos_x; 
+// 	cameraPosition.z += pos_z; 
+// 	cameraPosition.y += pos_y; 
+// 	lookAtPosition.x += pos_x;
+// 	lookAtPosition.z += pos_z;
+// 	lookAtPosition.y += pos_y;
+
+// 	cameraMatrix = Mult(Rx(cameraAngleZ), Mult(Ry(cameraAngleX), lookAtv(cameraPosition, lookAtPosition, worldUpVector)));
+// 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
+// }

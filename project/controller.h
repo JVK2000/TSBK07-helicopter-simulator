@@ -13,5 +13,9 @@ extern mat4 cameraMatrix;
 void controllerInit();
 void mouseMovement(int x, int y);
 void keyboardMovement();
+void moveRight(float *vel_x, float *vel_z, float fraction);
+void moveLeft(float *vel_x, float *vel_z, float fraction);
+void moveForward(float *vel_x, float *vel_z, float fraction);
+void moveBackward(float *vel_x, float *vel_z, float fraction);
 
 #endif
