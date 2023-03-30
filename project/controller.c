@@ -26,8 +26,8 @@ void controllerInit()
 {
     cameraAngleZ = 0;
     cameraAngleX = 0;
-    cameraPosition = (vec3){0, 10, 50};
-    lookAtPosition = (vec3){0, 10, 0};
+    cameraPosition = (vec3){0, 0, 45};
+    lookAtPosition = (vec3){0, 0, 0};
     worldUpVector = (vec3){0, 1, 0};
 }
 
@@ -121,10 +121,11 @@ void keyboardMovement()
 	lookAtPosition.z += pos_z;
 	lookAtPosition.y += pos_y;   
 
-    const float radius = -50.0f;
-    vec3 tempCamPos = (vec3){cameraPosition.x, cameraPosition.y, cameraPosition.z - 50.0f}; 
-    tempCamPos.x = tempCamPos.x + sin(cameraAngleX) * radius;
-    tempCamPos.z = tempCamPos.z + cos(cameraAngleX) * radius;
+    const float radius = -45.0f;
+    vec3 tempCamPos = (vec3){cameraPosition.x, cameraPosition.y, cameraPosition.z + radius}; 
+    tempCamPos.x = tempCamPos.x + cos(cameraAngleX) * radius;
+    tempCamPos.z = tempCamPos.z + sin(cameraAngleX) * radius;
+    tempCamPos.y = tempCamPos.y - sin(cameraAngleZ) * radius;
     // cameraPosition.y = cos(cameraAngleZ) * radius;
 
 
@@ -152,26 +153,26 @@ void printMatrix(float matrix[4][4]) {
 }
 
 void moveRight(float *vel_x, float *vel_z, float fraction) 
-{
-    *vel_x += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
-    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+{    
+    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
 }
 
 void moveLeft(float *vel_x, float *vel_z, float fraction) 
-{
-    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
-    *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
-}
-
-void moveForward(float *vel_x, float *vel_z, float fraction) 
 {
     *vel_x += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
     *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
 }
 
+void moveForward(float *vel_x, float *vel_z, float fraction) 
+{
+    *vel_x += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+}
+
 void moveBackward(float *vel_x, float *vel_z, float fraction) 
 {
-    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
-    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+    *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
 }
 
