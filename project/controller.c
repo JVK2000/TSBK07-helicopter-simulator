@@ -5,7 +5,8 @@ const float ACCELERATION_HORIZONTAL = 0.1f;
 const float ACCELERATION_VERTICAL = 0.02f;
 const float FRICTION = 0.9f;
 const float MOUSE_MOVE_SPEED = 400;
-const float MAX_VELOCITY = 2.0f;
+const float MAX_VELOCITY_HORIZONTAL = 2.0f;
+const float MAX_VELOCITY_VERTICAL = 1.0f;
 const float VELOCITY_AMPLIFIER = 2.0f;
 
 bool first_iteration = true;
@@ -57,6 +58,8 @@ void keyboardMovement()
     bool moveBackwardKeyDown = glutKeyIsDown('s');
     bool moveLeftKeyDown = glutKeyIsDown('a');
     bool moveRightKeyDown = glutKeyIsDown('d');
+    bool moveUpKeyDown = glutKeyIsDown('e');
+    bool moveDownKeyDown = glutKeyIsDown('q');
 
     if (moveForwardKeyDown) {
         moveForward(&vel_x, &vel_z, 1);
@@ -71,33 +74,40 @@ void keyboardMovement()
         moveRight(&vel_x, &vel_z, 1);
     }
 
-    else if (glutKeyIsDown('q')) {
+    if (moveDownKeyDown) {
         vel_y -= ACCELERATION_VERTICAL;
     }
-    else if (glutKeyIsDown('e')) {
+    if (moveUpKeyDown) {
         vel_y += ACCELERATION_VERTICAL;
     }
 
     // Apply friction
-    if (!glutKeyIsDown('w') && !glutKeyIsDown('s')) {
+    if (!moveForwardKeyDown && !moveBackwardKeyDown) {
         vel_x *= FRICTION;
         vel_z *= FRICTION;
     }
-    if (!glutKeyIsDown('a') && !glutKeyIsDown('d')) {
+    if (!moveLeftKeyDown && !moveRightKeyDown) {
         vel_x *= FRICTION;
         vel_z *= FRICTION;
     }
-    if (!glutKeyIsDown('q') && !glutKeyIsDown('e')) {
+    if (!moveDownKeyDown && !moveUpKeyDown) {
         vel_y *= FRICTION;
     }
 
     // Limit the maximum velocity
     float currentVelocity = fabs(vel_x) + fabs(vel_z);
-    if (currentVelocity > MAX_VELOCITY) {
-        float ratio = MAX_VELOCITY / currentVelocity;
+    if (currentVelocity > MAX_VELOCITY_HORIZONTAL) {
+        float ratio = MAX_VELOCITY_HORIZONTAL / currentVelocity;
         vel_x *= ratio;
         vel_z *= ratio;
     }
+
+    if (vel_y > MAX_VELOCITY_VERTICAL) {
+        vel_y = MAX_VELOCITY_VERTICAL;
+    } 
+    else if (vel_y < -MAX_VELOCITY_VERTICAL) {
+        vel_y = -MAX_VELOCITY_VERTICAL;
+    } 
 
     printf("vel: x - %f,  z - %f\n", vel_x, vel_z);
 
