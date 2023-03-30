@@ -26,7 +26,7 @@ void controllerInit()
 {
     cameraAngleZ = 0;
     cameraAngleX = 0;
-    cameraPosition = (vec3){0, 10, 10};
+    cameraPosition = (vec3){0, 10, 50};
     lookAtPosition = (vec3){0, 10, 0};
     worldUpVector = (vec3){0, 1, 0};
 }
@@ -109,9 +109,6 @@ void keyboardMovement()
         vel_y = -MAX_VELOCITY_VERTICAL;
     } 
 
-    printf("vel: x - %f,  z - %f\n", vel_x, vel_z);
-
-
     // Update position
     pos_x += vel_x;
     pos_z += vel_z;
@@ -122,12 +119,37 @@ void keyboardMovement()
 	cameraPosition.y += pos_y; 
 	lookAtPosition.x += pos_x;
 	lookAtPosition.z += pos_z;
-	lookAtPosition.y += pos_y;
+	lookAtPosition.y += pos_y;   
 
-	cameraMatrix = Mult(Rx(cameraAngleZ), Mult(Ry(cameraAngleX), lookAtv(cameraPosition, lookAtPosition, worldUpVector)));
-	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
+    const float radius = -50.0f;
+    vec3 tempCamPos = (vec3){cameraPosition.x, cameraPosition.y, cameraPosition.z - 50.0f}; 
+    tempCamPos.x = tempCamPos.x + sin(cameraAngleX) * radius;
+    tempCamPos.z = tempCamPos.z + cos(cameraAngleX) * radius;
+    // cameraPosition.y = cos(cameraAngleZ) * radius;
+
+
+    printf("Angle: %f\n", cameraAngleX);
+    printf("cam: %f, %f, %f\n", cameraPosition.x, cameraPosition.y, cameraPosition.z);
+    printf("look: %f, %f, %f\n", lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
+
+
+	cameraMatrix = IdentityMatrix();
+    // cameraMatrix = Mult(cameraMatrix, Rx(cameraAngleZ));
+    // cameraMatrix = Mult(cameraMatrix, Ry(cameraAngleX));
+    cameraMatrix = Mult(cameraMatrix, lookAtv(tempCamPos, lookAtPosition, worldUpVector));
+
 }
 
+
+
+void printMatrix(float matrix[4][4]) {
+    for (int row = 0; row < 4; ++row) {
+        for (int col = 0; col < 4; ++col) {
+            printf("%f ", matrix[row][col]);
+        }
+        printf("\n");
+    }
+}
 
 void moveRight(float *vel_x, float *vel_z, float fraction) 
 {
@@ -153,35 +175,3 @@ void moveBackward(float *vel_x, float *vel_z, float fraction)
     *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
 }
 
-// void keyboardMovement()
-// {
-// 	float pos_x = 0;
-// 	float pos_z = 0;
-// 	float pos_y = 0;
-// 	if (glutKeyIsDown('d')) {
-// 		pos_x += MOVEMENT_SPEED * cos(cameraAngleX); 
-// 		pos_z += MOVEMENT_SPEED * sin(cameraAngleX); 
-// 	} if (glutKeyIsDown('a')) {
-// 		pos_x -= MOVEMENT_SPEED * cos(cameraAngleX); 
-// 		pos_z -= MOVEMENT_SPEED * sin(cameraAngleX); 
-// 	} if (glutKeyIsDown('w')) {
-// 		pos_x += MOVEMENT_SPEED * sin(cameraAngleX); 
-// 		pos_z -= MOVEMENT_SPEED * cos(cameraAngleX);
-// 	} if (glutKeyIsDown('s')) {
-// 		pos_x -= MOVEMENT_SPEED * sin(cameraAngleX); 
-// 		pos_z += MOVEMENT_SPEED * cos(cameraAngleX); 
-// 	} if (glutKeyIsDown('q')) {
-// 		pos_y -= MOVEMENT_SPEED;
-// 	} if (glutKeyIsDown('e')) {
-// 		pos_y += MOVEMENT_SPEED;
-// 	}
-// 	cameraPosition.x += pos_x; 
-// 	cameraPosition.z += pos_z; 
-// 	cameraPosition.y += pos_y; 
-// 	lookAtPosition.x += pos_x;
-// 	lookAtPosition.z += pos_z;
-// 	lookAtPosition.y += pos_y;
-
-// 	cameraMatrix = Mult(Rx(cameraAngleZ), Mult(Ry(cameraAngleX), lookAtv(cameraPosition, lookAtPosition, worldUpVector)));
-// 	glUniformMatrix4fv(glGetUniformLocation(program, "cameraMatrix"), 1, GL_TRUE, cameraMatrix.m);
-// }
