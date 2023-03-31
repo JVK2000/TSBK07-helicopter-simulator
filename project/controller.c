@@ -34,22 +34,73 @@ void controllerInit()
 
 void mouseMovement(int x, int y)
 {
-	if (first_iteration) {
-		init_x = x;
-		init_z = y;
-		first_iteration = false;
-	}
-	float curr_x = x - init_x;
-	float curr_y = y - init_z;
-	cameraAngleX = (curr_x/MOUSE_MOVE_SPEED)*M_PI;
-	cameraAngleZ = (curr_y/MOUSE_MOVE_SPEED)*M_PI;
 }
+
+
+#define ANGULAR_ACCELERATION 0.005f
+#define ANGULAR_FRICTION 0.8f
+
 
 void keyboardMovement()
 {
-    float pos_x = 0;
-    float pos_z = 0;
-    float pos_y = 0;
+    manageVelocity();
+    manageAngle();
+
+    const float radius = -45.0f;
+    vec3 tempCamPos = (vec3){cameraPosition.x, cameraPosition.y, cameraPosition.z + radius}; 
+    tempCamPos.x = tempCamPos.x + cos(cameraAngleX) * radius;
+    tempCamPos.z = tempCamPos.z + sin(cameraAngleX) * radius;
+    tempCamPos.y = tempCamPos.y - sin(cameraAngleZ) * radius;
+
+    // printf("Angle: %f\n", cameraAngleZ);
+    // printf("cam: %f, %f, %f\n", cameraPosition.x, cameraPosition.y, cameraPosition.z);
+    // printf("look: %f, %f, %f\n", lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
+
+	cameraMatrix = IdentityMatrix();
+    cameraMatrix = Mult(cameraMatrix, lookAtv(tempCamPos, lookAtPosition, worldUpVector));
+}
+
+
+void manageAngle() 
+{
+    static float angular_vel_x = 0;
+    static float angular_vel_z = 0;
+
+    bool rotateLeft = glutKeyIsDown(GLUT_KEY_LEFT);
+    bool rotateRight = glutKeyIsDown(GLUT_KEY_RIGHT);
+    bool rotateDown = glutKeyIsDown(GLUT_KEY_UP);
+    bool rotateUp = glutKeyIsDown(GLUT_KEY_DOWN);
+
+    if (rotateUp) {
+        angular_vel_z -= ANGULAR_ACCELERATION;
+    }
+    if (rotateDown) {
+        angular_vel_z += ANGULAR_ACCELERATION;
+    }
+    if (rotateLeft) {
+        angular_vel_x -= ANGULAR_ACCELERATION;
+    }
+    if (rotateRight) {
+        angular_vel_x += ANGULAR_ACCELERATION;
+    }
+
+    // Apply angular friction
+    if (!rotateUp && !rotateDown) {
+        angular_vel_z *= ANGULAR_FRICTION;
+    }
+    if (!rotateLeft && !rotateRight) {
+        angular_vel_x *= ANGULAR_FRICTION;
+    }
+
+    // Update camera angles
+    cameraAngleX += angular_vel_x;
+    cameraAngleZ += angular_vel_z;
+
+}
+
+
+void manageVelocity() 
+{
     static float vel_x = 0;
     static float vel_z = 0;
     static float vel_y = 0;
@@ -109,48 +160,14 @@ void keyboardMovement()
         vel_y = -MAX_VELOCITY_VERTICAL;
     } 
 
-    // Update position
-    pos_x += vel_x;
-    pos_z += vel_z;
-    pos_y += vel_y;
-
-    cameraPosition.x += pos_x; 
-	cameraPosition.z += pos_z; 
-	cameraPosition.y += pos_y; 
-	lookAtPosition.x += pos_x;
-	lookAtPosition.z += pos_z;
-	lookAtPosition.y += pos_y;   
-
-    const float radius = -45.0f;
-    vec3 tempCamPos = (vec3){cameraPosition.x, cameraPosition.y, cameraPosition.z + radius}; 
-    tempCamPos.x = tempCamPos.x + cos(cameraAngleX) * radius;
-    tempCamPos.z = tempCamPos.z + sin(cameraAngleX) * radius;
-    tempCamPos.y = tempCamPos.y - sin(cameraAngleZ) * radius;
-    // cameraPosition.y = cos(cameraAngleZ) * radius;
-
-
-    printf("Angle: %f\n", cameraAngleX);
-    printf("cam: %f, %f, %f\n", cameraPosition.x, cameraPosition.y, cameraPosition.z);
-    printf("look: %f, %f, %f\n", lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
-
-
-	cameraMatrix = IdentityMatrix();
-    // cameraMatrix = Mult(cameraMatrix, Rx(cameraAngleZ));
-    // cameraMatrix = Mult(cameraMatrix, Ry(cameraAngleX));
-    cameraMatrix = Mult(cameraMatrix, lookAtv(tempCamPos, lookAtPosition, worldUpVector));
-
+    cameraPosition.x += vel_x; 
+	cameraPosition.z += vel_z; 
+	cameraPosition.y += vel_y; 
+	lookAtPosition.x += vel_x;
+	lookAtPosition.z += vel_z;
+	lookAtPosition.y += vel_y;  
 }
 
-
-
-void printMatrix(float matrix[4][4]) {
-    for (int row = 0; row < 4; ++row) {
-        for (int col = 0; col < 4; ++col) {
-            printf("%f ", matrix[row][col]);
-        }
-        printf("\n");
-    }
-}
 
 void moveRight(float *vel_x, float *vel_z, float fraction) 
 {    
@@ -176,3 +193,11 @@ void moveBackward(float *vel_x, float *vel_z, float fraction)
     *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
 }
 
+void printMatrix(float matrix[4][4]) {
+    for (int row = 0; row < 4; ++row) {
+        for (int col = 0; col < 4; ++col) {
+            printf("%f ", matrix[row][col]);
+        }
+        printf("\n");
+    }
+}
