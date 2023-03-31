@@ -117,7 +117,6 @@ int main(int argc, char **argv)
 	init ();
 	glutRepeatingTimer(20);
 	glutHideCursor();
-	glutPassiveMotionFunc(mouseMovement);
 	// glutSpecialFunc(keyboard);
 	glutMainLoop();
 	exit(0);

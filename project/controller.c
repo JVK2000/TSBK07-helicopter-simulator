@@ -1,6 +1,9 @@
 #include "controller.h"
 
 
+#define ANGULAR_ACCELERATION 0.005f
+#define ANGULAR_FRICTION 0.8f
+
 const float ACCELERATION_HORIZONTAL = 0.1f;
 const float ACCELERATION_VERTICAL = 0.02f;
 const float FRICTION = 0.9f;
@@ -32,15 +35,6 @@ void controllerInit()
 }
 
 
-void mouseMovement(int x, int y)
-{
-}
-
-
-#define ANGULAR_ACCELERATION 0.005f
-#define ANGULAR_FRICTION 0.8f
-
-
 void keyboardMovement()
 {
     manageVelocity();
@@ -57,6 +51,7 @@ void keyboardMovement()
     // printf("look: %f, %f, %f\n", lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
 
 	cameraMatrix = IdentityMatrix();
+    // cameraMatrix = Mult(cameraMatrix, Rx(cameraAngleZ));
     cameraMatrix = Mult(cameraMatrix, lookAtv(tempCamPos, lookAtPosition, worldUpVector));
 }
 
