@@ -1,4 +1,5 @@
 #include "controller.h"
+#include "helicopter_controller_shared.h"
 
 
 #define ANGULAR_ACCELERATION 0.005f
@@ -57,6 +58,8 @@ void keyboardMovement()
 
 	cameraMatrix = IdentityMatrix();
     cameraMatrix = Mult(cameraMatrix, lookAtv(newCamPos, lookAtPosition, worldUpVector));
+
+    // printf("\ny: %f,   x: %f", cameraAngleY, cameraAngleX);
 }
 
 
@@ -99,6 +102,7 @@ void manageAngle()
     } else if (cameraAngleY < -CAMERA_Y_ANGLE_BOUNDARY) {
         cameraAngleY = -CAMERA_Y_ANGLE_BOUNDARY;
     }
+    setYAngle(cameraAngleY);
 
 }
 
@@ -149,6 +153,8 @@ void manageVelocity()
         vel_y *= FRICTION;
     }
 
+
+
     // Limit the maximum velocity
     float currentVelocity = fabs(vel_x) + fabs(vel_z);
     if (currentVelocity > MAX_VELOCITY_HORIZONTAL) {
@@ -164,6 +170,9 @@ void manageVelocity()
         vel_y = -MAX_VELOCITY_VERTICAL;
     } 
 
+    printf("\n vel %f", vel_x);
+    updateTilt(vel_x, vel_y, vel_z);
+
     cameraPosition.x += vel_x; 
 	cameraPosition.z += vel_z; 
 	cameraPosition.y += vel_y; 
@@ -172,6 +181,12 @@ void manageVelocity()
 	lookAtPosition.y += vel_y;  
 }
 
+void updateTilt(float vel_x, float vel_y, float vel_z) {
+    float tiltZ = vel_x / 10;
+    float tiltX = vel_z / 10;
+    setZTilt(tiltZ);
+    setXTilt(tiltX);
+}
 
 void moveRight(float *vel_x, float *vel_z, float fraction) 
 {    

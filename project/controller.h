@@ -15,6 +15,7 @@ void keyboard(unsigned char key, int x, int y);
 void keyboardMovement();
 void manageAngle();
 void manageVelocity();
+void updateTilt(float vel_x, float vel_y, float vel_z);
 
 void moveRight(float *vel_x, float *vel_z, float fraction);
 void moveLeft(float *vel_x, float *vel_z, float fraction);
