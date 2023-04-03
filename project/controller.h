@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-extern float cameraAngleZ;      // Camera rotation angle on z-axis
+extern float cameraAngleY;      // Camera rotation angle on z-axis
 extern float cameraAngleX;      // Camera rotation angle on x-axis
 extern vec3 cameraPosition;	    // Camera position 
 extern vec3 lookAtPosition;	    // Position to look at

@@ -49,7 +49,6 @@ void main(void)
 			// Ambient light
 			float ambientStrength = 0.2;
 			vec3 ambientLight = ambientStrength * lightSourcesColorArr[i];
-			ambientLight = vec3(0, 0, 0);
 
 			// Specular light
 			vec3 viewDir = normalize(camMat * (cameraPos - surfacePos));

@@ -11,11 +11,13 @@ const float MOUSE_MOVE_SPEED = 400;
 const float MAX_VELOCITY_HORIZONTAL = 2.0f;
 const float MAX_VELOCITY_VERTICAL = 1.0f;
 const float VELOCITY_AMPLIFIER = 2.0f;
+const float CAMERA_Y_ANGLE_BOUNDARY = (M_PI/2.0) * 0.99 ;
+const float START_CAMERA_Y_ANGLE = M_PI/16;
 
 bool first_iteration = true;
 float init_x = 0;
 float init_z = 0;
-float cameraAngleZ;
+float cameraAngleY;
 float cameraAngleX;
 float pos_x = 0;
 float pos_z = 0;
@@ -27,7 +29,7 @@ mat4 cameraMatrix;
 
 void controllerInit()
 {
-    cameraAngleZ = 0;
+    cameraAngleY = START_CAMERA_Y_ANGLE;
     cameraAngleX = 0;
     cameraPosition = (vec3){0, 0, 45};
     lookAtPosition = (vec3){0, 0, 0};
@@ -41,18 +43,20 @@ void keyboardMovement()
     manageAngle();
 
     const float radius = -45.0f;
-    vec3 tempCamPos = (vec3){cameraPosition.x, cameraPosition.y, cameraPosition.z + radius}; 
-    tempCamPos.x = tempCamPos.x + cos(cameraAngleX) * radius;
-    tempCamPos.z = tempCamPos.z + sin(cameraAngleX) * radius;
-    tempCamPos.y = tempCamPos.y - sin(cameraAngleZ) * radius;
+    vec3 newCamPos = (vec3){cameraPosition.x, cameraPosition.y, cameraPosition.z + radius}; 
 
-    // printf("Angle: %f\n", cameraAngleZ);
-    // printf("cam: %f, %f, %f\n", cameraPosition.x, cameraPosition.y, cameraPosition.z);
-    // printf("look: %f, %f, %f\n", lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
+    // Calculate the X and Y axis rotation matrices
+    float x = cos(cameraAngleY) * sin(cameraAngleX);
+    float y = sin(cameraAngleY);
+    float z = cos(cameraAngleY) * cos(cameraAngleX);
+
+    // Apply the rotation to the camera position
+    newCamPos.x = newCamPos.x + x * radius;
+    newCamPos.y = newCamPos.y - y * radius;
+    newCamPos.z = newCamPos.z - z * radius;
 
 	cameraMatrix = IdentityMatrix();
-    // cameraMatrix = Mult(cameraMatrix, Rx(cameraAngleZ));
-    cameraMatrix = Mult(cameraMatrix, lookAtv(tempCamPos, lookAtPosition, worldUpVector));
+    cameraMatrix = Mult(cameraMatrix, lookAtv(newCamPos, lookAtPosition, worldUpVector));
 }
 
 
@@ -89,7 +93,12 @@ void manageAngle()
 
     // Update camera angles
     cameraAngleX += angular_vel_x;
-    cameraAngleZ += angular_vel_z;
+    cameraAngleY += angular_vel_z;
+    if (CAMERA_Y_ANGLE_BOUNDARY < cameraAngleY) {
+        cameraAngleY = CAMERA_Y_ANGLE_BOUNDARY;
+    } else if (cameraAngleY < -CAMERA_Y_ANGLE_BOUNDARY) {
+        cameraAngleY = -CAMERA_Y_ANGLE_BOUNDARY;
+    }
 
 }
 
@@ -166,26 +175,26 @@ void manageVelocity()
 
 void moveRight(float *vel_x, float *vel_z, float fraction) 
 {    
-    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
-    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+    *vel_x += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
 }
 
 void moveLeft(float *vel_x, float *vel_z, float fraction) 
+{
+    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+    *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+}
+
+void moveForward(float *vel_x, float *vel_z, float fraction) 
 {
     *vel_x += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
     *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
 }
 
-void moveForward(float *vel_x, float *vel_z, float fraction) 
-{
-    *vel_x += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
-    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
-}
-
 void moveBackward(float *vel_x, float *vel_z, float fraction) 
 {
-    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
-    *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
 }
 
 void printMatrix(float matrix[4][4]) {

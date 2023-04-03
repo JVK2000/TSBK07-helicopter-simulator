@@ -13,7 +13,7 @@ void helicopterInit() {
 }
 
 
-void drawHelicopter(mat4 cameraMatrix) {
+void drawHelicopter(mat4 cameraMatrix, float cameraAngleY) {
 	GLint isHelicopterLoc = glGetUniformLocation(program, "isHelicopter");
     GLint shadingEnabledLoc = glGetUniformLocation(program, "shadingEnabled");
     GLint textureEnabledLoc = glGetUniformLocation(program, "textureEnabled");
@@ -32,10 +32,11 @@ void drawHelicopter(mat4 cameraMatrix) {
 	mat4 globalTranslation;
 	mat4 globalScaling = S(0.1, 0.1, 0.1);
 	if (followCamera) {
-		globalRotation = Mult(Rx(M_PI/16), Mult(Ry(M_PI), Rz(0)));
+		// globalRotation = Mult(Rx(M_PI/16), Mult(Ry(M_PI), Rz(0)));
+		globalRotation = Mult(Rx(cameraAngleY), Mult(Ry(M_PI), Rz(0)));
 		globalTranslation = T(0, -10, -50);
 	} else {
-		globalRotation = Ry(t / 1000);
+		globalRotation = Mult(Rx(cameraAngleY), Ry(t / 1000));
 		globalTranslation = T(10, 10, 10);
 	}
 

@@ -5,7 +5,7 @@
 
 
 void helicopterInit(void);
-void drawHelicopter(mat4 cameraMatrix);
+void drawHelicopter(mat4 cameraMatrix, float cameraAngleY);
 
 
 #endif

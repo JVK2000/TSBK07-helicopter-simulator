@@ -12,6 +12,7 @@ vec3 octagon_pos_start;
 vec3 octagon_pos_end;
 int octagon_dir = 1;
 const float octagon_speed = 0.1;
+float vertical_rotation = 0; // Vertical rotation modified by controller.c, used by helicopter.c to compensate for the vertical rotation, so the helicopter dont change its vertical rotation.   
 
 // Reference to shader program
 GLuint program;
@@ -83,7 +84,7 @@ void display(void)
 	// Use the shader program
 	glUseProgram(program);
 
-	drawSkybox(texUnit, cameraAngleZ, cameraAngleX);
+	drawSkybox(texUnit, cameraAngleY, cameraAngleX);
 
     // Bind textures and set shader uniforms
 	glActiveTexture(GL_TEXTURE0);
@@ -98,7 +99,7 @@ void display(void)
 	draw_terrain(cameraMatrix, cameraPosition);
 
 	drawOctagon();
-	drawHelicopter(cameraMatrix);
+	drawHelicopter(cameraMatrix, cameraAngleY);
 
 	printError("display 2");
 	

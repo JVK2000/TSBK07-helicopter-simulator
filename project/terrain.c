@@ -209,7 +209,7 @@ float texture_data_height()
 }
 
 
-void drawSkybox(GLuint texUnit, float cameraAngleZ, float cameraAngleX) 
+void drawSkybox(GLuint texUnit, float cameraAngleY, float cameraAngleX) 
 {
 	glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
@@ -217,7 +217,7 @@ void drawSkybox(GLuint texUnit, float cameraAngleZ, float cameraAngleX)
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "isSky"), true);
 
-	mat4 translationMatrixSkybox = Mult(Rx(cameraAngleZ), Ry(cameraAngleX));
+	mat4 translationMatrixSkybox = Mult(Rx(cameraAngleY), Ry(cameraAngleX));
 	LoadTGATextureSimple("labskybox512.tga", &texUnit);			// Create texture object
 	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
 	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
