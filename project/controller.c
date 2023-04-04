@@ -2,8 +2,9 @@
 #include "helicopter_controller_shared.h"
 
 
-#define ANGULAR_ACCELERATION 0.005f
-#define ANGULAR_FRICTION 0.8f
+const float ANGULAR_ACCELERATION_HORIZONTAL = 0.005f;
+const float ANGULAR_ACCELERATION_VERTICAL = 0.0025f;
+const float ANGULAR_FRICTION = 0.8f;
 
 const float ACCELERATION_HORIZONTAL = 0.1f;
 const float ACCELERATION_VERTICAL = 0.02f;
@@ -58,8 +59,6 @@ void keyboardMovement()
 
 	cameraMatrix = IdentityMatrix();
     cameraMatrix = Mult(cameraMatrix, lookAtv(newCamPos, lookAtPosition, worldUpVector));
-
-    // printf("\ny: %f,   x: %f", cameraAngleY, cameraAngleX);
 }
 
 
@@ -74,16 +73,16 @@ void manageAngle()
     bool rotateUp = glutKeyIsDown(GLUT_KEY_DOWN);
 
     if (rotateUp) {
-        angular_vel_z -= ANGULAR_ACCELERATION;
+        angular_vel_z -= ANGULAR_ACCELERATION_VERTICAL;
     }
     if (rotateDown) {
-        angular_vel_z += ANGULAR_ACCELERATION;
+        angular_vel_z += ANGULAR_ACCELERATION_VERTICAL;
     }
     if (rotateLeft) {
-        angular_vel_x -= ANGULAR_ACCELERATION;
+        angular_vel_x -= ANGULAR_ACCELERATION_HORIZONTAL;
     }
     if (rotateRight) {
-        angular_vel_x += ANGULAR_ACCELERATION;
+        angular_vel_x += ANGULAR_ACCELERATION_HORIZONTAL;
     }
 
     // Apply angular friction
@@ -103,7 +102,6 @@ void manageAngle()
         cameraAngleY = -CAMERA_Y_ANGLE_BOUNDARY;
     }
     setYAngle(cameraAngleY);
-
 }
 
 
