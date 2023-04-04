@@ -13,7 +13,7 @@ uniform sampler2D tex2;
 uniform bool textureEnabled;
 uniform bool isHelicopter;
 uniform bool isSky;
-uniform bool specularEnabled;
+uniform bool specularLightEnabled;
 uniform bool ambientEnabled;
 uniform bool diffuseEnabled;
 
@@ -38,7 +38,7 @@ void main(void)
 		baseColor = vec4(0.325, 0.325, 0.325, 1);
 	}
 
-	if (diffuseEnabled || ambientEnabled || specularEnabled) {
+	if (diffuseEnabled || ambientEnabled || specularLightEnabled) {
 		for(int i = 3; i < 4; i++) {
 			vec3 lightDirection;
 			if (isDirectional[i]) {
@@ -53,8 +53,8 @@ void main(void)
 			vec3 diffuseLight = vec3(0, 0, 0);
 			if (diffuseEnabled) {
 				float diffuse = max(dot(normal_view, lightDirection), 0.0);
-				diffuseLight = diffuse * lightSourcesColorArr[i] * 1;
-				// diffuseLight = diffuse * lightSourcesColorArr[i] * 0.6;
+				// diffuseLight = diffuse * lightSourcesColorArr[i] * 1;
+				diffuseLight = diffuse * lightSourcesColorArr[i] * 0.6;
 			}
 
 			// Ambient light
@@ -66,7 +66,7 @@ void main(void)
 
 			// Specular light
 			vec3 specularLight = vec3(0, 0, 0);
-			if (specularEnabled) {
+			if (specularLightEnabled) {
 				vec3 viewDir = normalize(camMat * (cameraPos - surfacePos));
 				vec3 reflectDir = reflect(-lightDirection, normalize(normal_view));
 				float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);

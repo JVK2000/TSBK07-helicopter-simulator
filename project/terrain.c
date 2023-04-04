@@ -4,14 +4,6 @@
 Model *tm, *skybox;
 float terrainScale = 25;
 TextureData ttex; // terrain
-
-
-GLint specularEnabledLoc;
-GLint ambientEnabledLoc;
-GLint diffuseEnabledLoc;
-GLint textureEnabledLoc;
-GLint translationMatrixLoc;
-GLint mdlMatrixLoc;
 GLint isSkyLoc;
 
 
@@ -28,12 +20,6 @@ void terrainInit(GLuint *tex1, GLuint *tex2) {
 
     skybox = LoadModel("labskybox.obj");
 
-	specularEnabledLoc = glGetUniformLocation(program, "specularEnabled");
-	ambientEnabledLoc = glGetUniformLocation(program, "ambientEnabled");
-	diffuseEnabledLoc = glGetUniformLocation(program, "diffuseEnabled");
-	textureEnabledLoc = glGetUniformLocation(program, "textureEnabled");
-	translationMatrixLoc = glGetUniformLocation(program, "translationMatrix");
-	mdlMatrixLoc = glGetUniformLocation(program, "mdlMatrix");
 	isSkyLoc = glGetUniformLocation(program, "isSky");
 }
 
@@ -180,9 +166,9 @@ float find_height(float x, float z)
 
 void draw_terrain_section(mat4 cameraMatrix, float x, float z) 
 {
-	glUniform1i(specularEnabledLoc, false);
-    glUniform1i(ambientEnabledLoc, true);
-    glUniform1i(diffuseEnabledLoc, true);
+	glUniform1i(specularLightEnabledLoc, false);
+    glUniform1i(ambientLightEnabledLoc, true);
+    glUniform1i(diffuseLightEnabledLoc, true);
 	glUniform1i(textureEnabledLoc, true);
 
 	mat4 modelView = T(x * (ttex.width - 1), 0, z * (ttex.height - 1));
@@ -236,9 +222,9 @@ void drawSkybox(GLuint texUnit, float cameraAngleY, float cameraAngleX)
 	glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
 
-	glUniform1i(specularEnabledLoc, false);
-    glUniform1i(ambientEnabledLoc, false);
-    glUniform1i(diffuseEnabledLoc, false);
+	glUniform1i(specularLightEnabledLoc, false);
+    glUniform1i(ambientLightEnabledLoc, false);
+    glUniform1i(diffuseLightEnabledLoc, false);
 	glUniform1i(textureEnabledLoc, true);
 	glUniform1i(isSkyLoc, true);
 

@@ -19,6 +19,14 @@ GLuint program;
 GLuint texUnit;
 GLuint tex1, tex2;
 
+GLint specularLightEnabledLoc;
+GLint ambientLightEnabledLoc;
+GLint diffuseLightEnabledLoc;
+GLint textureEnabledLoc;
+GLint translationMatrixLoc;
+GLint mdlMatrixLoc;
+GLint normalMatrixLoc;
+
 
 void init(void)
 {
@@ -42,6 +50,14 @@ void init(void)
     terrainInit(&tex1, &tex2); 
     
     octagon = LoadModel("octagon.obj");
+
+	specularLightEnabledLoc = glGetUniformLocation(program, "specularLightEnabled");
+    ambientLightEnabledLoc = glGetUniformLocation(program, "ambientEnabled");
+    diffuseLightEnabledLoc = glGetUniformLocation(program, "diffuseEnabled");
+    textureEnabledLoc = glGetUniformLocation(program, "textureEnabled");
+    translationMatrixLoc = glGetUniformLocation(program, "translationMatrix");
+    mdlMatrixLoc = glGetUniformLocation(program, "mdlMatrix");
+	normalMatrixLoc = glGetUniformLocation(program, "normalMatrix");
 }
 
 
