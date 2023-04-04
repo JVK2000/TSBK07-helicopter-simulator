@@ -3,7 +3,7 @@
 
 
 Model *helicopter_body, *helicopter_components_1, *helicopter_components_2, *helicopter_blade_1, *helicopter_blade_2;
-bool followCamera = false;
+bool followCamera = true;
 
 void helicopterInit() {
     helicopter_body = LoadModel("assets/helicopter_body.obj");
@@ -16,13 +16,17 @@ void helicopterInit() {
 
 void drawHelicopter(mat4 cameraMatrix, float cameraAngleY) {
 	GLint isHelicopterLoc = glGetUniformLocation(program, "isHelicopter");
-    GLint shadingEnabledLoc = glGetUniformLocation(program, "shadingEnabled");
+    GLint specularEnabledLoc = glGetUniformLocation(program, "specularEnabled");
+    GLint ambientEnabledLoc = glGetUniformLocation(program, "ambientEnabled");
+    GLint diffuseEnabledLoc = glGetUniformLocation(program, "diffuseEnabled");
     GLint textureEnabledLoc = glGetUniformLocation(program, "textureEnabled");
     GLint translationMatrixLoc = glGetUniformLocation(program, "translationMatrix");
     GLint mdlMatrixLoc = glGetUniformLocation(program, "mdlMatrix");
     
     glUniform1i(isHelicopterLoc, true);
-    glUniform1i(shadingEnabledLoc, true);
+    glUniform1i(specularEnabledLoc, true);
+    glUniform1i(ambientEnabledLoc, true);
+    glUniform1i(diffuseEnabledLoc, true);
     glUniform1i(textureEnabledLoc, false);
 
     GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);

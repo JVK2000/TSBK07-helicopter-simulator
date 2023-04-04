@@ -46,7 +46,6 @@ void init(void)
 
 
 void drawOctagon() {
-	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
 	
 	if (octagon_pos.x < 0) {
@@ -92,7 +91,6 @@ void display(void)
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, tex2);	
 
-	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), true);
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
     glUniform3f(glGetUniformLocation(program, "cameraPos"), cameraPosition.x, cameraPosition.y, cameraPosition.z);
 

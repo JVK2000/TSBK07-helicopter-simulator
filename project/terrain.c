@@ -6,6 +6,15 @@ float terrainScale = 25;
 TextureData ttex; // terrain
 
 
+GLint specularEnabledLoc;
+GLint ambientEnabledLoc;
+GLint diffuseEnabledLoc;
+GLint textureEnabledLoc;
+GLint translationMatrixLoc;
+GLint mdlMatrixLoc;
+GLint isSkyLoc;
+
+
 void terrainInit(GLuint *tex1, GLuint *tex2) {
     // Load terrain data
     LoadTGATextureSimple("green_grass.tga", tex1); // update tex1 and tex2 values
@@ -18,6 +27,14 @@ void terrainInit(GLuint *tex1, GLuint *tex2) {
     printError("init terrain");
 
     skybox = LoadModel("labskybox.obj");
+
+	specularEnabledLoc = glGetUniformLocation(program, "specularEnabled");
+	ambientEnabledLoc = glGetUniformLocation(program, "ambientEnabled");
+	diffuseEnabledLoc = glGetUniformLocation(program, "diffuseEnabled");
+	textureEnabledLoc = glGetUniformLocation(program, "textureEnabled");
+	translationMatrixLoc = glGetUniformLocation(program, "translationMatrix");
+	mdlMatrixLoc = glGetUniformLocation(program, "mdlMatrix");
+	isSkyLoc = glGetUniformLocation(program, "isSky");
 }
 
 
@@ -163,10 +180,15 @@ float find_height(float x, float z)
 
 void draw_terrain_section(mat4 cameraMatrix, float x, float z) 
 {
+	glUniform1i(specularEnabledLoc, false);
+    glUniform1i(ambientEnabledLoc, true);
+    glUniform1i(diffuseEnabledLoc, true);
+	glUniform1i(textureEnabledLoc, true);
+
 	mat4 modelView = T(x * (ttex.width - 1), 0, z * (ttex.height - 1));
-	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, modelView.m);
+	glUniformMatrix4fv(translationMatrixLoc, 1, GL_TRUE, modelView.m);
 	mat4 total = Mult(cameraMatrix, modelView);
-	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);	
+	glUniformMatrix4fv(mdlMatrixLoc, 1, GL_TRUE, total.m);
 	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
 }
 
@@ -213,9 +235,12 @@ void drawSkybox(GLuint texUnit, float cameraAngleY, float cameraAngleX)
 {
 	glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
-	glUniform1i(glGetUniformLocation(program, "shadingEnabled"), false);
-	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
-	glUniform1i(glGetUniformLocation(program, "isSky"), true);
+
+	glUniform1i(specularEnabledLoc, false);
+    glUniform1i(ambientEnabledLoc, false);
+    glUniform1i(diffuseEnabledLoc, false);
+	glUniform1i(textureEnabledLoc, true);
+	glUniform1i(isSkyLoc, true);
 
 	mat4 translationMatrixSkybox = Mult(Rx(cameraAngleY), Ry(cameraAngleX));
 	LoadTGATextureSimple("labskybox512.tga", &texUnit);			// Create texture object
@@ -227,6 +252,5 @@ void drawSkybox(GLuint texUnit, float cameraAngleY, float cameraAngleX)
     glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
-	glUniform1i(glGetUniformLocation(program, "isSky"), false);
-
+	glUniform1i(isSkyLoc, false);
 }
