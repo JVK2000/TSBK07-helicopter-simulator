@@ -61,7 +61,7 @@ void main(void)
 			// Ambient light
 			vec3 ambientLight = vec3(0, 0, 0);
 			if (ambientEnabled) {
-				float ambientStrength = 0.4;
+				float ambientStrength = 0.3;
 				ambientLight = ambientStrength * lightSourcesColorArr[i];
 			}
 
