@@ -24,7 +24,6 @@ uniform float specularExponent;
 uniform bool isDirectional[4];
 
 uniform mat4 mdlMatrix;
-uniform mat3 normalMatrix;
 uniform vec3 cameraPos;
 
 

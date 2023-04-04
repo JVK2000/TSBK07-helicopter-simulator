@@ -47,15 +47,12 @@ void drawHelicopter(mat4 cameraMatrix, float cameraAngleY) {
 	trans = Mult(globalTranslation, trans);
 	glUniformMatrix4fv(translationMatrixLoc, 1, GL_TRUE, trans.m);
 
-	mat4 modelViewMatrix = Mult(cameraMatrix, trans);
-	modelViewMatrix = InvertMat4(modelViewMatrix);	// so that the light is rotating in the right direction
-	glUniformMatrix3fv(glGetUniformLocation(program, "normalMatrix"), 1, GL_TRUE, normalMatrix.m);
-	glUniformMatrix4fv(glGetUniformLocation(program, "normalMatrixM4"), 1, GL_TRUE, modelViewMatrix.m);	
+	mat4 modelViewMatrix = InvertMat4(Mult(cameraMatrix, trans)); // Invert for light to rotate in right direction
+	glUniformMatrix4fv(glGetUniformLocation(program, "normalMatrix"), 1, GL_TRUE, modelViewMatrix.m);	
 	glUniformMatrix4fv(mdlMatrixLoc, 1, GL_TRUE, trans.m);	
     DrawModel(helicopter_body, program, "inPosition", "inNormal", "inTexCoord");
     DrawModel(helicopter_components_1, program, "inPosition", "inNormal", "inTexCoord");
     DrawModel(helicopter_components_2, program, "inPosition", "inNormal", "inTexCoord");
-
 
     // Main helicopter blade
 	mat4 blade_trans = IdentityMatrix();
@@ -67,7 +64,6 @@ void drawHelicopter(mat4 cameraMatrix, float cameraAngleY) {
     glUniformMatrix4fv(translationMatrixLoc, 1, GL_TRUE, blade_trans.m);
 	glUniformMatrix4fv(mdlMatrixLoc, 1, GL_TRUE, blade_trans.m);	
     DrawModel(helicopter_blade_1, program, "inPosition", "inNormal", "inTexCoord");
-
 
     // Secondarily helicopter blade
 	blade_trans = IdentityMatrix();
