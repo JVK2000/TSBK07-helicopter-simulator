@@ -59,6 +59,8 @@ void keyboardMovement()
 
 	cameraMatrix = IdentityMatrix();
     cameraMatrix = Mult(cameraMatrix, lookAtv(newCamPos, lookAtPosition, worldUpVector));
+
+    setViewMatrix(cameraMatrix);
 }
 
 

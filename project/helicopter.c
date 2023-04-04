@@ -44,13 +44,18 @@ void drawHelicopter(mat4 cameraMatrix, float cameraAngleY) {
 		globalTranslation = T(10, 10, 10);
 	}
 
-    // Static helicopter parts
 	mat4 trans = IdentityMatrix();
 	trans = Mult(globalScaling, trans);
 	trans = Mult(T(1, 0, 0), trans);
 	trans = Mult(globalRotation, trans);
 	trans = Mult(globalTranslation, trans);
-    glUniformMatrix4fv(translationMatrixLoc, 1, GL_TRUE, trans.m);
+	glUniformMatrix4fv(translationMatrixLoc, 1, GL_TRUE, trans.m);
+
+	mat4 modelViewMatrix = Mult(cameraMatrix, trans);
+	mat3 normalMatrix = InverseTranspose(modelViewMatrix);
+	glUniformMatrix3fv(glGetUniformLocation(program, "normalMatrix"), 1, GL_TRUE, normalMatrix.m);
+
+
 	if (followCamera) {
 		glUniformMatrix4fv(mdlMatrixLoc, 1, GL_TRUE, trans.m);	
 	} else {
@@ -95,3 +100,4 @@ void drawHelicopter(mat4 cameraMatrix, float cameraAngleY) {
     
 	glUniform1i(isHelicopterLoc, false);
 }
+

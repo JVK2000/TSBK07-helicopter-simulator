@@ -24,13 +24,14 @@ uniform float specularExponent;
 uniform bool isDirectional[4];
 
 uniform mat4 mdlMatrix;
+uniform mat3 normalMatrix;
 uniform vec3 cameraPos;
 
 
 void main(void)
 {
 	vec4 color = vec4(0, 0, 0, 1);
-	mat3 camMat = mat3(mdlMatrix);
+	mat3 camMat = normalMatrix;
 	vec3 normal_view = normalize(camMat * transformedNormal);
 	vec4 baseColor = vec4(1, 1, 1, 1);
 
@@ -39,7 +40,7 @@ void main(void)
 	}
 
 	if (diffuseEnabled || ambientEnabled || specularEnabled) {
-		for(int i = 0; i < 4; i++) {
+		for(int i = 3; i < 4; i++) {
 			vec3 lightDirection;
 			if (isDirectional[i]) {
 				// Directional light
@@ -47,7 +48,6 @@ void main(void)
 			} else {
 				// Positional light
 				lightDirection = normalize(camMat *  (lightSourcesDirPosArr[i] - surfacePos));
-				lightDirection = vec3(0, 0, 0);
 			}
 
 			// Diffuse light
