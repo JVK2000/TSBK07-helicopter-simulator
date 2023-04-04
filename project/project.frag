@@ -53,7 +53,8 @@ void main(void)
 			vec3 diffuseLight = vec3(0, 0, 0);
 			if (diffuseEnabled) {
 				float diffuse = max(dot(normal_view, lightDirection), 0.0);
-				diffuseLight = diffuse * lightSourcesColorArr[i] * 0.6;
+				diffuseLight = diffuse * lightSourcesColorArr[i] * 1;
+				// diffuseLight = diffuse * lightSourcesColorArr[i] * 0.6;
 			}
 
 			// Ambient light
