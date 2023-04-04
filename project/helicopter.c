@@ -3,7 +3,7 @@
 
 
 Model *helicopter_body, *helicopter_components_1, *helicopter_components_2, *helicopter_blade_1, *helicopter_blade_2;
-bool followCamera = true;
+bool followCamera = false;
 
 void helicopterInit() {
     helicopter_body = LoadModel("assets/helicopter_body.obj");
@@ -23,7 +23,7 @@ void drawHelicopter(mat4 cameraMatrix, float cameraAngleY) {
     
     glUniform1i(isHelicopterLoc, true);
     glUniform1i(shadingEnabledLoc, true);
-    glUniform1i(textureEnabledLoc, true);
+    glUniform1i(textureEnabledLoc, false);
 
     GLfloat t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
     float rotation_speed_blade1 = 15 * (t / 1000);
@@ -33,7 +33,6 @@ void drawHelicopter(mat4 cameraMatrix, float cameraAngleY) {
 	mat4 globalTranslation;
 	mat4 globalScaling = S(0.1, 0.1, 0.1);
 	if (followCamera) {
-		// globalRotation = Mult(Rx(M_PI/16), Mult(Ry(M_PI), Rz(0)));
 		globalRotation = Mult(Rx(getYAngle() + getXTilt()), Mult(Ry(M_PI), Rz(getZTilt())));
 		globalTranslation = T(0, -10, -50);
 	} else {
