@@ -59,9 +59,7 @@ void drawHelicopterBody(mat4 cameraMatrix) {
 	trans = Mult(globalRotation, trans);
 	trans = Mult(globalTranslation, trans);
 	glUniformMatrix4fv(translationMatrixLoc, 1, GL_TRUE, trans.m);
-	mat4 modelViewMatrix = InvertMat4(Mult(cameraMatrix, trans)); // Invert for light to rotate in right direction
-	// glUniformMatrix3fv(glGetUniformLocation(program, "normalMatrix"), 1, GL_TRUE, modelViewMatrix.m);
-
+	mat4 modelViewMatrix = Mult(InvertMat4(cameraMatrix), trans); // Invert for light to rotate in right direction
 	mat3 normalMatrix = InverseTranspose(modelViewMatrix);
 	glUniformMatrix3fv(glGetUniformLocation(program, "normalMatrixMat3"), 1, GL_TRUE, normalMatrix.m);
 
@@ -87,15 +85,10 @@ void drawHelicopterMainRotor(mat4 cameraMatrix, float rotationMainRotor) {
 	blade_trans = Mult(globalRotation, blade_trans);
 	blade_trans = Mult(globalTranslation, blade_trans);
     glUniformMatrix4fv(translationMatrixLoc, 1, GL_TRUE, blade_trans.m);
-
-	mat4 camMatTemp = InvertMat4(cameraMatrix);
-	mat4 modelViewMatrix = Mult(camMatTemp, blade_trans);
-	// glUniformMatrix4fv(normalMatrixLoc, 1, GL_TRUE, modelViewMatrix.m);	
-
+	mat4 modelViewMatrix = Mult(InvertMat4(cameraMatrix), blade_trans);
 	mat3 normalMatrix = InverseTranspose(modelViewMatrix);
 	glUniformMatrix3fv(glGetUniformLocation(program, "normalMatrixMat3"), 1, GL_TRUE, normalMatrix.m);
 	glUniformMatrix4fv(mdlMatrixLoc, 1, GL_TRUE, blade_trans.m);	
-
 	glUniform4f(helicopterColorLoc, 0.5, 0.5, 0.5, 1);
     DrawModel(helicopter_blade_1, program, "inPosition", "inNormal", "inTexCoord");
 }
@@ -109,13 +102,9 @@ void drawHelicopterTailRotor(mat4 cameraMatrix, float rotationTailRotor) {
 	blade_trans = Mult(globalRotation, blade_trans);
 	blade_trans = Mult(globalTranslation, blade_trans);
     glUniformMatrix4fv(translationMatrixLoc, 1, GL_TRUE, blade_trans.m);
-
-	mat4 modelViewMatrix = InvertMat4(Mult(cameraMatrix, blade_trans));
-	// glUniformMatrix4fv(normalMatrixLoc, 1, GL_TRUE, modelViewMatrix.m);	
-
+	mat4 modelViewMatrix = Mult(InvertMat4(cameraMatrix), blade_trans);
 	mat3 normalMatrix = InverseTranspose(modelViewMatrix);
 	glUniformMatrix3fv(glGetUniformLocation(program, "normalMatrixMat3"), 1, GL_TRUE, normalMatrix.m);
-
 	glUniformMatrix4fv(mdlMatrixLoc, 1, GL_TRUE, blade_trans.m);
     DrawModel(helicopter_blade_2, program, "inPosition", "inNormal", "inTexCoord");
 }
