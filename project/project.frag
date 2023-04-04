@@ -25,6 +25,7 @@ uniform bool isDirectional[4];
 
 uniform mat4 mdlMatrix;
 uniform vec3 cameraPos;
+uniform vec4 helicopterColor;
 
 
 void main(void)
@@ -35,7 +36,8 @@ void main(void)
 	vec4 baseColor = vec4(1, 1, 1, 1);
 
 	if (isHelicopter) {
-		baseColor = vec4(0.325, 0.325, 0.325, 1);
+		baseColor = helicopterColor;
+		// baseColor = vec4(0.325, 0.325, 0.325, 1);
 	}
 
 	if (diffuseEnabled || ambientEnabled || specularLightEnabled) {
@@ -53,21 +55,21 @@ void main(void)
 			vec3 diffuseLight = vec3(0, 0, 0);
 			if (diffuseEnabled) {
 				float diffuse = max(dot(normal_view, lightDirection), 0.0);
-				// diffuseLight = diffuse * lightSourcesColorArr[i] * 1;
 				diffuseLight = diffuse * lightSourcesColorArr[i] * 0.6;
 			}
 
 			// Ambient light
 			vec3 ambientLight = vec3(0, 0, 0);
 			if (ambientEnabled) {
-				float ambientStrength = 0.2;
+				float ambientStrength = 0.4;
 				ambientLight = ambientStrength * lightSourcesColorArr[i];
 			}
 
 			// Specular light
 			vec3 specularLight = vec3(0, 0, 0);
+			vec3 viewDir;
 			if (specularLightEnabled) {
-				vec3 viewDir = normalize(camMat * (cameraPos - surfacePos));
+				viewDir = normalize(camMat * (cameraPos - surfacePos));
 				vec3 reflectDir = reflect(-lightDirection, normalize(normal_view));
 				float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
 				specularLight = 0.8 * spec * lightSourcesColorArr[i];

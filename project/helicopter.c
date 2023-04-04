@@ -5,6 +5,7 @@
 
 Model *helicopter_body, *helicopter_components_1, *helicopter_components_2, *helicopter_blade_1, *helicopter_blade_2;
 GLint isHelicopterLoc;
+GLint helicopterColorLoc;
 GLfloat t;
 mat4 globalRotation;
 mat4 globalTranslation;
@@ -18,25 +19,32 @@ void helicopterInit() {
     helicopter_blade_1 = LoadModel("assets/helicopter_blade_1.obj");
     helicopter_blade_2 = LoadModel("assets/helicopter_blade_2.obj");
 	isHelicopterLoc = glGetUniformLocation(program, "isHelicopter");
+	helicopterColorLoc = glGetUniformLocation(program, "helicopterColor");
 }
 
 
 void drawHelicopter(mat4 cameraMatrix, float cameraAngleY) {
     glUniform1i(isHelicopterLoc, true);
-    glUniform1i(specularLightEnabledLoc, true);
-    glUniform1i(ambientLightEnabledLoc, true); 
-    glUniform1i(diffuseLightEnabledLoc, true);
     glUniform1i(textureEnabledLoc, false);
 
     t = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
-    float rotationMainRotor = 15 * (t / 1000);
-    float rotationTailRotor = 5 * (t / 1000);
+    float rotationMainRotor = (t / 1000);
+    float rotationTailRotor = (t / 1000);
+    // float rotationMainRotor = 25 * (t / 1000);
+    // float rotationTailRotor = 15 * (t / 1000);
 
 	globalScaling = S(0.1, 0.1, 0.1);
 	globalRotation = Mult(Rx(getYAngle() + getXTilt()), Mult(Ry(M_PI), Rz(getZTilt())));
 	globalTranslation = T(0, -10, -50);
 
+    glUniform1i(specularLightEnabledLoc, false);
+    glUniform1i(ambientLightEnabledLoc, true); 
+    glUniform1i(diffuseLightEnabledLoc, true);
 	drawHelicopterBody(cameraMatrix);
+
+	glUniform1i(specularLightEnabledLoc, false);
+    glUniform1i(ambientLightEnabledLoc, true); 
+    glUniform1i(diffuseLightEnabledLoc, true);
 	drawHelicopterMainRotor(cameraMatrix, rotationMainRotor);
 	drawHelicopterTailRotor(cameraMatrix, rotationTailRotor);
 
@@ -59,8 +67,14 @@ void drawHelicopterBody(mat4 cameraMatrix) {
 
 	glUniformMatrix4fv(normalMatrixLoc, 1, GL_TRUE, modelViewMatrix.m);	
 	glUniformMatrix4fv(mdlMatrixLoc, 1, GL_TRUE, trans.m);	
+
+	glUniform4f(helicopterColorLoc, 0.325, 0.325, 0.325, 1);
     DrawModel(helicopter_body, program, "inPosition", "inNormal", "inTexCoord");
+
+	glUniform4f(helicopterColorLoc, 0.753, 0.753, 0.753, 1);
     DrawModel(helicopter_components_1, program, "inPosition", "inNormal", "inTexCoord");
+
+	glUniform4f(helicopterColorLoc, 0.2, 0.2, 0.2, 1);
     DrawModel(helicopter_components_2, program, "inPosition", "inNormal", "inTexCoord");
 }
 
@@ -74,13 +88,15 @@ void drawHelicopterMainRotor(mat4 cameraMatrix, float rotationMainRotor) {
 	blade_trans = Mult(globalTranslation, blade_trans);
     glUniformMatrix4fv(translationMatrixLoc, 1, GL_TRUE, blade_trans.m);
 
-	mat4 modelViewMatrix = InvertMat4(Mult(cameraMatrix, blade_trans));
+	mat4 camMatTemp = InvertMat4(cameraMatrix);
+	mat4 modelViewMatrix = Mult(camMatTemp, blade_trans);
 	// glUniformMatrix4fv(normalMatrixLoc, 1, GL_TRUE, modelViewMatrix.m);	
 
 	mat3 normalMatrix = InverseTranspose(modelViewMatrix);
 	glUniformMatrix3fv(glGetUniformLocation(program, "normalMatrixMat3"), 1, GL_TRUE, normalMatrix.m);
-
 	glUniformMatrix4fv(mdlMatrixLoc, 1, GL_TRUE, blade_trans.m);	
+
+	glUniform4f(helicopterColorLoc, 0.5, 0.5, 0.5, 1);
     DrawModel(helicopter_blade_1, program, "inPosition", "inNormal", "inTexCoord");
 }
 
