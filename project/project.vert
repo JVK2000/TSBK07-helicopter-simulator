@@ -15,12 +15,22 @@ uniform mat4 mdlMatrix;
 uniform mat4 combinedMatrix;
 uniform mat4 cameraMatrixInverse;
 uniform mat3 normalMatrix;
+uniform mat4 normalMatrixM4;
 
+uniform bool isHelicopter;
 
 void main(void)
 {
-	transformedNormal = normalMatrix * inNormal;
+	if (isHelicopter) {
+		// transformedNormal = mat3(normalMatrixM4) * inNormal;
+		// surfacePos = vec3(normalMatrixM4 * vec4(inPosition, 1.0));
+		transformedNormal = normalMatrix * inNormal;
+		surfacePos = normalMatrix * inPosition;
+	} else {
+		transformedNormal = mat3(translationMatrix) * inNormal;
+		surfacePos = vec3(translationMatrix * vec4(inPosition, 1.0));
+	}
+
 	gl_Position = projMatrix  * mdlMatrix * vec4(inPosition, 1.0);
-	surfacePos = vec3(mdlMatrix * vec4(inPosition, 1.0));
 	texCoord = inTexCoord;
 }

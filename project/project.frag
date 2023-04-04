@@ -31,7 +31,7 @@ uniform vec3 cameraPos;
 void main(void)
 {
 	vec4 color = vec4(0, 0, 0, 1);
-	mat3 camMat = normalMatrix;
+	mat3 camMat = mat3(mdlMatrix);
 	vec3 normal_view = normalize(camMat * transformedNormal);
 	vec4 baseColor = vec4(1, 1, 1, 1);
 
