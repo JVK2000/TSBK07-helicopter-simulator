@@ -48,8 +48,7 @@ void drawHelicopter(mat4 cameraMatrix, float cameraAngleY) {
 	glUniformMatrix4fv(translationMatrixLoc, 1, GL_TRUE, trans.m);
 
 	mat4 modelViewMatrix = Mult(cameraMatrix, trans);
-	modelViewMatrix = InvertMat4(modelViewMatrix);
-	mat3 normalMatrix = InverseTranspose(modelViewMatrix);
+	modelViewMatrix = InvertMat4(modelViewMatrix);	// so that the light is rotating in the right direction
 	glUniformMatrix3fv(glGetUniformLocation(program, "normalMatrix"), 1, GL_TRUE, normalMatrix.m);
 	glUniformMatrix4fv(glGetUniformLocation(program, "normalMatrixM4"), 1, GL_TRUE, modelViewMatrix.m);	
 	glUniformMatrix4fv(mdlMatrixLoc, 1, GL_TRUE, trans.m);	
