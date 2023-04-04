@@ -153,8 +153,6 @@ void manageVelocity()
         vel_y *= FRICTION;
     }
 
-
-
     // Limit the maximum velocity
     float currentVelocity = fabs(vel_x) + fabs(vel_z);
     if (currentVelocity > MAX_VELOCITY_HORIZONTAL) {
@@ -170,7 +168,6 @@ void manageVelocity()
         vel_y = -MAX_VELOCITY_VERTICAL;
     } 
 
-    printf("\n vel %f", vel_x);
     updateTilt(vel_x, vel_y, vel_z);
 
     cameraPosition.x += vel_x; 
@@ -181,12 +178,14 @@ void manageVelocity()
 	lookAtPosition.y += vel_y;  
 }
 
+
 void updateTilt(float vel_x, float vel_y, float vel_z) {
-    float tiltZ = vel_x / 10;
-    float tiltX = vel_z / 10;
+    float tiltZ = cos(cameraAngleX) * (vel_x / 10) + sin(cameraAngleX) * (vel_z / 10);
+    float tiltX = cos(cameraAngleX) * (vel_z / 10) - sin(cameraAngleX) * (vel_x / 10);
     setZTilt(tiltZ);
     setXTilt(tiltX);
 }
+
 
 void moveRight(float *vel_x, float *vel_z, float fraction) 
 {    
@@ -194,11 +193,13 @@ void moveRight(float *vel_x, float *vel_z, float fraction)
     *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
 }
 
+
 void moveLeft(float *vel_x, float *vel_z, float fraction) 
 {
     *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
     *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
 }
+
 
 void moveForward(float *vel_x, float *vel_z, float fraction) 
 {
@@ -206,11 +207,13 @@ void moveForward(float *vel_x, float *vel_z, float fraction)
     *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
 }
 
+
 void moveBackward(float *vel_x, float *vel_z, float fraction) 
 {
     *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
     *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
 }
+
 
 void printMatrix(float matrix[4][4]) {
     for (int row = 0; row < 4; ++row) {
