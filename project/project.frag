@@ -67,16 +67,14 @@ void main(void)
 
 			// Specular light
 			vec3 specularLight = vec3(0, 0, 0);
-			vec3 viewDir;
 			if (specularLightEnabled) {
-				viewDir = normalize(camMat * (cameraPos - surfacePos));
+				vec3 viewDir = normalize(camMat * (cameraPos - surfacePos));
 				vec3 reflectDir = reflect(-lightDirection, normalize(normal_view));
 				float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
 				specularLight = 0.8 * spec * lightSourcesColorArr[i];
 			}
 
-			vec4 temp_color = baseColor;
-			temp_color = vec4(temp_color.rgb * (ambientLight + diffuseLight) + specularLight, 1);
+			vec4 temp_color = vec4(baseColor.rgb * (ambientLight + diffuseLight) + specularLight, 1);
 			color = color + temp_color;
 		}
 	}

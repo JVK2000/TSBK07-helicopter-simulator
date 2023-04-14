@@ -2,9 +2,10 @@
 #include "helicopter_controller_shared.h"
 
 
-const float ANGULAR_ACCELERATION_HORIZONTAL = 0.005f;
+const float ANGULAR_ACCELERATION_HORIZONTAL = 0.0015f;
 const float ANGULAR_ACCELERATION_VERTICAL = 0.0025f;
-const float ANGULAR_FRICTION = 0.8f;
+const float ANGULAR_FRICTION_HORIZONTAL = 0.90f;
+const float ANGULAR_FRICTION_VERTICAL = 0.6f;
 
 const float ACCELERATION_HORIZONTAL = 0.1f;
 const float ACCELERATION_VERTICAL = 0.02f;
@@ -15,6 +16,7 @@ const float MAX_VELOCITY_VERTICAL = 1.0f;
 const float VELOCITY_AMPLIFIER = 2.0f;
 const float CAMERA_Y_ANGLE_BOUNDARY = (M_PI/2.0) * 0.99 ;
 const float START_CAMERA_Y_ANGLE = M_PI/16;
+const float START_CAMERA_x_ANGLE = M_PI;
 
 bool first_iteration = true;
 float init_x = 0;
@@ -32,9 +34,9 @@ mat4 cameraMatrix;
 void controllerInit()
 {
     cameraAngleY = START_CAMERA_Y_ANGLE;
-    cameraAngleX = 0;
-    cameraPosition = (vec3){0, 0, 45};
-    lookAtPosition = (vec3){0, 0, 0};
+    cameraAngleX = START_CAMERA_x_ANGLE;
+    cameraPosition = (vec3){0, 20, 45};
+    lookAtPosition = (vec3){0, 20, 0};
     worldUpVector = (vec3){0, 1, 0};
 }
 
@@ -89,10 +91,10 @@ void manageAngle()
 
     // Apply angular friction
     if (!rotateUp && !rotateDown) {
-        angular_vel_z *= ANGULAR_FRICTION;
+        angular_vel_z *= ANGULAR_FRICTION_VERTICAL;
     }
     if (!rotateLeft && !rotateRight) {
-        angular_vel_x *= ANGULAR_FRICTION;
+        angular_vel_x *= ANGULAR_FRICTION_HORIZONTAL;
     }
 
     // Update camera angles
