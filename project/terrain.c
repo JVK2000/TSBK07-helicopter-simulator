@@ -8,20 +8,18 @@ Model *skybox;
 float terrainScale = 25;
 TextureData ttex; // terrain
 GLint isSkyLoc;
-Model *tm[4];
+Model *tm[9];
 
 typedef struct {
     int x_offset;
     int z_offset;
     Model *model;
+	int key; // added member
     UT_hash_handle hh; // required for uthash
 } TerrainSection;
 
 TerrainSection *terrain_cache = NULL;
 
-
-int terrain_array[4][2] = {{0, 0}, {-1, 0}, {0, -1}, {-1, -1}};
-int terrain_array_size = sizeof(terrain_array) / sizeof(TerrainSection);
 
 void terrainInit(GLuint *tex1, GLuint *tex2) {
     // Load terrain data
@@ -35,16 +33,13 @@ void terrainInit(GLuint *tex1, GLuint *tex2) {
 	ttex.width = 256;
 	ttex.height = 256;
 
-	tm[0] = GenerateTerrain(&ttex, 0, 0);
-	tm[1] = GenerateTerrain(&ttex, -1, 0);
-	tm[2] = GenerateTerrain(&ttex, 0, -1);
-	tm[3] = GenerateTerrain(&ttex, -1, -1);
 
     printError("init terrain");
 
     skybox = LoadModel("labskybox.obj");
 	isSkyLoc = glGetUniformLocation(program, "isSky");
 }
+
 
 
 float wrappedNoise2D(float x, float x_offset, float z, float z_offset, int terrainScale, TextureData *tex) {
@@ -158,41 +153,7 @@ Model* GenerateTerrain(TextureData *tex, int x_offset, int z_offset)
 
 float find_height(float x, float z)
 {
-	int x_floor = (int) x;
-	int z_floor = (int) z;
-	int width = ttex.width;
-
-	// unique vertex (depending on which triangle the point is in)
-	float xz_diff = (x - x_floor) + (z - z_floor); 	
-	float x1, y1, z1;
-	if (xz_diff < 1.0) {
-		int idx = x_floor + z_floor * width;
-		x1 = (*tm)->vertexArray[idx].x;
-		y1 = (*tm)->vertexArray[idx].y;
-		z1 = (*tm)->vertexArray[idx].z;
-	} else {
-		int idx = (x_floor + 1) + (z_floor + 1) * width;
-		x1 = (*tm)->vertexArray[idx].x;
-		y1 = (*tm)->vertexArray[idx].y;
-		z1 = (*tm)->vertexArray[idx].z;
-	}
-	vec3 vertex1 = {x1, y1, z1};
-
-	// shared vertex
-	float x2 = (*tm)->vertexArray[(x_floor + 1) + z_floor * width].x;
-	float y2 = (*tm)->vertexArray[(x_floor + 1) + z_floor * width].y;
-	float z2 = (*tm)->vertexArray[(x_floor + 1) + z_floor * width].z;
-	vec3 vertex2 = {x2, y2, z2};
-
-	float x3 = (*tm)->vertexArray[x_floor + (z_floor + 1) * width].x;
-	float y3 = (*tm)->vertexArray[x_floor + (z_floor + 1) * width].y;
-	float z3 = (*tm)->vertexArray[x_floor + (z_floor + 1) * width].z;
-	vec3 vertex3 = {x3, y3, z3};
-	vec3 normal = CalcNormalVector(vertex1, vertex2, vertex3);
-
-	float neg_d = normal.x * vertex1.x + normal.y * vertex1.y + normal.z * vertex1.z;
-	float y = (neg_d - normal.x * x - normal.z * z) / normal.y;
-	return y;
+	return 0.0;
 }
 
 
@@ -213,15 +174,18 @@ void draw_terrain_section(mat4 cameraMatrix, Model *terrainModel, float x, float
 
 Model *find_or_generate_terrain(int x_offset, int z_offset) {
     TerrainSection *section;
+    int key = x_offset * 100 + z_offset;
+    int *pkey = &key;
 
-    HASH_FIND_INT(terrain_cache, &x_offset, section);
+    HASH_FIND_INT(terrain_cache, pkey, section);
 
     if (section == NULL) {
         section = (TerrainSection *)malloc(sizeof(TerrainSection));
         section->x_offset = x_offset;
         section->z_offset = z_offset;
         section->model = GenerateTerrain(&ttex, x_offset, z_offset);
-        HASH_ADD_INT(terrain_cache, x_offset, section);
+        section->key = key; // set the key member
+        HASH_ADD_INT(terrain_cache, key, section);
     }
 
     return section->model;
@@ -230,37 +194,17 @@ Model *find_or_generate_terrain(int x_offset, int z_offset) {
 
 void draw_terrain(mat4 cameraMatrix, vec3 p)
 {   
-	float x_trunc = trunc(p.x/ttex.width);				// trunc(): 0.6 => 0.0, 1.4 => 1.0
-	float x_round = round(p.x/ttex.width) - x_trunc;	// round(): 0.4 => 0.0, 0.6 => 1.0
-	float z_trunc = trunc(p.z/ttex.height);
-	float z_round = round(p.z/ttex.height) - z_trunc;
+    int x_trunc = (int)trunc(p.x / (ttex.width - 1));
+    int z_trunc = (int)trunc(p.z / (ttex.height - 1));
 
-	float x_offset = x_trunc + 1;
-	float z_offset = z_trunc + 1;
-	if (0.0 <= x_round && x_round < 0.5) {
-		x_offset = x_trunc - 1;
-	} 
-	else if (x_round < 0.0) {
-		x_trunc -= 1;
-		x_offset = x_trunc + (x_round);
-	}
-
-	if (0.0 <= z_round && z_round < 0.5) {
-		z_offset = z_trunc - 1;
-	} 
-	else if (z_round < 0.0) {
-		z_trunc -= 1;
-		z_offset = z_trunc + (z_round);
-	}
-	
     for (int x_offset = x_trunc - 1; x_offset <= x_trunc + 1; x_offset++) {
         for (int z_offset = z_trunc - 1; z_offset <= z_trunc + 1; z_offset++) {
             Model *terrainModel = find_or_generate_terrain(x_offset, z_offset);
             draw_terrain_section(cameraMatrix, terrainModel, x_offset, z_offset);
         }
     }
-
 }
+
 
 
 float texture_data_height()  
