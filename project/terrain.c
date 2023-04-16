@@ -1,4 +1,5 @@
 #include "terrain.h"
+#include "noise_wrapper.h"
 
 
 Model *tm, *skybox;
@@ -19,10 +20,8 @@ void terrainInit(GLuint *tex1, GLuint *tex2) {
     printError("init terrain");
 
     skybox = LoadModel("labskybox.obj");
-
 	isSkyLoc = glGetUniformLocation(program, "isSky");
 }
-
 
 Model* GenerateTerrain(TextureData *tex)
 {
@@ -37,28 +36,35 @@ Model* GenerateTerrain(TextureData *tex)
 	
 	printf("bpp %d\n", tex->bpp);
 	for (x = 0; x < tex->width; x++)
-		for (z = 0; z < tex->height; z++)
+		for (z = 0; z < tex->height; z++) 
 		{
 			// Vertex array. You need to scale this properly
 			vertexArray[(x + z * tex->width)].x = x / 1.0;
-			vertexArray[(x + z * tex->width)].y = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / terrainScale;
+			// vertexArray[(x + z * tex->width)].y = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / terrainScale;
+			
+			// Use the noise2D function to generate the height value
+			float noise_value = (noise2D(x, z) / terrainScale) * 1000;
+			float old_value = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / terrainScale;
+			vertexArray[(x + z * tex->width)].y = noise_value;
+			printf("\nnoise: %f", noise_value );
+			
 			vertexArray[(x + z * tex->width)].z = z / 1.0;
 
 			// Normal vectors. You need to calculate these.
 			if (x != 0 && x != (tex->width - 1) && z != 0 && z != (tex->height - 1)) 
 			{
-				float L = tex->imageData[((x - 1) + z * tex->width) * (tex->bpp/8)] / terrainScale;
-				float R = tex->imageData[((x + 1) + z * tex->width) * (tex->bpp/8)] / terrainScale;
-				float B = tex->imageData[(x + (z - 1) * tex->width) * (tex->bpp/8)] / terrainScale;
-				float T = tex->imageData[(x + (z + 1) * tex->width) * (tex->bpp/8)] / terrainScale;
-				vec3 map_vec = {2*(R-L), 1, 2*(B-T)};	// y värdet påverkar hur känslig normalen är?? små färden ger tydligare skillnad
-				vec3 map_normal = normalize(map_vec);
-				if (map_normal.y < 0) {
-					map_normal = ScalarMult(map_normal , -1);
-				}
-				normalArray[(x + z * tex->width)].x = map_normal.x;
-				normalArray[(x + z * tex->width)].y = map_normal.y;
-				normalArray[(x + z * tex->width)].z = map_normal.z;
+                float L = noise2D(x - 1, z) * 1000 / terrainScale;
+                float R = noise2D(x + 1, z) * 1000 / terrainScale;
+                float B = noise2D(x, z - 1) * 1000 / terrainScale;
+                float T = noise2D(x, z + 1) * 1000 / terrainScale;
+                vec3 map_vec = {2*(R-L), 1, 2*(B-T)};
+                vec3 map_normal = normalize(map_vec);
+                if (map_normal.y < 0) {
+                    map_normal = ScalarMult(map_normal , -1);
+                }
+                normalArray[(x + z * tex->width)].x = map_normal.x;
+                normalArray[(x + z * tex->width)].y = map_normal.y;
+                normalArray[(x + z * tex->width)].z = map_normal.z;
 			}
 
 			// Texture coordinates. You may want to scale them.
@@ -171,7 +177,7 @@ void draw_terrain_section(mat4 cameraMatrix, float x, float z)
     glUniform1i(diffuseLightEnabledLoc, true);
 	glUniform1i(textureEnabledLoc, true);
 
-	mat4 modelView = T(x * (ttex.width - 1), 0, z * (ttex.height - 1));
+	mat4 modelView = T(x * (ttex.width - 1), 0, z * (ttex.height - 1));	// hör jag måste fixa för stt ljust ska ha rätt normal på mark???
 	glUniformMatrix4fv(translationMatrixLoc, 1, GL_TRUE, modelView.m);
 	mat4 total = Mult(cameraMatrix, modelView);
 	glUniformMatrix4fv(mdlMatrixLoc, 1, GL_TRUE, total.m);
@@ -239,4 +245,4 @@ void drawSkybox(GLuint texUnit, float cameraAngleY, float cameraAngleX)
 	glEnable(GL_DEPTH_TEST);
 
 	glUniform1i(isSkyLoc, false);
-}
+} 
