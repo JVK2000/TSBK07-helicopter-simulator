@@ -2,10 +2,12 @@
 #include "noise_wrapper.h"
 
 
-Model *tm, *skybox;
+// Model *tm, *skybox;
+Model *skybox;
 float terrainScale = 25;
 TextureData ttex; // terrain
 GLint isSkyLoc;
+Model *tm[4];
 
 
 void terrainInit(GLuint *tex1, GLuint *tex2) {
@@ -15,15 +17,33 @@ void terrainInit(GLuint *tex1, GLuint *tex2) {
     glUniform1i(glGetUniformLocation(program, "tex"), 0); // Texture unit 0
     glUniform1i(glGetUniformLocation(program, "tex2"), 1); // Texture unit 1
 
-    LoadTGATextureData("fft-terrain.tga", &ttex);
-    tm = GenerateTerrain(&ttex);
+    // LoadTGATextureData("fft-terrain.tga", &ttex);
+    // tm = GenerateTerrain(&ttex);
+	LoadTGATextureData("fft-terrain.tga", &ttex); // Uncomment this line
+
+
+	tm[0] = GenerateTerrain(&ttex, 0, 0);
+	tm[1] = GenerateTerrain(&ttex, 1, 0);
+	tm[2] = GenerateTerrain(&ttex, 0, 1);
+	tm[3] = GenerateTerrain(&ttex, 1, 1);
+
     printError("init terrain");
 
     skybox = LoadModel("labskybox.obj");
 	isSkyLoc = glGetUniformLocation(program, "isSky");
 }
 
-Model* GenerateTerrain(TextureData *tex)
+
+float wrappedNoise2D(float x, float z, int terrainSize) {
+    float fx = fmod(x, (float)terrainSize) / terrainSize;
+    float fz = fmod(z, (float)terrainSize) / terrainSize;
+
+    float noise_val = noise2D(fx * terrainSize, fz * terrainSize);
+    return noise_val;
+}
+
+
+Model* GenerateTerrain(TextureData *tex, int x_offset, int z_offset)
 {
 	int vertexCount = tex->width * tex->height;
 	int triangleCount = (tex->width-1) * (tex->height-1) * 2;
@@ -43,8 +63,13 @@ Model* GenerateTerrain(TextureData *tex)
 			// vertexArray[(x + z * tex->width)].y = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / terrainScale;
 			
 			// Use the noise2D function to generate the height value
-			float noise_value = (noise2D(x, z) / terrainScale) * 1000;
-			float old_value = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / terrainScale;
+			// float noise_value = (noise2D(x, z) / terrainScale) * 1000;
+			// float old_value = tex->imageData[(x + z * tex->width) * (tex->bpp/8)] / terrainScale;
+			
+			// float noise_value = (wrappedNoise2D(x, z, tex->width) / terrainScale) * 1000;
+
+			float noise_value = (noise2D(x + x_offset * (tex->width - 1), z + z_offset * (tex->height - 1)) / terrainScale) * 1000;
+			
 			vertexArray[(x + z * tex->width)].y = noise_value;
 			printf("\nnoise: %f", noise_value );
 			
@@ -141,26 +166,26 @@ float find_height(float x, float z)
 	float x1, y1, z1;
 	if (xz_diff < 1.0) {
 		int idx = x_floor + z_floor * width;
-		x1 = tm->vertexArray[idx].x;
-		y1 = tm->vertexArray[idx].y;
-		z1 = tm->vertexArray[idx].z;
+		x1 = (*tm)->vertexArray[idx].x;
+		y1 = (*tm)->vertexArray[idx].y;
+		z1 = (*tm)->vertexArray[idx].z;
 	} else {
 		int idx = (x_floor + 1) + (z_floor + 1) * width;
-		x1 = tm->vertexArray[idx].x;
-		y1 = tm->vertexArray[idx].y;
-		z1 = tm->vertexArray[idx].z;
+		x1 = (*tm)->vertexArray[idx].x;
+		y1 = (*tm)->vertexArray[idx].y;
+		z1 = (*tm)->vertexArray[idx].z;
 	}
 	vec3 vertex1 = {x1, y1, z1};
 
 	// shared vertex
-	float x2 = tm->vertexArray[(x_floor + 1) + z_floor * width].x;
-	float y2 = tm->vertexArray[(x_floor + 1) + z_floor * width].y;
-	float z2 = tm->vertexArray[(x_floor + 1) + z_floor * width].z;
+	float x2 = (*tm)->vertexArray[(x_floor + 1) + z_floor * width].x;
+	float y2 = (*tm)->vertexArray[(x_floor + 1) + z_floor * width].y;
+	float z2 = (*tm)->vertexArray[(x_floor + 1) + z_floor * width].z;
 	vec3 vertex2 = {x2, y2, z2};
 
-	float x3 = tm->vertexArray[x_floor + (z_floor + 1) * width].x;
-	float y3 = tm->vertexArray[x_floor + (z_floor + 1) * width].y;
-	float z3 = tm->vertexArray[x_floor + (z_floor + 1) * width].z;
+	float x3 = (*tm)->vertexArray[x_floor + (z_floor + 1) * width].x;
+	float y3 = (*tm)->vertexArray[x_floor + (z_floor + 1) * width].y;
+	float z3 = (*tm)->vertexArray[x_floor + (z_floor + 1) * width].z;
 	vec3 vertex3 = {x3, y3, z3};
 	vec3 normal = CalcNormalVector(vertex1, vertex2, vertex3);
 
@@ -170,54 +195,35 @@ float find_height(float x, float z)
 }
 
 
-void draw_terrain_section(mat4 cameraMatrix, float x, float z) 
+void draw_terrain_section(mat4 cameraMatrix, Model *terrainModel, float x, float z) 
 {
-	glUniform1i(specularLightEnabledLoc, false);
+    glUniform1i(specularLightEnabledLoc, false);
     glUniform1i(ambientLightEnabledLoc, true);
     glUniform1i(diffuseLightEnabledLoc, true);
-	glUniform1i(textureEnabledLoc, true);
+    glUniform1i(textureEnabledLoc, true);
 
-	mat4 modelView = T(x * (ttex.width - 1), 0, z * (ttex.height - 1));	// hör jag måste fixa för stt ljust ska ha rätt normal på mark???
-	glUniformMatrix4fv(translationMatrixLoc, 1, GL_TRUE, modelView.m);
-	mat4 total = Mult(cameraMatrix, modelView);
-	glUniformMatrix4fv(mdlMatrixLoc, 1, GL_TRUE, total.m);
-	DrawModel(tm, program, "inPosition", "inNormal", "inTexCoord");
+    mat4 modelView = T(x * (ttex.width - 1), 0, z * (ttex.height - 1));
+    glUniformMatrix4fv(translationMatrixLoc, 1, GL_TRUE, modelView.m);
+    mat4 total = Mult(cameraMatrix, modelView);
+    glUniformMatrix4fv(mdlMatrixLoc, 1, GL_TRUE, total.m);
+    DrawModel(terrainModel, program, "inPosition", "inNormal", "inTexCoord");
 }
+
 
 
 void draw_terrain(mat4 cameraMatrix, vec3 p)
-{ 
-	float x_trunc = trunc(p.x/ttex.width);				// trunc(): 0.6 => 0.0, 1.4 => 1.0
-	float x_round = round(p.x/ttex.width) - x_trunc;	// round(): 0.4 => 0.0, 0.6 => 1.0
-	float z_trunc = trunc(p.z/ttex.height);
-	float z_round = round(p.z/ttex.height) - z_trunc;
-
-	float x_offset = x_trunc + 1;
-	float z_offset = z_trunc + 1;
-	if (0.0 <= x_round && x_round < 0.5) {
-		x_offset = x_trunc - 1;
-	} 
-	else if (x_round < 0.0) {
-		x_trunc -= 1;
-		x_offset = x_trunc + (x_round);
-	}
-
-	if (0.0 <= z_round && z_round < 0.5) {
-		z_offset = z_trunc - 1;
-	} 
-	else if (z_round < 0.0) {
-		z_trunc -= 1;
-		z_offset = z_trunc + (z_round);
-	}
-	
-	draw_terrain_section(cameraMatrix, x_trunc, z_trunc);
-	draw_terrain_section(cameraMatrix, x_trunc, z_offset);
-	draw_terrain_section(cameraMatrix, x_offset, z_trunc);
-	draw_terrain_section(cameraMatrix, x_offset, z_offset);
+{   
+    draw_terrain_section(cameraMatrix, tm[0], 0, 0);
+    draw_terrain_section(cameraMatrix, tm[1], 1, 0);
+    draw_terrain_section(cameraMatrix, tm[2], 0, 1);
+    draw_terrain_section(cameraMatrix, tm[3], 1, 1);
 }
 
 
-float texture_data_height() 
+
+
+
+float texture_data_height()  
 {
     return ttex.height;
 }
