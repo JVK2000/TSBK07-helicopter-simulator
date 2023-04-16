@@ -28,18 +28,13 @@ void terrainInit(GLuint *tex1, GLuint *tex2) {
     glUniform1i(glGetUniformLocation(program, "tex"), 0); // Texture unit 0
     glUniform1i(glGetUniformLocation(program, "tex2"), 1); // Texture unit 1
 
-    // LoadTGATextureData("fft-terrain.tga", &ttex);
-
 	ttex.width = 256;
 	ttex.height = 256;
-
-
     printError("init terrain");
 
     skybox = LoadModel("labskybox.obj");
 	isSkyLoc = glGetUniformLocation(program, "isSky");
 }
-
 
 
 float wrappedNoise2D(float x, float x_offset, float z, float z_offset, int terrainScale, TextureData *tex) {
@@ -64,11 +59,7 @@ Model* GenerateTerrain(TextureData *tex, int x_offset, int z_offset)
 		{
 			// Vertex array. You need to scale this properly
 			vertexArray[(x + z * tex->width)].x = x / 1.0;
-
-			// float noise_value = (noise2D(x + x_offset * (tex->width - 1), z + z_offset * (tex->height - 1)) / terrainScale) * 1000;
-			float noise_value = wrappedNoise2D(x, x_offset, z, z_offset, terrainScale, tex);
-			vertexArray[(x + z * tex->width)].y = noise_value;
-			
+			vertexArray[(x + z * tex->width)].y = wrappedNoise2D(x, x_offset, z, z_offset, terrainScale, tex);
 			vertexArray[(x + z * tex->width)].z = z / 1.0;
 
 			// Normal vectors. You need to calculate these.
@@ -137,7 +128,6 @@ Model* GenerateTerrain(TextureData *tex, int x_offset, int z_offset)
 	// End of terrain generation
 	
 	// Create Model and upload to GPU:
-	
 	Model* model = LoadDataToModel(
 			vertexArray,
 			normalArray,
@@ -204,7 +194,6 @@ void draw_terrain(mat4 cameraMatrix, vec3 p)
         }
     }
 }
-
 
 
 float texture_data_height()  
