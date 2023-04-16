@@ -1,6 +1,7 @@
 #include "terrain.h"
 #include "noise_wrapper.h"
 
+#include "uthash.h"
 
 // Model *tm, *skybox;
 Model *skybox;
@@ -9,6 +10,18 @@ TextureData ttex; // terrain
 GLint isSkyLoc;
 Model *tm[4];
 
+typedef struct {
+    int x_offset;
+    int z_offset;
+    Model *model;
+    UT_hash_handle hh; // required for uthash
+} TerrainSection;
+
+TerrainSection *terrain_cache = NULL;
+
+
+int terrain_array[4][2] = {{0, 0}, {-1, 0}, {0, -1}, {-1, -1}};
+int terrain_array_size = sizeof(terrain_array) / sizeof(TerrainSection);
 
 void terrainInit(GLuint *tex1, GLuint *tex2) {
     // Load terrain data
@@ -18,14 +31,14 @@ void terrainInit(GLuint *tex1, GLuint *tex2) {
     glUniform1i(glGetUniformLocation(program, "tex2"), 1); // Texture unit 1
 
     // LoadTGATextureData("fft-terrain.tga", &ttex);
-    // tm = GenerateTerrain(&ttex);
-	LoadTGATextureData("fft-terrain.tga", &ttex); // Uncomment this line
 
+	ttex.width = 256;
+	ttex.height = 256;
 
 	tm[0] = GenerateTerrain(&ttex, 0, 0);
-	tm[1] = GenerateTerrain(&ttex, 1, 0);
-	tm[2] = GenerateTerrain(&ttex, 0, 1);
-	tm[3] = GenerateTerrain(&ttex, 1, 1);
+	tm[1] = GenerateTerrain(&ttex, -1, 0);
+	tm[2] = GenerateTerrain(&ttex, 0, -1);
+	tm[3] = GenerateTerrain(&ttex, -1, -1);
 
     printError("init terrain");
 
@@ -37,7 +50,6 @@ void terrainInit(GLuint *tex1, GLuint *tex2) {
 float wrappedNoise2D(float x, float x_offset, float z, float z_offset, int terrainScale, TextureData *tex) {
 	return (noise2D(x + x_offset * (tex->width - 1), z + z_offset * (tex->height - 1)) / terrainScale) * 1000;
 }
-
 
 
 Model* GenerateTerrain(TextureData *tex, int x_offset, int z_offset)
@@ -199,17 +211,56 @@ void draw_terrain_section(mat4 cameraMatrix, Model *terrainModel, float x, float
 }
 
 
+Model *find_or_generate_terrain(int x_offset, int z_offset) {
+    TerrainSection *section;
 
-void draw_terrain(mat4 cameraMatrix, vec3 p)
-{   
-    draw_terrain_section(cameraMatrix, tm[0], 0, 0);
-    draw_terrain_section(cameraMatrix, tm[1], 1, 0);
-    draw_terrain_section(cameraMatrix, tm[2], 0, 1);
-    draw_terrain_section(cameraMatrix, tm[3], 1, 1);
+    HASH_FIND_INT(terrain_cache, &x_offset, section);
+
+    if (section == NULL) {
+        section = (TerrainSection *)malloc(sizeof(TerrainSection));
+        section->x_offset = x_offset;
+        section->z_offset = z_offset;
+        section->model = GenerateTerrain(&ttex, x_offset, z_offset);
+        HASH_ADD_INT(terrain_cache, x_offset, section);
+    }
+
+    return section->model;
 }
 
 
+void draw_terrain(mat4 cameraMatrix, vec3 p)
+{   
+	float x_trunc = trunc(p.x/ttex.width);				// trunc(): 0.6 => 0.0, 1.4 => 1.0
+	float x_round = round(p.x/ttex.width) - x_trunc;	// round(): 0.4 => 0.0, 0.6 => 1.0
+	float z_trunc = trunc(p.z/ttex.height);
+	float z_round = round(p.z/ttex.height) - z_trunc;
 
+	float x_offset = x_trunc + 1;
+	float z_offset = z_trunc + 1;
+	if (0.0 <= x_round && x_round < 0.5) {
+		x_offset = x_trunc - 1;
+	} 
+	else if (x_round < 0.0) {
+		x_trunc -= 1;
+		x_offset = x_trunc + (x_round);
+	}
+
+	if (0.0 <= z_round && z_round < 0.5) {
+		z_offset = z_trunc - 1;
+	} 
+	else if (z_round < 0.0) {
+		z_trunc -= 1;
+		z_offset = z_trunc + (z_round);
+	}
+	
+    for (int x_offset = x_trunc - 1; x_offset <= x_trunc + 1; x_offset++) {
+        for (int z_offset = z_trunc - 1; z_offset <= z_trunc + 1; z_offset++) {
+            Model *terrainModel = find_or_generate_terrain(x_offset, z_offset);
+            draw_terrain_section(cameraMatrix, terrainModel, x_offset, z_offset);
+        }
+    }
+
+}
 
 
 float texture_data_height()  
