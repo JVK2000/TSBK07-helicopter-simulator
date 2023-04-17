@@ -1,5 +1,6 @@
 #include "terrain.h"
 #include "noise_wrapper.h"
+#include "terrain_controller_shared.h"
 
 #include "uthash.h"
 
@@ -202,6 +203,26 @@ float find_height(float x, float z)
 	return y;
 }
 
+
+
+bool player_collides_with_terrain(float player_x, float player_z, float player_y) {
+    float terrain_height = find_height(player_x, player_z);
+	printf("\nterrain: %f", terrain_height);
+	printf("\tplayer: %f", player_y);
+
+    // if (player_y < terrain_height) {
+    //     return true;
+    // }
+    // return false;
+}
+
+void detect_collision() {
+	float x, y, z;
+	get_player_pos(&x, &y, &z);
+	// printf("Player position: (%f, %f, %f)\n\n", x, y, z);
+	int collision_detected = player_collides_with_terrain(x, z, y);
+	// printf("collision_detected: %d", collision_detected);
+}
 
 
 

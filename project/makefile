@@ -20,7 +20,7 @@ endif
 commondir = ../common/
 
 # list all the source files
-C_SRCS = main.c helicopter.c terrain.c controller.c light.c helicopter_controller_shared.c \
+C_SRCS = main.c helicopter.c terrain.c controller.c light.c helicopter_controller_shared.c terrain_controller_shared.c\
        $(commondir)GL_utilities.c \
        $(commondir)LittleOBJLoader.c \
        $(commondir)VectorUtils3.c \

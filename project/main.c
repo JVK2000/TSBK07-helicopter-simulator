@@ -111,6 +111,7 @@ void display(void)
     glUniform3f(glGetUniformLocation(program, "cameraPos"), cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
 	draw_terrain(cameraMatrix, cameraPosition);
+	detect_collision();
 
 	drawOctagon();
 	drawHelicopter(cameraMatrix, cameraAngleY);

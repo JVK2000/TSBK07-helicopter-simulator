@@ -1,5 +1,6 @@
 #include "controller.h"
 #include "helicopter_controller_shared.h"
+#include "terrain_controller_shared.h"
 
 
 const float ANGULAR_ACCELERATION_HORIZONTAL = 0.0015f;
@@ -63,6 +64,9 @@ void keyboardMovement()
     cameraMatrix = Mult(cameraMatrix, lookAtv(newCamPos, lookAtPosition, worldUpVector));
 
     setViewMatrix(cameraMatrix);
+
+    // printf("Before: (%f, %f, %f)\n", cameraPosition.x, cameraPosition.y, cameraPosition.z);
+    set_player_pos(lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
 }
 
 
