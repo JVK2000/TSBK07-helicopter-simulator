@@ -4,7 +4,6 @@ static int collided = 0;
 static float player_x = 0.0;
 static float player_y = 0.0;
 static float player_z = 0.0;
-static float player_radius = 1.0; 
 
 void set_player_pos(float x, float y, float z) {
     player_x = x;

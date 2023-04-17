@@ -113,7 +113,7 @@ void display(void)
 	draw_terrain(cameraMatrix, cameraPosition);
 	detect_collision();
 
-	drawOctagon();
+	// drawOctagon();
 	drawHelicopter(cameraMatrix, cameraAngleY);
 
 	printError("display 2");

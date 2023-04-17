@@ -144,84 +144,58 @@ Model* GenerateTerrain(TextureData *tex, int x_offset, int z_offset)
 }
 
 
-Model *get_terrain_model(int x_pos, int z_pos) {
-    TerrainSection *section;
-    int x_offset = (int)ceil(x_pos / (ttex.width - 1));
-    int z_offset = (int)ceil(z_pos / (ttex.height - 1));
-    int key = x_offset * 100 + z_offset;
-
-    // search for the key in terrain_cache
-    HASH_FIND_INT(terrain_cache, &key, section);
-
-    if (section == NULL) {
-        // key not found, return NULL
-        return NULL;
-    } else {
-        // key found, return the model
-        return section->model;
-    }
-}
-
-
 float find_height(float x, float z)
 {
-	int x_floor = (int) x;
-	int z_floor = (int) z;
-	Model *model = get_terrain_model(x_floor, z_floor);
-	int width = ttex.width;
+    int x_floor = (int) x;
+    int z_floor = (int) z;
 
-	// unique vertex (depending on which triangle the point is in)
-	float xz_diff = (x - x_floor) + (z - z_floor); 	
-	float x1, y1, z1;
-	if (xz_diff < 1.0) {
-		int idx = x_floor + z_floor * width;
-		x1 = model->vertexArray[idx].x;
-		y1 = model->vertexArray[idx].y;
-		z1 = model->vertexArray[idx].z;
-	} else {
-		int idx = (x_floor + 1) + (z_floor + 1) * width;
-		x1 = model->vertexArray[idx].x;
-		y1 = model->vertexArray[idx].y;
-		z1 = model->vertexArray[idx].z;
-	}
-	vec3 vertex1 = {x1, y1, z1};
+    player_pos_x = (int)ceil(x / (ttex.width - 1)) - 1;
+    player_pos_z = (int)ceil(z / (ttex.height - 1)) - 1;
 
-	// shared vertex
-	float x2 = model->vertexArray[(x_floor + 1) + z_floor * width].x;
-	float y2 = model->vertexArray[(x_floor + 1) + z_floor * width].y;
-	float z2 = model->vertexArray[(x_floor + 1) + z_floor * width].z;
-	vec3 vertex2 = {x2, y2, z2};
+    printf("\nfind height for section: %d, %d", player_pos_x, player_pos_z);
+    Model *terrainModel = find_or_generate_terrain(player_pos_x, player_pos_z);
+    printf("\n---------------");
 
-	float x3 = model->vertexArray[x_floor + (z_floor + 1) * width].x;
-	float y3 = model->vertexArray[x_floor + (z_floor + 1) * width].y;
-	float z3 = model->vertexArray[x_floor + (z_floor + 1) * width].z;
-	vec3 vertex3 = {x3, y3, z3};
-	vec3 normal = CalcNormalVector(vertex1, vertex2, vertex3);
+    int width = ttex.width;
 
-	float neg_d = normal.x * vertex1.x + normal.y * vertex1.y + normal.z * vertex1.z;
-	float y = (neg_d - normal.x * x - normal.z * z) / normal.y;
-	return y;
+    // Calculate the relative position within the section
+    float rel_x = x - player_pos_x * (ttex.width - 1);
+    float rel_z = z - player_pos_z * (ttex.height - 1);
+
+    int x_lower = (int) floor(rel_x);
+    int x_upper = x_lower + 1;
+    int z_lower = (int) floor(rel_z);
+    int z_upper = z_lower + 1;
+
+    // Get the heights of the four surrounding vertices
+    float h_ll = terrainModel->vertexArray[(x_lower + z_lower * width)].y;
+    float h_lu = terrainModel->vertexArray[(x_lower + z_upper * width)].y;
+    float h_ul = terrainModel->vertexArray[(x_upper + z_lower * width)].y;
+    float h_uu = terrainModel->vertexArray[(x_upper + z_upper * width)].y;
+
+    // Bilinear interpolation
+    float x_ratio = rel_x - x_lower;
+    float z_ratio = rel_z - z_lower;
+    float y_res = h_ll * (1 - x_ratio) * (1 - z_ratio) + h_ul * x_ratio * (1 - z_ratio) +
+                  h_lu * (1 - x_ratio) * z_ratio + h_uu * x_ratio * z_ratio;
+
+    return y_res;
 }
 
 
 
-bool player_collides_with_terrain(float player_x, float player_z, float player_y) {
+
+void player_collides_with_terrain(float player_x, float player_z, float player_y) {
     float terrain_height = find_height(player_x, player_z);
 	printf("\nterrain: %f", terrain_height);
 	printf("\tplayer: %f", player_y);
 
-    // if (player_y < terrain_height) {
-    //     return true;
-    // }
-    // return false;
 }
 
 void detect_collision() {
 	float x, y, z;
 	get_player_pos(&x, &y, &z);
-	// printf("Player position: (%f, %f, %f)\n\n", x, y, z);
-	int collision_detected = player_collides_with_terrain(x, z, y);
-	// printf("collision_detected: %d", collision_detected);
+	player_collides_with_terrain(x, z, y);
 }
 
 
@@ -258,14 +232,17 @@ Model *find_or_generate_terrain(int x_offset, int z_offset) {
         HASH_ADD_INT(terrain_cache, key, section);
     }
 
+	printf("\ngenerate: %d, %d, key: %d", x_offset, z_offset, key);
     return section->model;
 }
+
 
 
 void draw_terrain(mat4 cameraMatrix, vec3 p)
 {   
     player_pos_x = (int)ceil(p.x / (ttex.width - 1)) - 1;
     player_pos_z = (int)ceil(p.z / (ttex.height - 1)) - 1;
+	printf("\nplayer_pos: %d, %d", player_pos_x, player_pos_z);
 
     for (int x_offset = player_pos_x - 1; x_offset <= player_pos_x + 1; x_offset++) {
         for (int z_offset = player_pos_z - 1; z_offset <= player_pos_z + 1; z_offset++) {

@@ -18,4 +18,6 @@ int check_collision(float x, float y, float z, float radius);
 
 void detect_collision();
 
+Model *find_or_generate_terrain(int x_offset, int z_offset);
+
 #endif
