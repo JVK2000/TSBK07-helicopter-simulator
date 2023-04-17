@@ -158,6 +158,9 @@ float find_height(float x, float z)
 
     int width = ttex.width;
 
+	player_pos_x = fabs(player_pos_x);
+	player_pos_z = fabs(player_pos_z);
+
     // Calculate the relative position within the section
     float rel_x = x - player_pos_x * (ttex.width - 1);
     float rel_z = z - player_pos_z * (ttex.height - 1);
@@ -181,8 +184,6 @@ float find_height(float x, float z)
 
     return y_res;
 }
-
-
 
 
 void player_collides_with_terrain(float player_x, float player_z, float player_y) {
