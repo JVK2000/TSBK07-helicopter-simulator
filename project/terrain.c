@@ -144,6 +144,7 @@ Model* GenerateTerrain(TextureData *tex, int x_offset, int z_offset)
 }
 
 
+
 float find_height(float x, float z)
 {
     player_pos_x = (int)ceil(x / (ttex.width - 1)) - 1;
@@ -153,12 +154,16 @@ float find_height(float x, float z)
 
     int width = ttex.width;
 
-	player_pos_x = fabs(player_pos_x);
-	player_pos_z = fabs(player_pos_z);
+	player_pos_x = abs(player_pos_x);
+	player_pos_z = abs(player_pos_z);
 
     // Calculate the relative position within the section
     float rel_x = x - player_pos_x * (ttex.width - 1);
     float rel_z = z - player_pos_z * (ttex.height - 1);
+
+	if (rel_z < 0.0) {
+		rel_z += 2*width - 1;
+	}
 
     int x_lower = (int) floor(rel_x);
     int x_upper = x_lower + 1;

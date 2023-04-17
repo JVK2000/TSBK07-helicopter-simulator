@@ -53,7 +53,6 @@ void controllerHandler() {
 void handleCollision() {
     set_player_pos(lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
     int collision_detected = get_collision();
-    printf("\ncollision: %d", collision_detected);
     if (collision_detected) {
         float newHeight = getTerrainHeight() + HELICOPTER_HEIGHT;
         if (cameraPosition.y < newHeight) {
