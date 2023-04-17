@@ -146,15 +146,10 @@ Model* GenerateTerrain(TextureData *tex, int x_offset, int z_offset)
 
 float find_height(float x, float z)
 {
-    int x_floor = (int) x;
-    int z_floor = (int) z;
-
     player_pos_x = (int)ceil(x / (ttex.width - 1)) - 1;
     player_pos_z = (int)ceil(z / (ttex.height - 1)) - 1;
 
-    printf("\nfind height for section: %d, %d", player_pos_x, player_pos_z);
     Model *terrainModel = find_or_generate_terrain(player_pos_x, player_pos_z);
-    printf("\n---------------");
 
     int width = ttex.width;
 
@@ -200,7 +195,6 @@ void detect_collision() {
 }
 
 
-
 void draw_terrain_section(mat4 cameraMatrix, Model *terrainModel, float x, float z) 
 {
     glUniform1i(specularLightEnabledLoc, false);
@@ -214,7 +208,6 @@ void draw_terrain_section(mat4 cameraMatrix, Model *terrainModel, float x, float
     glUniformMatrix4fv(mdlMatrixLoc, 1, GL_TRUE, total.m);
     DrawModel(terrainModel, program, "inPosition", "inNormal", "inTexCoord");
 }
-
 
 
 Model *find_or_generate_terrain(int x_offset, int z_offset) {
