@@ -9,6 +9,8 @@ float terrainScale = 25;
 TextureData ttex; // terrain
 GLint isSkyLoc;
 Model *tm[9];
+int player_pos_x;
+int player_pos_z;
 
 typedef struct {
     int x_offset;
@@ -141,10 +143,66 @@ Model* GenerateTerrain(TextureData *tex, int x_offset, int z_offset)
 }
 
 
+Model *get_terrain_model(int x_pos, int z_pos) {
+    TerrainSection *section;
+    int x_offset = (int)ceil(x_pos / (ttex.width - 1));
+    int z_offset = (int)ceil(z_pos / (ttex.height - 1));
+    int key = x_offset * 100 + z_offset;
+
+    // search for the key in terrain_cache
+    HASH_FIND_INT(terrain_cache, &key, section);
+
+    if (section == NULL) {
+        // key not found, return NULL
+        return NULL;
+    } else {
+        // key found, return the model
+        return section->model;
+    }
+}
+
+
 float find_height(float x, float z)
 {
-	return 0.0;
+	int x_floor = (int) x;
+	int z_floor = (int) z;
+	Model *model = get_terrain_model(x_floor, z_floor);
+	int width = ttex.width;
+
+	// unique vertex (depending on which triangle the point is in)
+	float xz_diff = (x - x_floor) + (z - z_floor); 	
+	float x1, y1, z1;
+	if (xz_diff < 1.0) {
+		int idx = x_floor + z_floor * width;
+		x1 = model->vertexArray[idx].x;
+		y1 = model->vertexArray[idx].y;
+		z1 = model->vertexArray[idx].z;
+	} else {
+		int idx = (x_floor + 1) + (z_floor + 1) * width;
+		x1 = model->vertexArray[idx].x;
+		y1 = model->vertexArray[idx].y;
+		z1 = model->vertexArray[idx].z;
+	}
+	vec3 vertex1 = {x1, y1, z1};
+
+	// shared vertex
+	float x2 = model->vertexArray[(x_floor + 1) + z_floor * width].x;
+	float y2 = model->vertexArray[(x_floor + 1) + z_floor * width].y;
+	float z2 = model->vertexArray[(x_floor + 1) + z_floor * width].z;
+	vec3 vertex2 = {x2, y2, z2};
+
+	float x3 = model->vertexArray[x_floor + (z_floor + 1) * width].x;
+	float y3 = model->vertexArray[x_floor + (z_floor + 1) * width].y;
+	float z3 = model->vertexArray[x_floor + (z_floor + 1) * width].z;
+	vec3 vertex3 = {x3, y3, z3};
+	vec3 normal = CalcNormalVector(vertex1, vertex2, vertex3);
+
+	float neg_d = normal.x * vertex1.x + normal.y * vertex1.y + normal.z * vertex1.z;
+	float y = (neg_d - normal.x * x - normal.z * z) / normal.y;
+	return y;
 }
+
+
 
 
 void draw_terrain_section(mat4 cameraMatrix, Model *terrainModel, float x, float z) 
@@ -160,6 +218,7 @@ void draw_terrain_section(mat4 cameraMatrix, Model *terrainModel, float x, float
     glUniformMatrix4fv(mdlMatrixLoc, 1, GL_TRUE, total.m);
     DrawModel(terrainModel, program, "inPosition", "inNormal", "inTexCoord");
 }
+
 
 
 Model *find_or_generate_terrain(int x_offset, int z_offset) {
@@ -184,11 +243,11 @@ Model *find_or_generate_terrain(int x_offset, int z_offset) {
 
 void draw_terrain(mat4 cameraMatrix, vec3 p)
 {   
-    int x_trunc = (int)trunc(p.x / (ttex.width - 1));
-    int z_trunc = (int)trunc(p.z / (ttex.height - 1));
+    player_pos_x = (int)ceil(p.x / (ttex.width - 1)) - 1;
+    player_pos_z = (int)ceil(p.z / (ttex.height - 1)) - 1;
 
-    for (int x_offset = x_trunc - 1; x_offset <= x_trunc + 1; x_offset++) {
-        for (int z_offset = z_trunc - 1; z_offset <= z_trunc + 1; z_offset++) {
+    for (int x_offset = player_pos_x - 1; x_offset <= player_pos_x + 1; x_offset++) {
+        for (int z_offset = player_pos_z - 1; z_offset <= player_pos_z + 1; z_offset++) {
             Model *terrainModel = find_or_generate_terrain(x_offset, z_offset);
             draw_terrain_section(cameraMatrix, terrainModel, x_offset, z_offset);
         }
