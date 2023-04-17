@@ -175,23 +175,37 @@ float find_height(float x, float z)
     float x_ratio = rel_x - x_lower;
     float z_ratio = rel_z - z_lower;
     float y_res = h_ll * (1 - x_ratio) * (1 - z_ratio) + h_ul * x_ratio * (1 - z_ratio) +
-                  h_lu * (1 - x_ratio) * z_ratio + h_uu * x_ratio * z_ratio;
+                  h_lu * (1 - x_ratio) * z_ratio + h_uu * x_ratio * z_ratio; 
 
     return y_res;
 }
 
+const int COLLISION_MARGINAL = 10;
 
-void player_collides_with_terrain(float player_x, float player_z, float player_y) {
-    float terrain_height = find_height(player_x, player_z);
-	printf("\nterrain: %f", terrain_height);
-	printf("\tplayer: %f", player_y);
 
+int player_collides_with_terrain(float player_x, float player_z, float player_y) {
+	printf("\n--------------------------------------");
+	printf("\nplayer: %f", player_y);
+	printf("\nTerrain P : %f", find_height(player_x, player_z));
+
+	for (int x_offset = (int) (player_x - COLLISION_MARGINAL); x_offset <= (int) (player_x + COLLISION_MARGINAL); x_offset+=COLLISION_MARGINAL*2) {
+        for (int z_offset = (int) (player_z - COLLISION_MARGINAL); z_offset <= (int) (player_z + COLLISION_MARGINAL); z_offset+=COLLISION_MARGINAL*2) {
+    		float terrain_height = find_height(x_offset, z_offset);
+			// printf("\t\nterrain: %f", terrain_height);
+			if (terrain_height + COLLISION_MARGINAL > player_y) {
+				setTerrainHeight(find_height(player_x, player_z));
+				return 1;
+			}
+        }
+    }
+	return 0;
 }
 
 void detect_collision() {
 	float x, y, z;
 	get_player_pos(&x, &y, &z);
-	player_collides_with_terrain(x, z, y);
+	int collision = player_collides_with_terrain(x, z, y);
+	set_collision(collision);
 }
 
 
@@ -226,7 +240,7 @@ Model *find_or_generate_terrain(int x_offset, int z_offset) {
         HASH_ADD_INT(terrain_cache, key, section);
     }
 
-	printf("\ngenerate: %d, %d, key: %d", x_offset, z_offset, key);
+	// printf("\ngenerate: %d, %d, key: %d", x_offset, z_offset, key);
     return section->model;
 }
 
@@ -236,7 +250,7 @@ void draw_terrain(mat4 cameraMatrix, vec3 p)
 {   
     player_pos_x = (int)ceil(p.x / (ttex.width - 1)) - 1;
     player_pos_z = (int)ceil(p.z / (ttex.height - 1)) - 1;
-	printf("\nplayer_pos: %d, %d", player_pos_x, player_pos_z);
+	// printf("\nplayer_pos: %d, %d", player_pos_x, player_pos_z);
 
     for (int x_offset = player_pos_x - 1; x_offset <= player_pos_x + 1; x_offset++) {
         for (int z_offset = player_pos_z - 1; z_offset <= player_pos_z + 1; z_offset++) {

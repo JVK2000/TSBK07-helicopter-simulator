@@ -13,6 +13,8 @@ extern mat4 cameraMatrix;
 void controllerInit();
 void keyboard(unsigned char key, int x, int y);
 void keyboardMovement();
+void handleCollision();
+void controllerHandler();
 void manageAngle();
 void manageVelocity();
 void updateTilt(float vel_x, float vel_y, float vel_z);

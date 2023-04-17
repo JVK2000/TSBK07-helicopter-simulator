@@ -92,7 +92,8 @@ void display(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);	
 
-	keyboardMovement(program);
+	// keyboardMovement();
+	controllerHandler();
 
 	printError("pre display");
 	

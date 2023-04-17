@@ -18,6 +18,10 @@ const float VELOCITY_AMPLIFIER = 2.0f;
 const float CAMERA_Y_ANGLE_BOUNDARY = (M_PI/2.0) * 0.99 ;
 const float START_CAMERA_Y_ANGLE = M_PI/16;
 const float START_CAMERA_x_ANGLE = M_PI;
+const float START_POS_X = 25;
+const float START_POS_Y = 20;
+const float START_POS_Z = 25;
+const float HELICOPTER_HEIGHT = 15;
 
 bool first_iteration = true;
 float init_x = 0;
@@ -36,11 +40,27 @@ void controllerInit()
 {
     cameraAngleY = START_CAMERA_Y_ANGLE;
     cameraAngleX = START_CAMERA_x_ANGLE;
-    cameraPosition = (vec3){0, 20, 45};
-    lookAtPosition = (vec3){0, 20, 0};
+    cameraPosition = (vec3){START_POS_X, START_POS_Y, 45 + START_POS_Z};
+    lookAtPosition = (vec3){START_POS_X, START_POS_Y, START_POS_Z};
     worldUpVector = (vec3){0, 1, 0};
 }
 
+void controllerHandler() {
+    keyboardMovement();
+    handleCollision();
+}
+
+void handleCollision() {
+    set_player_pos(lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
+    int collision_detected = get_collision();
+    printf("\ncollision: %d", collision_detected);
+    if (collision_detected) {
+        float newHeight = getTerrainHeight() + HELICOPTER_HEIGHT;
+        if (cameraPosition.y < newHeight) {
+            controllerInit();
+        }
+    }
+}
 
 void keyboardMovement()
 {
@@ -64,9 +84,6 @@ void keyboardMovement()
     cameraMatrix = Mult(cameraMatrix, lookAtv(newCamPos, lookAtPosition, worldUpVector));
 
     setViewMatrix(cameraMatrix);
-
-    // printf("Before: (%f, %f, %f)\n", cameraPosition.x, cameraPosition.y, cameraPosition.z);
-    set_player_pos(lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
 }
 
 

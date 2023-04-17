@@ -13,7 +13,7 @@ double valley_noise(double x, double z) {
     noise::module::Perlin perlin_noise;
 
     // Customize the noise properties
-    perlin_noise.SetOctaveCount(4);  // Increase octave count for more detail
+    perlin_noise.SetOctaveCount(6);  // Increase octave count for more detail
     perlin_noise.SetFrequency(0.01); // Decrease frequency for larger features
     perlin_noise.SetPersistence(0.5); // Decrease persistence for smoother transitions
 
