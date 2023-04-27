@@ -52,8 +52,8 @@ void init(void)
     octagon = LoadModel("octagon.obj");
 
 	specularLightEnabledLoc = glGetUniformLocation(program, "specularLightEnabled");
-    ambientLightEnabledLoc = glGetUniformLocation(program, "ambientEnabled");
-    diffuseLightEnabledLoc = glGetUniformLocation(program, "diffuseEnabled");
+    ambientLightEnabledLoc = glGetUniformLocation(program, "ambientLightEnabled");
+    diffuseLightEnabledLoc = glGetUniformLocation(program, "diffuseLightEnabled");
     textureEnabledLoc = glGetUniformLocation(program, "textureEnabled");
     translationMatrixLoc = glGetUniformLocation(program, "translationMatrix");
     mdlMatrixLoc = glGetUniformLocation(program, "mdlMatrix");

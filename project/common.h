@@ -22,8 +22,8 @@ extern GLint mdlMatrixLoc;
 extern GLint normalMatrixLoc;
 
 // extern GLint specularLightEnabledLoc = glGetUniformLocation(program, "specularLightEnabled");
-// extern GLint ambientLightEnabledLoc = glGetUniformLocation(program, "ambientEnabled");
-// extern GLint diffuseLightEnabledLoc = glGetUniformLocation(program, "diffuseEnabled");
+// extern GLint ambientLightEnabledLoc = glGetUniformLocation(program, "ambientLightEnabled");
+// extern GLint diffuseLightEnabledLoc = glGetUniformLocation(program, "diffuseLightEnabled");
 // extern GLint textureEnabledLoc = glGetUniformLocation(program, "textureEnabled");
 // extern GLint translationMatrixLoc = glGetUniformLocation(program, "translationMatrix");
 // extern GLint mdlMatrixLoc = glGetUniformLocation(program, "mdlMatrix");

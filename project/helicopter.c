@@ -37,7 +37,7 @@ void drawHelicopter(mat4 cameraMatrix, float cameraAngleY) {
 	globalRotation = Mult(Rx(getYAngle() + getXTilt()), Mult(Ry(M_PI), Rz(getZTilt())));
 	globalTranslation = T(0, -10, -50);
 
-    glUniform1i(specularLightEnabledLoc, false);
+    glUniform1i(specularLightEnabledLoc, true);
     glUniform1i(ambientLightEnabledLoc, true); 
     glUniform1i(diffuseLightEnabledLoc, true);
 	drawHelicopterBody(cameraMatrix);

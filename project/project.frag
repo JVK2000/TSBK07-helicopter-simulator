@@ -14,8 +14,8 @@ uniform bool textureEnabled;
 uniform bool isHelicopter;
 uniform bool isSky;
 uniform bool specularLightEnabled;
-uniform bool ambientEnabled;
-uniform bool diffuseEnabled;
+uniform bool ambientLightEnabled;
+uniform bool diffuseLightEnabled;
 
 // 4 light sources
 uniform vec3 lightSourcesDirPosArr[4];
@@ -40,7 +40,7 @@ void main(void)
 		// baseColor = vec4(0.325, 0.325, 0.325, 1);
 	}
 
-	if (diffuseEnabled || ambientEnabled || specularLightEnabled) {
+	if (diffuseLightEnabled || ambientLightEnabled || specularLightEnabled) {
 		for(int i = 3; i < 4; i++) {
 			vec3 lightDirection;
 			if (isDirectional[i]) {
@@ -53,14 +53,14 @@ void main(void)
 
 			// Diffuse light
 			vec3 diffuseLight = vec3(0, 0, 0);
-			if (diffuseEnabled) {
+			if (diffuseLightEnabled) {
 				float diffuse = max(dot(normal_view, lightDirection), 0.0);
 				diffuseLight = diffuse * lightSourcesColorArr[i] * 0.6;
 			}
 
 			// Ambient light
 			vec3 ambientLight = vec3(0, 0, 0);
-			if (ambientEnabled) {
+			if (ambientLightEnabled) {
 				float ambientStrength = 0.3;
 				ambientLight = ambientStrength * lightSourcesColorArr[i];
 			}
