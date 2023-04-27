@@ -19,7 +19,6 @@ float vertical_rotation = 0; // Vertical rotation modified by controller.c, used
 GLuint program;
 GLuint texUnit;
 GLuint tex1, tex2;
-GLuint skytex1, skytex2;
 
 GLint specularLightEnabledLoc;
 GLint ambientLightEnabledLoc;
@@ -50,7 +49,7 @@ void init(void)
 	controllerInit();
 	helicopterInit();
     terrainInit(&tex1, &tex2); 
-    skyboxInit(&skytex1, &skytex2); 
+    skyboxInit(); 
     
     octagon = LoadModel("octagon.obj");
 
@@ -108,7 +107,7 @@ void display(void)
 	// glActiveTexture(GL_TEXTURE3);
 	// glBindTexture(GL_TEXTURE_2D, skytex2);	
 
-	drawSkybox(skytex1, skytex2, cameraAngleY, cameraAngleX);
+	drawSkybox(cameraAngleY, cameraAngleX);
 
     // Bind textures and set shader uniforms
 	glActiveTexture(GL_TEXTURE0);

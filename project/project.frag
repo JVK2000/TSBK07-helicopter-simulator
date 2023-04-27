@@ -29,6 +29,13 @@ uniform mat4 mdlMatrix;
 uniform vec3 cameraPos;
 uniform vec4 helicopterColor;
 
+uniform float timer;
+uniform float dayTimeBlender;
+uniform float diffuseStrength;
+uniform float ambientStrength;
+
+
+
 
 void main(void)
 {
@@ -57,13 +64,12 @@ void main(void)
 			vec3 diffuseLight = vec3(0, 0, 0);
 			if (diffuseLightEnabled) {
 				float diffuse = max(dot(normal_view, lightDirection), 0.0);
-				diffuseLight = diffuse * lightSourcesColorArr[i] * 0.6;
+				diffuseLight = diffuse * lightSourcesColorArr[i] * diffuseStrength;
 			}
 
 			// Ambient light
 			vec3 ambientLight = vec3(0, 0, 0);
 			if (ambientLightEnabled) {
-				float ambientStrength = 0.2;
 				ambientLight = ambientStrength * lightSourcesColorArr[i];
 			}
 
@@ -81,10 +87,20 @@ void main(void)
 		}
 	}
 
+	// if (isSky) {
+	// 	color = vec4(1, 1, 1, 1);
+	// 	color = color * texture(tex, texCoord);
+	// 	// blend with color = color * texture(tex, texCoord);
+	// }
+
 	if (isSky) {
 		color = vec4(1, 1, 1, 1);
-		color = color * texture(tex, texCoord);
+		// float blendFactor = (sin(timer) + 1.0) / 2.0;  // This will oscillate between 0 and 1
+		// color = mix(texture(tex, texCoord), texture(tex2, texCoord), blendFactor);
+		color = mix(texture(tex, texCoord), texture(tex2, texCoord), dayTimeBlender);
+		// color = color * texture(tex2, texCoord);
 	}
+
 
 	else if (textureEnabled) {
 		// blendFactor - 0: 100% tex. 1: 100% tex2 
