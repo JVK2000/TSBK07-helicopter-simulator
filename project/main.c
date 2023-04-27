@@ -1,6 +1,7 @@
 #include "main.h"
 #include "helicopter.h"
 #include "terrain.h"
+#include "skybox.h"
 #include "controller.h"
 #include "light.h"
 
@@ -48,6 +49,7 @@ void init(void)
 	controllerInit();
 	helicopterInit();
     terrainInit(&tex1, &tex2); 
+    skyboxInit(&tex1, &tex2); 
     
     octagon = LoadModel("octagon.obj");
 

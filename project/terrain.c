@@ -4,11 +4,9 @@
 
 #include "uthash.h"
 
-// Model *tm, *skybox;
-Model *skybox;
+
 float terrainScale = 25;
 TextureData ttex; // terrain
-GLint isSkyLoc;
 Model *tm[9];
 int player_pos_x;
 int player_pos_z;
@@ -34,9 +32,6 @@ void terrainInit(GLuint *tex1, GLuint *tex2) {
 	ttex.width = 256;
 	ttex.height = 256;
     printError("init terrain");
-
-    skybox = LoadModel("labskybox.obj");
-	isSkyLoc = glGetUniformLocation(program, "isSky");
 }
 
 
@@ -189,9 +184,9 @@ const int COLLISION_MARGINAL = 10;
 
 
 int player_collides_with_terrain(float player_x, float player_z, float player_y) {
-	printf("\n--------------------------------------");
-	printf("\nplayer: %f", player_y);
-	printf("\nTerrain P : %f", find_height(player_x, player_z));
+	// printf("\n--------------------------------------");
+	// printf("\nplayer: %f", player_y);
+	// printf("\nTerrain P : %f", find_height(player_x, player_z));
 
 	for (int x_offset = (int) (player_x - COLLISION_MARGINAL); x_offset <= (int) (player_x + COLLISION_MARGINAL); x_offset+=COLLISION_MARGINAL*2) {
         for (int z_offset = (int) (player_z - COLLISION_MARGINAL); z_offset <= (int) (player_z + COLLISION_MARGINAL); z_offset+=COLLISION_MARGINAL*2) {
@@ -270,28 +265,3 @@ float texture_data_height()
 {
     return ttex.height;
 }
-
-
-void drawSkybox(GLuint texUnit, float cameraAngleY, float cameraAngleX) 
-{
-	glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE);
-
-	glUniform1i(specularLightEnabledLoc, false);
-    glUniform1i(ambientLightEnabledLoc, false);
-    glUniform1i(diffuseLightEnabledLoc, false);
-	glUniform1i(textureEnabledLoc, true);
-	glUniform1i(isSkyLoc, true);
-
-	mat4 translationMatrixSkybox = Mult(Rx(cameraAngleY), Ry(cameraAngleX));
-	LoadTGATextureSimple("labskybox512.tga", &texUnit);			// Create texture object
-	glBindTexture(GL_TEXTURE_2D, texUnit);						// Activate a texture object
-	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
-	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, translationMatrixSkybox.m);
-	DrawModel(skybox, program, "inPosition", "inNormal", "inTexCoord");
-
-    glEnable(GL_CULL_FACE);
-	glEnable(GL_DEPTH_TEST);
-
-	glUniform1i(isSkyLoc, false);
-} 
