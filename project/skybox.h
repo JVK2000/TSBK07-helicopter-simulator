@@ -5,8 +5,8 @@
 
 extern TextureData ttex;
 
-void skyboxInit(GLuint *tex1, GLuint *tex2);
-void drawSkybox(GLuint texUnit, float cameraAngleY, float cameraAngleX);
+void skyboxInit(GLuint *skytex1, GLuint *skytex2);
+void drawSkybox(GLuint skytex1, GLuint skytex2, float cameraAngleY, float cameraAngleX) ;
 
 
 #endif

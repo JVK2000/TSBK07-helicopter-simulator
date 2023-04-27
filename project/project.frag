@@ -9,6 +9,8 @@ out vec4 outColor;
 
 uniform sampler2D tex;
 uniform sampler2D tex2;
+uniform sampler2D skytex1;
+uniform sampler2D skytex2;
 
 uniform bool textureEnabled;
 uniform bool isHelicopter;
@@ -81,7 +83,7 @@ void main(void)
 
 	if (isSky) {
 		color = vec4(1, 1, 1, 1);
-		color = color * texture(tex2, texCoord);
+		color = color * texture(tex, texCoord);
 	}
 
 	else if (textureEnabled) {
