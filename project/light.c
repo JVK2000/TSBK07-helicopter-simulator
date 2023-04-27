@@ -21,8 +21,9 @@ void lightInit()
     { 
         {10.0f, 5.0f, 0.0f}, // Red light, positional
         {0.0f, 5.0f, 10.0f}, // Green light, positional
-        {-1.0f, 0.0f, 0.0f}, // Blue light along X
-        {0.0f, 0.0f, -1.0f}  // White light along Z
+        // {-1.0f, 0.0f, 0.0f}, // light along X
+        {0.0f, 1.0f, 0.0f}, // light along X
+        {0.0f, 1.0f, -1.0f}  // light along Z
     };
 
     GLfloat specularExponent[] = 
