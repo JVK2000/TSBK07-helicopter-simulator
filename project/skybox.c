@@ -2,7 +2,7 @@
 
 
 // Model *tm, *skybox;
-Model *skybox;
+Model *skybox, *skyboxBottom;
 GLint isSkyLoc;
 
 
@@ -13,7 +13,9 @@ void skyboxInit(GLuint *tex1, GLuint *tex2) {
 
     printError("init terrain");
 
+    // skybox = LoadModel("cube.obj"); // 6 sides - not working
     skybox = LoadModel("labskybox.obj");
+    skyboxBottom = LoadModel("labskybox.obj");
 	isSkyLoc = glGetUniformLocation(program, "isSky");
 }
 
@@ -34,6 +36,15 @@ void drawSkybox(GLuint texUnit, float cameraAngleY, float cameraAngleX)
 	glUniform1i(glGetUniformLocation(program, "texUnit"), 0); 	// Texture unit 0
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, translationMatrixSkybox.m);
 	DrawModel(skybox, program, "inPosition", "inNormal", "inTexCoord");
+
+    // Draw the bottom skybox
+    mat4 translationMatrixSkyboxBottom = Mult(Rx(cameraAngleY + M_PI), Ry(- cameraAngleX));
+    LoadTGATextureSimple("labskybox512.tga", &texUnit);  // You may want to use a different texture for the bottom skybox
+    glBindTexture(GL_TEXTURE_2D, texUnit);
+    glUniform1i(glGetUniformLocation(program, "texUnit"), 0);
+    glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, translationMatrixSkyboxBottom.m);
+    DrawModel(skyboxBottom, program, "inPosition", "inNormal", "inTexCoord");
+
 
     glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
