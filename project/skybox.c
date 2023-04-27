@@ -1,7 +1,7 @@
 #include "skybox.h"
 #include <time.h>
 
-const float TIME_SCALE = 20.0f;
+const float TIME_SCALE = 5.0f;
 
 // Model *tm, *skybox;
 Model *skybox, *skyboxBottom;
@@ -47,7 +47,26 @@ void update_time() {
 
     printf("timer: %f\n", timer);
 
-    float dayTimeBlender = (sin(timer) + 1.0) / 2.0;
+    // float dayTimeBlender = (sin(timer) + 1.0) / 2.0;
+    float transitionPeriod = 0.2; // Transition period is 20% of the cycle
+
+    if (timer >= 1.0 + transitionPeriod / 2) {
+        timer = 0.0; // Reset timer after a full day-night cycle
+    }
+
+    float dayTimeBlender;
+
+    if (timer < 0.5 - transitionPeriod / 2) {
+        dayTimeBlender = 0.0; // Full day
+    } else if (timer < 0.5 + transitionPeriod / 2) {
+        dayTimeBlender = (timer - (0.5 - transitionPeriod / 2)) / transitionPeriod; // Transition from day to night
+    } else if (timer < 1.0 - transitionPeriod / 2) {
+        dayTimeBlender = 1.0; // Full night
+    } else {
+        dayTimeBlender = 1.0 - (timer - (1.0 - transitionPeriod / 2)) / transitionPeriod; // Transition from night to day
+    }
+
+
 
     printf("dayTimeBlender: %f\n", dayTimeBlender);
     glUniform1f(glGetUniformLocation(program, "dayTimeBlender"), dayTimeBlender);
