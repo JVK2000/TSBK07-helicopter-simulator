@@ -10,6 +10,8 @@ GLuint texUnit1, texUnit2;
 GLuint skytex1, skytex2, skytex1_night, skytex2_night;
 float timer;
 
+float lastTime = 0.0f;
+
 
 void skyboxInit() {
     skybox = LoadModel("labskybox.obj");
@@ -18,8 +20,8 @@ void skyboxInit() {
 
     LoadTGATextureSimple("assets/skybox/labskybox-top.tga", &skytex1); // update skytex1 and skytex2 values
     LoadTGATextureSimple("assets/skybox/labskybox-bottom.tga", &skytex2);
-    LoadTGATextureSimple("assets/skybox/labskybox-bottom-night.tga", &skytex1_night); // update skytex1 and skytex2 values
-    LoadTGATextureSimple("assets/skybox/labskybox-bottom-night.tga", &skytex2_night);
+    LoadTGATextureSimple("assets/skybox/labskybox-night.tga", &skytex1_night); // update skytex1 and skytex2 values
+    LoadTGATextureSimple("assets/skybox/labskybox-night.tga", &skytex2_night);
 
     // Note: No need to set the uniform here, as the texture unit doesn't change.
 }
@@ -32,7 +34,7 @@ float calculateValue(float input, float minVal, float maxVal) {
 
 void update_time() {
     float currentTime = clock() / (float) CLOCKS_PER_SEC;
-    static float lastTime = 0.0f;
+    // static float lastTime = 0.0f;
     float deltaTime;
 
     if (lastTime == 0.0f) deltaTime = 0.0f; 
