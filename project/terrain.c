@@ -86,6 +86,7 @@ Model* GenerateTerrain(TextureData *tex, int x_offset, int z_offset)
 	for (z = 0; z < tex->height; z++)
 	{
 		// vec3 map_normal = normalArray[(x + z * tex->width)];
+		
 		normalArray[(z * tex->width)].x = normalArray[(1 + z * tex->width)].x;
 		normalArray[(z * tex->width)].y = normalArray[(1 + z * tex->width)].y;
 		normalArray[(z * tex->width)].z = normalArray[(1 + z * tex->width)].z;

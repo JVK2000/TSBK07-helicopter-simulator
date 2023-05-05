@@ -1,6 +1,7 @@
 #include "skybox.h"
 #include <time.h>
 
+// const float TIME_SCALE = 1.0f;
 const float TIME_SCALE = 5.0f;
 
 // Model *tm, *skybox;
@@ -118,6 +119,7 @@ void drawSkybox(float cameraAngleY, float cameraAngleX)
 	glUniform1i(glGetUniformLocation(program, "tex2"), 1);  // Texture unit 1
 
 	// Draw the bottom skybox
+	// mat4 translationMatrixSkyboxBottom = Mult(T(0, -0.05, 0), Mult(Rx(cameraAngleY + M_PI), Ry(- cameraAngleX)));
 	mat4 translationMatrixSkyboxBottom = Mult(Rx(cameraAngleY + M_PI), Ry(- cameraAngleX));
 	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, translationMatrixSkyboxBottom.m);
 	DrawModel(skybox, program, "inPosition", "inNormal", "inTexCoord");
