@@ -6,7 +6,6 @@
 extern TextureData ttex;
 
 void skyboxInit();
-void update_time();
 void drawSkybox(float cameraAngleY, float cameraAngleX) ;
 
 

@@ -46,7 +46,8 @@ void controllerInit()
 }
 
 
-void handleCollision() {
+void handleCollision() 
+{
     set_player_pos(lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
     int collision_detected = get_collision();
     if (collision_detected) {
@@ -101,7 +102,8 @@ void manageAngle()
 }
 
 
-void updateTilt(float vel_x, float vel_y, float vel_z) {
+void updateTilt(float vel_x, float vel_y, float vel_z) 
+{
     float tiltZ = cos(cameraAngleX) * (vel_x / 10) + sin(cameraAngleX) * (vel_z / 10);
     float tiltX = cos(cameraAngleX) * (vel_z / 10) - sin(cameraAngleX) * (vel_x / 10);
     setZTilt(tiltZ);
@@ -234,7 +236,8 @@ void keyboardMovement()
 }
 
 
-void controllerHandler() {
+void controllerHandler() 
+{
     keyboardMovement();
     handleCollision();
 }

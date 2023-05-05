@@ -5,6 +5,8 @@
 #include "uthash.h"
 
 
+const int COLLISION_MARGINAL = 10;
+
 float terrainScale = 25;
 TextureData ttex; // terrain
 Model *tm[9];
@@ -15,16 +17,16 @@ typedef struct {
     int x_offset;
     int z_offset;
     Model *model;
-	int key; // added member
+	int key;
     UT_hash_handle hh; // required for uthash
 } TerrainSection;
 
 TerrainSection *terrain_cache = NULL;
 
 
-void terrainInit(GLuint *tex1, GLuint *tex2) {
-    // Load terrain data
-    LoadTGATextureSimple("green_grass.tga", tex1); // update tex1 and tex2 values
+void terrainInit(GLuint *tex1, GLuint *tex2) 
+{
+    LoadTGATextureSimple("green_grass.tga", tex1);
     LoadTGATextureSimple("stones.tga", tex2);
     glUniform1i(glGetUniformLocation(program, "tex"), 0); // Texture unit 0
     glUniform1i(glGetUniformLocation(program, "tex2"), 1); // Texture unit 1
@@ -35,7 +37,8 @@ void terrainInit(GLuint *tex1, GLuint *tex2) {
 }
 
 
-float wrappedNoise2D(float x, float x_offset, float z, float z_offset, int terrainScale, TextureData *tex) {
+float wrappedNoise2D(float x, float x_offset, float z, float z_offset, int terrainScale, TextureData *tex) 
+{
 	return (noise2D(x + x_offset * (tex->width - 1), z + z_offset * (tex->height - 1)) / terrainScale) * 1000;
 }
 
@@ -55,12 +58,10 @@ Model* GenerateTerrain(TextureData *tex, int x_offset, int z_offset)
 	for (x = 0; x < tex->width; x++)
 		for (z = 0; z < tex->height; z++) 
 		{
-			// Vertex array. You need to scale this properly
 			vertexArray[(x + z * tex->width)].x = x / 1.0;
 			vertexArray[(x + z * tex->width)].y = wrappedNoise2D(x, x_offset, z, z_offset, terrainScale, tex);
 			vertexArray[(x + z * tex->width)].z = z / 1.0;
 
-			// Normal vectors. You need to calculate these.
 			if (x != 0 && x != (tex->width - 1) && z != 0 && z != (tex->height - 1)) 
 			{
 				float L = wrappedNoise2D(x - 1, x_offset, z, z_offset, terrainScale, tex);;
@@ -77,16 +78,13 @@ Model* GenerateTerrain(TextureData *tex, int x_offset, int z_offset)
 				normalArray[(x + z * tex->width)].z = map_normal.z;
 			}
 
-			// Texture coordinates. You may want to scale them.
-			texCoordArray[(x + z * tex->width)].x = x; // (float)x / tex->width;
-			texCoordArray[(x + z * tex->width)].y = z; // (float)z / tex->height;
+			texCoordArray[(x + z * tex->width)].x = x;
+			texCoordArray[(x + z * tex->width)].y = z;
 		}
 
 	// Gives the edges of the map the normals of its neighbour
 	for (z = 0; z < tex->height; z++)
-	{
-		// vec3 map_normal = normalArray[(x + z * tex->width)];
-		
+	{		
 		normalArray[(z * tex->width)].x = normalArray[(1 + z * tex->width)].x;
 		normalArray[(z * tex->width)].y = normalArray[(1 + z * tex->width)].y;
 		normalArray[(z * tex->width)].z = normalArray[(1 + z * tex->width)].z;
@@ -140,6 +138,26 @@ Model* GenerateTerrain(TextureData *tex, int x_offset, int z_offset)
 }
 
 
+Model *find_or_generate_terrain(int x_offset, int z_offset) 
+{
+    TerrainSection *section;
+    int key = x_offset * 100 + z_offset;
+    int *pkey = &key;
+
+    HASH_FIND_INT(terrain_cache, pkey, section);
+
+    if (section == NULL) {
+        section = (TerrainSection *)malloc(sizeof(TerrainSection));
+        section->x_offset = x_offset;
+        section->z_offset = z_offset;
+        section->model = GenerateTerrain(&ttex, x_offset, z_offset);
+        section->key = key;
+        HASH_ADD_INT(terrain_cache, key, section);
+    }
+
+    return section->model;
+}
+
 
 float find_height(float x, float z)
 {
@@ -181,18 +199,12 @@ float find_height(float x, float z)
     return y_res;
 }
 
-const int COLLISION_MARGINAL = 10;
 
-
-int player_collides_with_terrain(float player_x, float player_z, float player_y) {
-	// printf("\n--------------------------------------");
-	// printf("\nplayer: %f", player_y);
-	// printf("\nTerrain P : %f", find_height(player_x, player_z));
-
+int player_collides_with_terrain(float player_x, float player_z, float player_y) 
+{
 	for (int x_offset = (int) (player_x - COLLISION_MARGINAL); x_offset <= (int) (player_x + COLLISION_MARGINAL); x_offset+=COLLISION_MARGINAL*2) {
         for (int z_offset = (int) (player_z - COLLISION_MARGINAL); z_offset <= (int) (player_z + COLLISION_MARGINAL); z_offset+=COLLISION_MARGINAL*2) {
     		float terrain_height = find_height(x_offset, z_offset);
-			// printf("\t\nterrain: %f", terrain_height);
 			if (terrain_height + COLLISION_MARGINAL > player_y) {
 				setTerrainHeight(find_height(player_x, player_z));
 				return 1;
@@ -202,7 +214,9 @@ int player_collides_with_terrain(float player_x, float player_z, float player_y)
 	return 0;
 }
 
-void detect_collision() {
+
+void detect_collision() 
+{
 	float x, y, z;
 	get_player_pos(&x, &y, &z);
 	int collision = player_collides_with_terrain(x, z, y);
@@ -225,33 +239,10 @@ void draw_terrain_section(mat4 cameraMatrix, Model *terrainModel, float x, float
 }
 
 
-Model *find_or_generate_terrain(int x_offset, int z_offset) {
-    TerrainSection *section;
-    int key = x_offset * 100 + z_offset;
-    int *pkey = &key;
-
-    HASH_FIND_INT(terrain_cache, pkey, section);
-
-    if (section == NULL) {
-        section = (TerrainSection *)malloc(sizeof(TerrainSection));
-        section->x_offset = x_offset;
-        section->z_offset = z_offset;
-        section->model = GenerateTerrain(&ttex, x_offset, z_offset);
-        section->key = key; // set the key member
-        HASH_ADD_INT(terrain_cache, key, section);
-    }
-
-	// printf("\ngenerate: %d, %d, key: %d", x_offset, z_offset, key);
-    return section->model;
-}
-
-
-
 void draw_terrain(mat4 cameraMatrix, vec3 p)
 {   
     player_pos_x = (int)ceil(p.x / (ttex.width - 1)) - 1;
     player_pos_z = (int)ceil(p.z / (ttex.height - 1)) - 1;
-	// printf("\nplayer_pos: %d, %d", player_pos_x, player_pos_z);
 
     for (int x_offset = player_pos_x - 1; x_offset <= player_pos_x + 1; x_offset++) {
         for (int z_offset = player_pos_z - 1; z_offset <= player_pos_z + 1; z_offset++) {

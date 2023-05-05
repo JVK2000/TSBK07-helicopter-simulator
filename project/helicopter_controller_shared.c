@@ -8,41 +8,52 @@ static float xTilt = 0.0f;
 static vec3 camPos = (vec3) {0, 0, 0};
 static mat4 view; 
 
-float getYAngle() {
+float getYAngle() 
+{
     return yAngle; 
 }
 
-void setYAngle(float angle) {
+void setYAngle(float angle) 
+{
     yAngle = angle;
 }
 
-float getZTilt() {
+float getZTilt() 
+{
     return zTilt; 
 }
 
-void setZTilt(float tilt) {
+void setZTilt(float tilt) 
+{
     zTilt = tilt;
 }
 
-float getXTilt() {
+float getXTilt() 
+{
     return xTilt; 
 }
 
-void setXTilt(float tilt) {
+void setXTilt(float tilt) 
+{
     xTilt = tilt;
 }
 
-vec3 getCamPos() {
+vec3 getCamPos() 
+{
     return camPos; 
 }
 
-void setCamPos(vec3 pos) {
+void setCamPos(vec3 pos) 
+{
     camPos = pos;
 }
 
-mat4 getViewMatrix(){
+mat4 getViewMatrix()
+{
     return view; 
 }
-void setViewMatrix(mat4 matrix){
+
+void setViewMatrix(mat4 matrix)
+{
     view = matrix;
 }
