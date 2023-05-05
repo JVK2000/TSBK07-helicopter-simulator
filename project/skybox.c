@@ -1,7 +1,8 @@
 #include "skybox.h"
 #include <time.h>
 
-const float TIME_SCALE = 1.0f;
+const float TIME_SCALE = 0.1f;
+const int USE_REAL_TIMER = 0; // When true, bug occurs the frames becomes low during terrain generation
 
 Model *skybox, *skyboxBottom;
 GLint isSkyLoc;
@@ -10,7 +11,7 @@ GLuint texUnit1, texUnit2, skytex1, skytex2, skytex1_night, skytex2_night;
 float sky_timer;
 float lastTime = 0.0f;
 float transitionPeriod = 0.2; // Transition period between day and night is 20% of the cycle
-
+int frameCount = 0;
 
 void skyboxInit() 
 {
@@ -33,15 +34,19 @@ float calculateValue(float input, float minVal, float maxVal)
 
 void update_time() 
 {
-    float currentTime = clock() / (float) CLOCKS_PER_SEC;
-
     float deltaTime;
-    if (lastTime == 0.0f) {
-        deltaTime = 0.0f;
+    
+    if (USE_REAL_TIMER) {
+        float currentTime = clock() / (float) CLOCKS_PER_SEC;
+        if (lastTime == 0.0f) {
+            deltaTime = 0.0f;
+        } else {
+            deltaTime = currentTime - lastTime; 
+        }
+        lastTime = currentTime;
     } else {
-        deltaTime = currentTime - lastTime; 
+        deltaTime = 1 / 60.0f; // Assuming 60 FPS
     }
-    lastTime = currentTime;
 
     // Ensure the sky_timer stays within the range of 0 to 2π
     sky_timer += deltaTime * TIME_SCALE;
