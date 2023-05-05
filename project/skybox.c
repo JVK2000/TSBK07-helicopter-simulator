@@ -14,7 +14,7 @@ float transitionPeriod = 0.2; // Transition period between day and night is 20% 
 
 void skyboxInit() 
 {
-    skybox = LoadModel("labskybox.obj");
+    skybox = LoadModel("assets/skybox/labskybox.obj");
 	isSkyLoc = glGetUniformLocation(program, "isSky");
     printError("init terrain");
 

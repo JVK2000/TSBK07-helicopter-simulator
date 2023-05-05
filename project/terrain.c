@@ -26,8 +26,8 @@ TerrainSection *terrain_cache = NULL;
 
 void terrainInit(GLuint *tex1, GLuint *tex2) 
 {
-    LoadTGATextureSimple("green_grass.tga", tex1);
-    LoadTGATextureSimple("stones.tga", tex2);
+    LoadTGATextureSimple("assets/terrain/green_grass.tga", tex1);
+    LoadTGATextureSimple("assets/terrain/stones.tga", tex2);
     glUniform1i(glGetUniformLocation(program, "tex"), 0); // Texture unit 0
     glUniform1i(glGetUniformLocation(program, "tex2"), 1); // Texture unit 1
 
