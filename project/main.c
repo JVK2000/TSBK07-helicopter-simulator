@@ -6,15 +6,6 @@
 #include "light.h"
 
 
-// Octagon
-Model *octagon;
-vec3 octagon_pos;
-vec3 octagon_pos_start; 
-vec3 octagon_pos_end;
-int octagon_dir = 1;
-const float octagon_speed = 0.1;
-float vertical_rotation = 0; // Vertical rotation modified by controller.c, used by helicopter.c to compensate for the vertical rotation, so the helicopter dont change its vertical rotation.   
-
 // Reference to shader program
 GLuint program;
 GLuint texUnit;
@@ -51,8 +42,6 @@ void init(void)
     terrainInit(&tex1, &tex2); 
     skyboxInit(); 
     
-    octagon = LoadModel("octagon.obj");
-
 	specularLightEnabledLoc = glGetUniformLocation(program, "specularLightEnabled");
     ambientLightEnabledLoc = glGetUniformLocation(program, "ambientLightEnabled");
     diffuseLightEnabledLoc = glGetUniformLocation(program, "diffuseLightEnabled");
@@ -63,30 +52,6 @@ void init(void)
 }
 
 
-void drawOctagon() {
-	glUniform1i(glGetUniformLocation(program, "textureEnabled"), false);
-	
-	if (octagon_pos.x < 0) {
-		octagon_dir = 1;
-	} else if (octagon_pos.x > (texture_data_height() - 1)) {
-		octagon_dir = -1;
-	}
-
-	octagon_pos.x = octagon_pos.x + octagon_dir * octagon_speed;
-	octagon_pos.z = octagon_pos.z + octagon_dir * octagon_speed;
-	octagon_pos.y = find_height(octagon_pos.x, octagon_pos.z);
-
-	mat4 trans = T(octagon_pos.x, octagon_pos.y, octagon_pos.z);
-	glUniformMatrix4fv(glGetUniformLocation(program, "translationMatrix"), 1, GL_TRUE, trans.m);
-	
-	mat4 total = Mult(cameraMatrix, trans);
-	glUniformMatrix4fv(glGetUniformLocation(program, "mdlMatrix"), 1, GL_TRUE, total.m);	
-
-	DrawModel(octagon, program, "inPosition", "inNormal", "inTexCoord");
-}
-
-
-
 void display(void)
 {
     // Clear the screen
@@ -94,18 +59,11 @@ void display(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);	
 
-	// keyboardMovement();
 	controllerHandler();
 
 	printError("pre display");
 	
-	// Use the shader program
 	glUseProgram(program);
-
-	// glActiveTexture(GL_TEXTURE2);
-	// glBindTexture(GL_TEXTURE_2D, skytex1);
-	// glActiveTexture(GL_TEXTURE3);
-	// glBindTexture(GL_TEXTURE_2D, skytex2);	
 
 	drawSkybox(cameraAngleY, cameraAngleX);
 
@@ -121,7 +79,6 @@ void display(void)
 	draw_terrain(cameraMatrix, cameraPosition);
 	detect_collision();
 
-	drawOctagon();
 	drawHelicopter(cameraMatrix, cameraAngleY);
 
 	printError("display 2");
@@ -141,7 +98,6 @@ int main(int argc, char **argv)
 	init ();
 	glutRepeatingTimer(20);
 	glutHideCursor();
-	// glutSpecialFunc(keyboard);
 	glutMainLoop();
 	exit(0);
 }
