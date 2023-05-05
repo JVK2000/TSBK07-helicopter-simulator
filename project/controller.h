@@ -11,17 +11,6 @@ extern vec3 worldUpVector;		// Determines which axis is up
 extern mat4 cameraMatrix;
 
 void controllerInit();
-void keyboard(unsigned char key, int x, int y);
-void keyboardMovement();
-void handleCollision();
 void controllerHandler();
-void manageAngle();
-void manageVelocity();
-void updateTilt(float vel_x, float vel_y, float vel_z);
-
-void moveRight(float *vel_x, float *vel_z, float fraction);
-void moveLeft(float *vel_x, float *vel_z, float fraction);
-void moveForward(float *vel_x, float *vel_z, float fraction);
-void moveBackward(float *vel_x, float *vel_z, float fraction);
 
 #endif

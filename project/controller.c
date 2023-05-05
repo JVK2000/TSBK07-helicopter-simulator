@@ -45,10 +45,6 @@ void controllerInit()
     worldUpVector = (vec3){0, 1, 0};
 }
 
-void controllerHandler() {
-    keyboardMovement();
-    handleCollision();
-}
 
 void handleCollision() {
     set_player_pos(lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
@@ -59,30 +55,6 @@ void handleCollision() {
             controllerInit();
         }
     }
-}
-
-void keyboardMovement()
-{
-    manageVelocity();
-    manageAngle();
-
-    const float radius = -45.0f;
-    vec3 newCamPos = (vec3){cameraPosition.x, cameraPosition.y, cameraPosition.z + radius}; 
-
-    // Calculate the X and Y axis rotation matrices
-    float x = cos(cameraAngleY) * sin(cameraAngleX);
-    float y = sin(cameraAngleY);
-    float z = cos(cameraAngleY) * cos(cameraAngleX);
-
-    // Apply the rotation to the camera position
-    newCamPos.x = newCamPos.x + x * radius;
-    newCamPos.y = newCamPos.y - y * radius;
-    newCamPos.z = newCamPos.z - z * radius;
-
-	cameraMatrix = IdentityMatrix();
-    cameraMatrix = Mult(cameraMatrix, lookAtv(newCamPos, lookAtPosition, worldUpVector));
-
-    setViewMatrix(cameraMatrix);
 }
 
 
@@ -126,6 +98,42 @@ void manageAngle()
         cameraAngleY = -CAMERA_Y_ANGLE_BOUNDARY;
     }
     setYAngle(cameraAngleY);
+}
+
+
+void updateTilt(float vel_x, float vel_y, float vel_z) {
+    float tiltZ = cos(cameraAngleX) * (vel_x / 10) + sin(cameraAngleX) * (vel_z / 10);
+    float tiltX = cos(cameraAngleX) * (vel_z / 10) - sin(cameraAngleX) * (vel_x / 10);
+    setZTilt(tiltZ);
+    setXTilt(tiltX);
+}
+
+
+void moveRight(float *vel_x, float *vel_z, float fraction) 
+{    
+    *vel_x += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+}
+
+
+void moveLeft(float *vel_x, float *vel_z, float fraction) 
+{
+    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+    *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+}
+
+
+void moveForward(float *vel_x, float *vel_z, float fraction) 
+{
+    *vel_x += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+    *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+}
+
+
+void moveBackward(float *vel_x, float *vel_z, float fraction) 
+{
+    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
 }
 
 
@@ -201,47 +209,32 @@ void manageVelocity()
 }
 
 
-void updateTilt(float vel_x, float vel_y, float vel_z) {
-    float tiltZ = cos(cameraAngleX) * (vel_x / 10) + sin(cameraAngleX) * (vel_z / 10);
-    float tiltX = cos(cameraAngleX) * (vel_z / 10) - sin(cameraAngleX) * (vel_x / 10);
-    setZTilt(tiltZ);
-    setXTilt(tiltX);
-}
-
-
-void moveRight(float *vel_x, float *vel_z, float fraction) 
-{    
-    *vel_x += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
-    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
-}
-
-
-void moveLeft(float *vel_x, float *vel_z, float fraction) 
+void keyboardMovement()
 {
-    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
-    *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+    manageVelocity();
+    manageAngle();
+
+    const float radius = -45.0f;
+    vec3 newCamPos = (vec3){cameraPosition.x, cameraPosition.y, cameraPosition.z + radius}; 
+
+    // Calculate the X and Y axis rotation matrices
+    float x = cos(cameraAngleY) * sin(cameraAngleX);
+    float y = sin(cameraAngleY);
+    float z = cos(cameraAngleY) * cos(cameraAngleX);
+
+    // Apply the rotation to the camera position
+    newCamPos.x = newCamPos.x + x * radius;
+    newCamPos.y = newCamPos.y - y * radius;
+    newCamPos.z = newCamPos.z - z * radius;
+
+	cameraMatrix = IdentityMatrix();
+    cameraMatrix = Mult(cameraMatrix, lookAtv(newCamPos, lookAtPosition, worldUpVector));
+
+    setViewMatrix(cameraMatrix);
 }
 
 
-void moveForward(float *vel_x, float *vel_z, float fraction) 
-{
-    *vel_x += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
-    *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
-}
-
-
-void moveBackward(float *vel_x, float *vel_z, float fraction) 
-{
-    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
-    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
-}
-
-
-void printMatrix(float matrix[4][4]) {
-    for (int row = 0; row < 4; ++row) {
-        for (int col = 0; col < 4; ++col) {
-            printf("%f ", matrix[row][col]);
-        }
-        printf("\n");
-    }
+void controllerHandler() {
+    keyboardMovement();
+    handleCollision();
 }

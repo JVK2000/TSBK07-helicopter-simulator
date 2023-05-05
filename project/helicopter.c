@@ -24,31 +24,6 @@ void helicopterInit() {
 	helicopterColorLoc = glGetUniformLocation(program, "helicopterColor");
 }
 
-
-void drawHelicopter(mat4 cameraMatrix, float cameraAngleY) {
-    glUniform1i(isHelicopterLoc, true);
-    glUniform1i(textureEnabledLoc, false);
-
-    sky_timer = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
-    float rotationMainRotor = 20 * (sky_timer / 1000);
-    float rotationTailRotor = 20 * (sky_timer / 1000);
-
-	globalScaling = S(0.1, 0.1, 0.1);
-	globalRotation = Mult(Rx(getYAngle() + getXTilt()), Mult(Ry(M_PI), Rz(getZTilt())));
-	globalTranslation = T(0, -10, -50);
-
-    glUniform1i(specularLightEnabledLoc, false);
-    glUniform1i(ambientLightEnabledLoc, true); 
-    glUniform1i(diffuseLightEnabledLoc, true);
-
-	drawHelicopterBody(cameraMatrix);
-	drawHelicopterMainRotor(cameraMatrix, rotationMainRotor);
-	drawHelicopterTailRotor(cameraMatrix, rotationTailRotor);
-
-	glUniform1i(isHelicopterLoc, false);
-}
-
-
 void setHelicopterColor(vec4 colorVec4) {
 	glUniform4f(helicopterColorLoc, colorVec4.x, colorVec4.y, colorVec4.z, colorVec4.w);
 }
@@ -114,4 +89,28 @@ void drawHelicopterTailRotor(mat4 cameraMatrix, float rotationTailRotor) {
 	setHelicopterColor(rotorColor);
 
 	DrawModel(helicopter_blade_2, program, "inPosition", "inNormal", "inTexCoord");
+}
+
+
+void drawHelicopter(mat4 cameraMatrix, float cameraAngleY) {
+    glUniform1i(isHelicopterLoc, true);
+    glUniform1i(textureEnabledLoc, false);
+
+    sky_timer = (GLfloat)glutGet(GLUT_ELAPSED_TIME);
+    float rotationMainRotor = 20 * (sky_timer / 1000);
+    float rotationTailRotor = 20 * (sky_timer / 1000);
+
+	globalScaling = S(0.1, 0.1, 0.1);
+	globalRotation = Mult(Rx(getYAngle() + getXTilt()), Mult(Ry(M_PI), Rz(getZTilt())));
+	globalTranslation = T(0, -10, -50);
+
+    glUniform1i(specularLightEnabledLoc, false);
+    glUniform1i(ambientLightEnabledLoc, true); 
+    glUniform1i(diffuseLightEnabledLoc, true);
+
+	drawHelicopterBody(cameraMatrix);
+	drawHelicopterMainRotor(cameraMatrix, rotationMainRotor);
+	drawHelicopterTailRotor(cameraMatrix, rotationTailRotor);
+
+	glUniform1i(isHelicopterLoc, false);
 }

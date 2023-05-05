@@ -3,14 +3,11 @@
 in vec2 texCoord;
 in vec3 transformedNormal;
 in vec3 surfacePos;
-// in vec3 color;
 
 out vec4 outColor;
 
 uniform sampler2D tex;
 uniform sampler2D tex2;
-uniform sampler2D skytex1;
-uniform sampler2D skytex2;
 
 uniform bool textureEnabled;
 uniform bool isHelicopter;
@@ -19,22 +16,16 @@ uniform bool specularLightEnabled;
 uniform bool ambientLightEnabled;
 uniform bool diffuseLightEnabled;
 
-// 4 light sources
-uniform vec3 lightSourcesDirPosArr[4];
-uniform vec3 lightSourcesColorArr[4];
-uniform float specularExponent;
-uniform bool isDirectional[4];
+// 1 light sources
+uniform vec3 lightSourcesDirPosArr[1];
+uniform vec3 lightSourcesColorArr[1];
 
 uniform mat4 mdlMatrix;
-uniform vec3 cameraPos;
 uniform vec4 helicopterColor;
 
-uniform float timer;
 uniform float dayTimeBlender;
 uniform float diffuseStrength;
 uniform float ambientStrength;
-
-
 
 
 void main(void)
@@ -46,19 +37,13 @@ void main(void)
 
 	if (isHelicopter) {
 		baseColor = helicopterColor;
-		// baseColor = vec4(0.325, 0.325, 0.325, 1);
 	}
 
 	if (diffuseLightEnabled || ambientLightEnabled || specularLightEnabled) {
-		for(int i = 3; i < 4; i++) {
-			vec3 lightDirection;
-			if (isDirectional[i]) {
-				// Directional light
-				lightDirection = normalize(camMat * lightSourcesDirPosArr[i]);
-			} else {
-				// Positional light
-				lightDirection = normalize(camMat *  (lightSourcesDirPosArr[i] - surfacePos));
-			}
+		for(int i = 0; i < 1; i++) {
+
+			// Directional light
+			vec3 lightDirection = normalize(camMat * lightSourcesDirPosArr[i]);
 
 			// Diffuse light
 			vec3 diffuseLight = vec3(0, 0, 0);
@@ -73,34 +58,15 @@ void main(void)
 				ambientLight = ambientStrength * lightSourcesColorArr[i];
 			}
 
-			// Specular light
-			vec3 specularLight = vec3(0, 0, 0);
-			if (specularLightEnabled) {
-				vec3 viewDir = normalize(camMat * (cameraPos - surfacePos));
-				vec3 reflectDir = reflect(-lightDirection, normalize(normal_view));
-				float spec = pow(max(dot(viewDir, reflectDir), 0.0), specularExponent);
-				specularLight = 0.8 * spec * lightSourcesColorArr[i];
-			}
-
-			vec4 temp_color = vec4(baseColor.rgb * (ambientLight + diffuseLight) + specularLight, 1);
+			vec4 temp_color = vec4(baseColor.rgb * (ambientLight + diffuseLight), 1);
 			color = color + temp_color;
 		}
 	}
 
-	// if (isSky) {
-	// 	color = vec4(1, 1, 1, 1);
-	// 	color = color * texture(tex, texCoord);
-	// 	// blend with color = color * texture(tex, texCoord);
-	// }
-
 	if (isSky) {
 		color = vec4(1, 1, 1, 1);
-		// float blendFactor = (sin(timer) + 1.0) / 2.0;  // This will oscillate between 0 and 1
-		// color = mix(texture(tex, texCoord), texture(tex2, texCoord), blendFactor);
 		color = mix(texture(tex, texCoord), texture(tex2, texCoord), dayTimeBlender);
-		// color = color * texture(tex2, texCoord);
 	}
-
 
 	else if (textureEnabled) {
 		// blendFactor - 0: 100% tex. 1: 100% tex2 
@@ -119,6 +85,5 @@ void main(void)
     }
 
 	outColor = color;
-
 }
 

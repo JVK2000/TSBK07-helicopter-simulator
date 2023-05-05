@@ -22,8 +22,6 @@ uniform bool isHelicopter;
 void main(void)
 {
 	if (isHelicopter) {
-		// transformedNormal = mat3(normalMatrix) * inNormal;
-		// surfacePos = vec3(normalMatrix * vec4(inPosition, 1.0));
 		transformedNormal = normalMatrixMat3 * inNormal;
 		surfacePos = normalMatrixMat3 * inPosition;
 	} else {

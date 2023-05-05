@@ -1,4 +1,3 @@
-#include "main.h"
 #include "helicopter.h"
 #include "terrain.h"
 #include "skybox.h"
@@ -29,7 +28,7 @@ void init(void)
     printError("GL inits");
 
     // Load and compile shader
-    program = loadShaders("project.vert", "project.frag");
+    program = loadShaders("shader.vert", "shader.frag");
     glUseProgram(program);
     printError("init shader");
     
