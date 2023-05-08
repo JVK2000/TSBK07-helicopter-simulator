@@ -1,7 +1,7 @@
 #include "skybox.h"
 #include <time.h>
 
-const float TIME_SCALE = 0.1f;
+const float TIME_SCALE = 0.01f;
 const int USE_REAL_TIMER = 0; // When true, bug occurs the frames becomes low during terrain generation
 
 Model *skybox, *skyboxBottom;
