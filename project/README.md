@@ -43,8 +43,8 @@ $ sudo make install
 ### Run
 To run the simulator, open your terminal and navigate to the project directory. Then, run the following commands:
 ```shell
-make
-./project
+$ make
+$ ./project
 ```
 
 ##Screencast
