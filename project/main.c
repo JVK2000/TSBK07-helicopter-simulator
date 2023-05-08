@@ -75,14 +75,26 @@ void display(void)
 	glUniform1i(glGetUniformLocation(program, "textureEnabled"), true);
     glUniform3f(glGetUniformLocation(program, "cameraPos"), cameraPosition.x, cameraPosition.y, cameraPosition.z);
 
-	draw_terrain(cameraMatrix, cameraPosition);
-	detect_collision();
+	drawTerrain(cameraMatrix, cameraPosition);
+	detectCollision();
 
 	drawHelicopter(cameraMatrix, cameraAngleY);
 
 	printError("display 2");
 	
 	glutSwapBuffers();
+}
+
+
+void reshape(int x, int y)
+{
+	mat4 projectionMatrix;
+	float ratio = (float)x/y;
+	if (ratio > 1)
+		projectionMatrix = frustum(-0.5*ratio, 0.5*ratio, -0.5, 0.5, 1.0, 1000.0);
+	else
+		projectionMatrix = frustum(-0.5, 0.5, -0.5/ratio, 0.5/ratio, 1.0, 1000.0);
+	glUniformMatrix4fv(glGetUniformLocation(program, "projMatrix"), 1, GL_TRUE, projectionMatrix.m);
 }
 
 
@@ -95,6 +107,7 @@ int main(int argc, char **argv)
 	glutCreateWindow ("TSBK07 Project");
 	glutDisplayFunc(display);
 	init ();
+	glutReshapeFunc(reshape);
 	glutRepeatingTimer(20);
 	glutHideCursor();
 	glutMainLoop();

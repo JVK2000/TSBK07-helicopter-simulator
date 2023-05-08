@@ -1,35 +1,35 @@
 #include "terrain_controller_shared.h"
 
 static int collided = 0;
-static float player_x = 0.0;
-static float player_y = 0.0;
-static float player_z = 0.0;
-static float terrain_height = 0.0;
+static float playerX = 0.0;
+static float playerY = 0.0;
+static float playerZ = 0.0;
+static float terrainHeight = 0.0;
 
-void set_player_pos(float x, float y, float z) {
-    player_x = x;
-    player_y = y;
-    player_z = z;
+void setPlayerPos(float x, float y, float z) {
+    playerX = x;
+    playerY = y;
+    playerZ = z;
 }
 
-void get_player_pos(float* x, float* y, float* z) {
-    *x = player_x;
-    *y = player_y;
-    *z = player_z;
+void getPlayerPos(float* x, float* y, float* z) {
+    *x = playerX;
+    *y = playerY;
+    *z = playerZ;
 }
 
-void set_collision(int has_collided) {
-    collided = has_collided;
+void setCollision(int hasCollided) {
+    collided = hasCollided;
 }
 
-int get_collision() {
+int getCollision() {
     return collided;
 }
 
 void setTerrainHeight(float height) {
-    terrain_height = height;
+    terrainHeight = height;
 }
 
 float getTerrainHeight() {
-    return terrain_height;
+    return terrainHeight;
 }

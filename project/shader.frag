@@ -32,7 +32,7 @@ void main(void)
 {
 	vec4 color = vec4(0, 0, 0, 1);
 	mat3 camMat = mat3(mdlMatrix);
-	vec3 normal_view = normalize(camMat * transformedNormal);
+	vec3 normalView = normalize(camMat * transformedNormal);
 	vec4 baseColor = vec4(1, 1, 1, 1);
 
 	if (isHelicopter) {
@@ -48,7 +48,7 @@ void main(void)
 			// Diffuse light
 			vec3 diffuseLight = vec3(0, 0, 0);
 			if (diffuseLightEnabled) {
-				float diffuse = max(dot(normal_view, lightDirection), 0.0);
+				float diffuse = max(dot(normalView, lightDirection), 0.0);
 				diffuseLight = diffuse * lightSourcesColorArr[i] * diffuseStrength;
 			}
 
@@ -70,15 +70,15 @@ void main(void)
 
 	else if (textureEnabled) {
 		// blendFactor - 0: 100% tex. 1: 100% tex2 
-		float brake_point_1 = 0.4;
-		float brake_point_2 = 0.7;
+		float brakePoint1 = 0.4;
+		float brakePoint2 = 0.7;
 		float blendFactor;
-		if (transformedNormal.y < brake_point_1) {
+		if (transformedNormal.y < brakePoint1) {
 			blendFactor = 1;
-		} else if (brake_point_2 < transformedNormal.y){
+		} else if (brakePoint2 < transformedNormal.y){
 			blendFactor = 0;
 		} else {
-			blendFactor = (brake_point_2 - transformedNormal.y) * (1 / (brake_point_2 - brake_point_1));
+			blendFactor = (brakePoint2 - transformedNormal.y) * (1 / (brakePoint2 - brakePoint1));
 		}		
 		vec4 tot_tex = mix(texture(tex, texCoord), texture(tex2, texCoord), blendFactor);
         color = color * tot_tex;

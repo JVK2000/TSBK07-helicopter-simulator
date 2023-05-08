@@ -1,6 +1,6 @@
 # Blender v3.2.2 OBJ File: 'helicopter.blend'
 # www.blender.org
-mtllib helicopter_blade_2.mtl
+mtllib helicopterBlade2.mtl
 o AH1WHT01_AH1WCRHO_0
 v 4.563069 -1.778249 -1.709658
 v 4.563069 1.772136 -1.709660

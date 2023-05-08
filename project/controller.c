@@ -23,13 +23,10 @@ const float START_POS_Y = 20;
 const float START_POS_Z = 25;
 const float HELICOPTER_HEIGHT = 15;
 
-bool first_iteration = true;
-float init_x = 0;
-float init_z = 0;
 float cameraAngleY;
 float cameraAngleX;
-float pos_x = 0;
-float pos_z = 0;
+float posX = 0;
+float posZ = 0;
 vec3 cameraPosition;
 vec3 lookAtPosition;
 vec3 worldUpVector;
@@ -48,9 +45,9 @@ void controllerInit()
 
 void handleCollision() 
 {
-    set_player_pos(lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
-    int collision_detected = get_collision();
-    if (collision_detected) {
+    setPlayerPos(lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
+    int collisionDetected = getCollision();
+    if (collisionDetected) {
         float newHeight = getTerrainHeight() + HELICOPTER_HEIGHT;
         if (cameraPosition.y < newHeight) {
             controllerInit();
@@ -61,8 +58,8 @@ void handleCollision()
 
 void manageAngle() 
 {
-    static float angular_vel_x = 0;
-    static float angular_vel_z = 0;
+    static float angularVelX = 0;
+    static float angularVelZ = 0;
 
     bool rotateLeft = glutKeyIsDown(GLUT_KEY_LEFT);
     bool rotateRight = glutKeyIsDown(GLUT_KEY_RIGHT);
@@ -70,29 +67,29 @@ void manageAngle()
     bool rotateUp = glutKeyIsDown(GLUT_KEY_DOWN);
 
     if (rotateUp) {
-        angular_vel_z -= ANGULAR_ACCELERATION_VERTICAL;
+        angularVelZ -= ANGULAR_ACCELERATION_VERTICAL;
     }
     if (rotateDown) {
-        angular_vel_z += ANGULAR_ACCELERATION_VERTICAL;
+        angularVelZ += ANGULAR_ACCELERATION_VERTICAL;
     }
     if (rotateLeft) {
-        angular_vel_x -= ANGULAR_ACCELERATION_HORIZONTAL;
+        angularVelX -= ANGULAR_ACCELERATION_HORIZONTAL;
     }
     if (rotateRight) {
-        angular_vel_x += ANGULAR_ACCELERATION_HORIZONTAL;
+        angularVelX += ANGULAR_ACCELERATION_HORIZONTAL;
     }
 
     // Apply angular friction
     if (!rotateUp && !rotateDown) {
-        angular_vel_z *= ANGULAR_FRICTION_VERTICAL;
+        angularVelZ *= ANGULAR_FRICTION_VERTICAL;
     }
     if (!rotateLeft && !rotateRight) {
-        angular_vel_x *= ANGULAR_FRICTION_HORIZONTAL;
+        angularVelX *= ANGULAR_FRICTION_HORIZONTAL;
     }
 
     // Update camera angles
-    cameraAngleX += angular_vel_x;
-    cameraAngleY += angular_vel_z;
+    cameraAngleX += angularVelX;
+    cameraAngleY += angularVelZ;
     if (CAMERA_Y_ANGLE_BOUNDARY < cameraAngleY) {
         cameraAngleY = CAMERA_Y_ANGLE_BOUNDARY;
     } else if (cameraAngleY < -CAMERA_Y_ANGLE_BOUNDARY) {
@@ -102,48 +99,48 @@ void manageAngle()
 }
 
 
-void updateTilt(float vel_x, float vel_y, float vel_z) 
+void updateTilt(float velX, float velY, float velZ) 
 {
-    float tiltZ = cos(cameraAngleX) * (vel_x / 10) + sin(cameraAngleX) * (vel_z / 10);
-    float tiltX = cos(cameraAngleX) * (vel_z / 10) - sin(cameraAngleX) * (vel_x / 10);
+    float tiltZ = cos(cameraAngleX) * (velX / 10) + sin(cameraAngleX) * (velZ / 10);
+    float tiltX = cos(cameraAngleX) * (velZ / 10) - sin(cameraAngleX) * (velX / 10);
     setZTilt(tiltZ);
     setXTilt(tiltX);
 }
 
 
-void moveRight(float *vel_x, float *vel_z, float fraction) 
+void moveRight(float *velX, float *velZ, float fraction) 
 {    
-    *vel_x += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
-    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+    *velX += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+    *velZ += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
 }
 
 
-void moveLeft(float *vel_x, float *vel_z, float fraction) 
+void moveLeft(float *velX, float *velZ, float fraction) 
 {
-    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
-    *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+    *velX -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+    *velZ -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
 }
 
 
-void moveForward(float *vel_x, float *vel_z, float fraction) 
+void moveForward(float *velX, float *velZ, float fraction) 
 {
-    *vel_x += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
-    *vel_z -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+    *velX += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+    *velZ -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
 }
 
 
-void moveBackward(float *vel_x, float *vel_z, float fraction) 
+void moveBackward(float *velX, float *velZ, float fraction) 
 {
-    *vel_x -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
-    *vel_z += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
+    *velX -= VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * sin(cameraAngleX) * fraction;
+    *velZ += VELOCITY_AMPLIFIER * ACCELERATION_HORIZONTAL * cos(cameraAngleX) * fraction;
 }
 
 
 void manageVelocity() 
 {
-    static float vel_x = 0;
-    static float vel_z = 0;
-    static float vel_y = 0;
+    static float velX = 0;
+    static float velZ = 0;
+    static float velY = 0;
 
     bool moveForwardKeyDown = glutKeyIsDown('w');
     bool moveBackwardKeyDown = glutKeyIsDown('s');
@@ -153,61 +150,61 @@ void manageVelocity()
     bool moveDownKeyDown = glutKeyIsDown('q');
 
     if (moveForwardKeyDown) {
-        moveForward(&vel_x, &vel_z, 1);
+        moveForward(&velX, &velZ, 1);
     }
     if (moveBackwardKeyDown) {
-        moveBackward(&vel_x, &vel_z, 1);
+        moveBackward(&velX, &velZ, 1);
     }
     if (moveLeftKeyDown) {
-        moveLeft(&vel_x, &vel_z, 1);
+        moveLeft(&velX, &velZ, 1);
     }
     if (moveRightKeyDown) {
-        moveRight(&vel_x, &vel_z, 1);
+        moveRight(&velX, &velZ, 1);
     }
 
     if (moveDownKeyDown) {
-        vel_y -= ACCELERATION_VERTICAL;
+        velY -= ACCELERATION_VERTICAL;
     }
     if (moveUpKeyDown) {
-        vel_y += ACCELERATION_VERTICAL;
+        velY += ACCELERATION_VERTICAL;
     }
 
     // Apply friction
     if (!moveForwardKeyDown && !moveBackwardKeyDown) {
-        vel_x *= FRICTION;
-        vel_z *= FRICTION;
+        velX *= FRICTION;
+        velZ *= FRICTION;
     }
     if (!moveLeftKeyDown && !moveRightKeyDown) {
-        vel_x *= FRICTION;
-        vel_z *= FRICTION;
+        velX *= FRICTION;
+        velZ *= FRICTION;
     }
     if (!moveDownKeyDown && !moveUpKeyDown) {
-        vel_y *= FRICTION;
+        velY *= FRICTION;
     }
 
     // Limit the maximum velocity
-    float currentVelocity = fabs(vel_x) + fabs(vel_z);
+    float currentVelocity = fabs(velX) + fabs(velZ);
     if (currentVelocity > MAX_VELOCITY_HORIZONTAL) {
         float ratio = MAX_VELOCITY_HORIZONTAL / currentVelocity;
-        vel_x *= ratio;
-        vel_z *= ratio;
+        velX *= ratio;
+        velZ *= ratio;
     }
 
-    if (vel_y > MAX_VELOCITY_VERTICAL) {
-        vel_y = MAX_VELOCITY_VERTICAL;
+    if (velY > MAX_VELOCITY_VERTICAL) {
+        velY = MAX_VELOCITY_VERTICAL;
     } 
-    else if (vel_y < -MAX_VELOCITY_VERTICAL) {
-        vel_y = -MAX_VELOCITY_VERTICAL;
+    else if (velY < -MAX_VELOCITY_VERTICAL) {
+        velY = -MAX_VELOCITY_VERTICAL;
     } 
 
-    updateTilt(vel_x, vel_y, vel_z);
+    updateTilt(velX, velY, velZ);
 
-    cameraPosition.x += vel_x; 
-	cameraPosition.z += vel_z; 
-	cameraPosition.y += vel_y; 
-	lookAtPosition.x += vel_x;
-	lookAtPosition.z += vel_z;
-	lookAtPosition.y += vel_y;  
+    cameraPosition.x += velX; 
+	cameraPosition.z += velZ; 
+	cameraPosition.y += velY; 
+	lookAtPosition.x += velX;
+	lookAtPosition.z += velZ;
+	lookAtPosition.y += velY;  
 }
 
 
